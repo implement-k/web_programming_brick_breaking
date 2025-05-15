@@ -21,14 +21,13 @@
 0. git clone
 ```bash
 # 먼저 해당 프로젝트 폴더를 넣고 싶은 폴더로 간다.
-# ex) /home/user/dev/pybank_2025 이렇게 위치하려면 /home/user/dev로 이동해서 clone을 받아야 함. (main branch)
-git clone https://github.com/daybreaker42/pybank_2025.git
+# ex) /home/user/dev/web_programming_brick_breaking 이렇게 위치하려면 /home/user/dev로 이동해서 clone을 받아야 함. (main branch)
+git clone https://github.com/implement-k/web_programming_brick_breaking.git
 ```
 
 1. 각자의 branch로 바꾸고 main merge
 ```bash
-# ex) 한성준의 경우 - branch teamC로 변경
-git checkout teamC
+git checkout teamA
 
 git pull origin main
 ```
@@ -36,13 +35,15 @@ git pull origin main
 2. (파일 수정 후) 업로드 전 변경사항들을 commit한다.
 ```bash
 git add .
-# git commit -m "UPDATE: 계좌 입금 기능 완성; ADD: 계좌 출금 기능 추가; FIX: 계좌 송금시 보내는 사람 계좌에서 돈이 안빠지던 버그 수정 완"
+# git commit -m "UPDATE: 기능 수정; ADD: 기능 추가; FIX: 버그 픽스"
 git commit -m "{커밋메세지}"
 ```
 
 3. **branch가 main이 아닌지 확인한 뒤** 각자의 branch에 push한다.
 ```bash
-git push -u origin teamC
+git push -u origin teamA
+or
+git push origin teamA
 ```
 
 4. github에 가서 pull request를 만든다.
