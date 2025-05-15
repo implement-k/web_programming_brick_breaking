@@ -18,9 +18,9 @@
     - 엄정석, 홍연일
 
 ### git에 파일 올리는 방법
-origin branch_name, origin/branch_name -> github에 있는 브랜치의 코드
-branch_name -> 로컬(각자 pc)에 있는 코드
-각 팀이 브랜치의 내용을 공유하려면 branch_name이 아닌 origin branch_name에 업로드 해야함.
+- origin branch_name, origin/branch_name -> github에 있는 브랜치의 코드
+- branch_name -> 로컬(각자 pc)에 있는 코드
+- 각 팀이 브랜치의 내용을 공유하려면 branch_name이 아닌 **origin branch_name**에 업로드 해야함.
 
 0. git clone
 ```bash
