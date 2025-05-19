@@ -1,0 +1,19 @@
+canvas {
+    border: 2px solid black;
+    display: block;
+    margin: 0 auto;
+}
+#startButton {
+    display: block;
+    margin: 20px auto;
+    padding: 10px 20px;
+    font-size: 18px;
+    background-color: #0095DD;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+#startButton:hover {
+    background-color: #0077AA;
+}
