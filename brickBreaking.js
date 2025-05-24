@@ -8,7 +8,10 @@ const BALL_Y_SPEED = 1.5;   // 공 y축으로 움직이는 속도
 const BACKGROUND_IMAGES = [];
 const brickRowCount = 10;
 const brickColumnCount = 15;
-const bricksStyle = [[], [], []]; // 오버월드, 네더월드, 엔더월드
+const bricksStyle = [
+    ['mainGame/bricks/overworld/stone.png', 'mainGame/bricks/overworld/iron.png', 'mainGame/bricks/overworld/diamond.png'], 
+    [], 
+    []]; // 오버월드, 네더월드, 엔더월드
 const bricks = [];
 const brickSize = 40;      // 블록 크기
 const brickPadding = 1;
@@ -176,6 +179,7 @@ function drawBricks() {
                 const brickY = (r * (brickSize + brickPadding)) + brickOffsetTop;
                 bricks[c][r].x = brickX;
                 bricks[c][r].y = brickY;
+                
                 ctx.fillStyle = "#0095DD";
                 ctx.fillRect(brickX, brickY, brickSize, brickSize);
             }
