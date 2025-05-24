@@ -1,30 +1,32 @@
-const canvas = document.getElementById('gameCanvas');
-const ctx = canvas.getContext('2d');
-const startButton = document.getElementById('startButton');
+// 설정
+const WIDTH = 800;      // canvas 넓이
+const HEIGHT = 600;     // canvas 높이
+const PADDLE_SPEED = 7; // paddle 속도
+const BALL_X_SPEED = 1.5;   // 공 x축으로 움직이는 속도
+const BALL_Y_SPEED = 1.5;   // 공 y축으로 움직이는 속도
+// 배경화면 (오버월드, 네더월드, 엔더월드)
+const BACKGROUND_IMAGES = [];
+const brickRowCount = 10;
+const brickColumnCount = 15;
+const bricksStyle = [[], [], []]; // 오버월드, 네더월드, 엔더월드
+const bricks = [];
+const brickSize = 40;      // 블록 크기
+const brickPadding = 1;
+const brickOffsetTop = 50;  // 위쪽 여백 증가
+const brickOffsetLeft = 0;  // 좌우 여백 증가
+
+// 게임 진행 전역 변수
 let gameStarted = false;
-
-// 초기 화면 그리기
-function drawStartScreen() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.fillStyle = "#0095DD";
-    ctx.font = "30px Arial";
-    ctx.textAlign = "center";
-    ctx.fillText("벽돌깨기 게임", canvas.width/2, canvas.height/2);
-}
-
-// 시작 화면 표시
-drawStartScreen();
-
-// 게임 기본 설정
-const PADDLE_SPEED = 7;
-const BALL_X_SPEED = 1.5;
-const BALL_Y_SPEED = 1.5;
+let step = 1;               // 난이도
+// 키보드 컨트롤
+let rightPressed = false;
+let leftPressed = false;
 
 // 게임 오브젝트 설정
 const ball = {
-    x: canvas.width / 2,
-    y: canvas.height - 50,  // 공의 시작 위치도 조정
-    width: 40,  // 막대 모양의 공
+    x: WIDTH / 2,
+    y: HEIGHT - 50,  // 공의 시작 위치 조정
+    width: 40,       // 막대 모양의 공
     height: 8,
     dx: BALL_X_SPEED,
     dy: BALL_Y_SPEED,
@@ -35,40 +37,57 @@ const ball = {
 const paddle = {
     width: 100,
     height: 10,
-    x: canvas.width / 2 - 50,
-    y: canvas.height - 40,  // 패들 위치를 위로 조정
+    x: WIDTH / 2 - 50,
+    y: HEIGHT - 40,  // 패들 위치를 위로 조정
     dx: 0,
     tilt: 0,
     maxTilt: Math.PI / 6  // 30도
 };
 
-const brickRowCount = 5;
-const brickColumnCount = 8;
-const bricks = [];
-const brickWidth = 30;  // 블록 크기 축소
-const brickHeight = 30;  // 블록 크기 축소
-const brickPadding = 10;
-const brickOffsetTop = 50;  // 위쪽 여백 증가
-const brickOffsetLeft = 85;  // 좌우 여백 증가
+// 전역 변수로 선언
+let canvas, ctx;
 
-// 벽돌 초기화
-for(let c = 0; c < brickColumnCount; c++) {
-    bricks[c] = [];
-    for(let r = 0; r < brickRowCount; r++) {
-        if(Math.random() > 0.3) {  // 70% 확률로 벽돌 생성
-            bricks[c][r] = { x: 0, y: 0, status: 1 };
-        } else {
-            bricks[c][r] = { x: 0, y: 0, status: 0 };
+$(document).ready(function () {
+    // canvas load
+    canvas = $('#gameCanvas')[0];
+    ctx = canvas.getContext('2d');
+
+    // 초기 화면 그리기
+    drawStartScreen();
+    
+    // 벽돌 초기화
+    for(let c = 0; c < brickColumnCount; c++) {
+        bricks[c] = [];
+        for(let r = 0; r < brickRowCount; r++) {
+            if(Math.random() > 0.3) {  // 70% 확률로 벽돌 생성
+                bricks[c][r] = { x: 0, y: 0, status: 1 };
+            } else {
+                bricks[c][r] = { x: 0, y: 0, status: 0 };
+            }
         }
     }
+
+    $(document).keydown(keyDownHandler);
+    $(document).keyup(keyUpHandler);
+
+    // 시작 버튼 이벤트 처리
+    $('#startButton').click(function() {
+        gameStarted = true;
+        $(this).hide();
+        draw();
+    });
+})
+
+// requestAnimationFrame 프레임 따라서 속도 달라짐 -> 속도 조정 필요
+
+// 초기 화면 그리기
+function drawStartScreen() {
+    ctx.clearRect(0, 0, WIDTH, HEIGHT);
+    ctx.fillStyle = "#0095DD";
+    ctx.font = "30px Arial";
+    ctx.textAlign = "center";
+    ctx.fillText("벽돌깨기 게임", WIDTH/2, HEIGHT/2);
 }
-
-// 키보드 컨트롤
-let rightPressed = false;
-let leftPressed = false;
-
-document.addEventListener("keydown", keyDownHandler);
-document.addEventListener("keyup", keyUpHandler);
 
 function keyDownHandler(e) {
     if(e.key === "Right" || e.key === "ArrowRight") {
@@ -95,9 +114,9 @@ function collisionDetection() {
             const b = bricks[c][r];
             if(b.status === 1) {
                 if(ball.x + ball.width > b.x && 
-                    ball.x < b.x + brickWidth &&
+                    ball.x < b.x + brickSize &&
                     ball.y + ball.height > b.y && 
-                    ball.y < b.y + brickHeight) {
+                    ball.y < b.y + brickSize) {
                     b.status = 0;
                     ball.dy = -ball.dy;
                 }
@@ -153,12 +172,12 @@ function drawBricks() {
     for(let c = 0; c < brickColumnCount; c++) {
         for(let r = 0; r < brickRowCount; r++) {
             if(bricks[c][r].status === 1) {
-                const brickX = (c * (brickWidth + brickPadding)) + brickOffsetLeft;
-                const brickY = (r * (brickHeight + brickPadding)) + brickOffsetTop;
+                const brickX = (c * (brickSize + brickPadding)) + brickOffsetLeft;
+                const brickY = (r * (brickSize + brickPadding)) + brickOffsetTop;
                 bricks[c][r].x = brickX;
                 bricks[c][r].y = brickY;
                 ctx.fillStyle = "#0095DD";
-                ctx.fillRect(brickX, brickY, brickWidth, brickHeight);
+                ctx.fillRect(brickX, brickY, brickSize, brickSize);
             }
         }
     }
@@ -216,10 +235,3 @@ function draw() {
 
     requestAnimationFrame(draw);
 }
-
-// 시작 버튼 이벤트 처리
-startButton.addEventListener('click', function() {
-    gameStarted = true;
-    startButton.style.display = 'none';
-    draw();
-});
