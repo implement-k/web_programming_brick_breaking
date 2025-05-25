@@ -2,13 +2,22 @@
 const WIDTH = 800;      // canvas 넓이
 const HEIGHT = 600;     // canvas 높이
 const PADDLE_SPEED = 7; // paddle 속도
-const BALL_X_SPEED = 1.5;   // 공 x축으로 움직이는 속도
-const BALL_Y_SPEED = 1.5;   // 공 y축으로 움직이는 속도
+const BALL_X_SPEED = 1;   // 공 x축으로 움직이는 속도
+const BALL_Y_SPEED = 1;   // 공 y축으로 움직이는 속도
+const BALL_STYLE = 0;   // 공 스타일 (0: wood, 1: stone, 2: iron, 3: gold, 4: diamond)
 // 배경화면 (오버월드, 네더월드, 엔더월드)
 const BACKGROUND_IMAGES = [];
+
+const ballStyle = [
+    'mainGame/ball/wood.png',
+    'mainGame/ball/stone.png',
+    'mainGame/ball/iron.png',
+    'mainGame/ball/gold.png',
+    'mainGame/ball/diamond.png'
+];
 const brickRowCount = 10;
 const brickColumnCount = 15;
-const bricksStyle = [
+const brickStyle = [
     ['mainGame/bricks/overworld/stone.png', 'mainGame/bricks/overworld/iron.png', 'mainGame/bricks/overworld/diamond.png'], 
     [], 
     []]; // 오버월드, 네더월드, 엔더월드
@@ -30,22 +39,25 @@ const ball = {
     x: WIDTH / 2,
     y: HEIGHT - 50,  // 공의 시작 위치 조정
     width: 40,       // 막대 모양의 공
-    height: 8,
+    height: 40,
     dx: BALL_X_SPEED,
     dy: BALL_Y_SPEED,
     rotation: 0,
-    speed: 0
+    speed: 0,
+    image: new Image()
 };
 
 const paddle = {
     width: 100,
-    height: 10,
+    height: 20,
     x: WIDTH / 2 - 50,
     y: HEIGHT - 40,  // 패들 위치를 위로 조정
     dx: 0,
     tilt: 0,
     maxTilt: Math.PI / 6  // 30도
 };
+
+ball.image.src = ballStyle[BALL_STYLE];
 
 // 전역 변수로 선언
 let canvas, ctx;
@@ -157,8 +169,20 @@ function drawBall() {
     ctx.save();
     ctx.translate(ball.x + ball.width/2, ball.y + ball.height/2);
     ctx.rotate(ball.rotation);
-    ctx.fillStyle = "#0095DD";
-    ctx.fillRect(-ball.width/2, -ball.height/2, ball.width, ball.height);
+
+    if (ball.image.complete) {
+        ctx.drawImage(
+            ball.image,
+            -ball.width/2,
+            -ball.height/2,
+            ball.width + 10,
+            ball.height + 4
+        );
+    } else {
+        ctx.fillStyle = "#0095DD";
+        ctx.fillRect(-ball.width/2, -ball.height/2, ball.width, ball.height);
+    }
+
     ctx.restore();
 }
 
