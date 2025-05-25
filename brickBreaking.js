@@ -48,14 +48,17 @@ const ball = {
 };
 
 const paddle = {
-    width: 100,
-    height: 20,
+    width: 99,
+    height: 33,
     x: WIDTH / 2 - 50,
     y: HEIGHT - 40,  // 패들 위치를 위로 조정
     dx: 0,
     tilt: 0,
     maxTilt: Math.PI / 6  // 30도
 };
+
+const PADDLE_IMAGE = new Image();
+PADDLE_IMAGE.src = 'mainGame/paddle/slime.png';
 
 ball.image.src = ballStyle[BALL_STYLE];
 
@@ -190,8 +193,15 @@ function drawPaddle() {
     ctx.save();
     ctx.translate(paddle.x + paddle.width/2, paddle.y + paddle.height/2);
     ctx.rotate(paddle.tilt);
-    ctx.fillStyle = "#0095DD";
-    ctx.fillRect(-paddle.width/2, -paddle.height/2, paddle.width, paddle.height);
+    for (let i = 0; i<3; i++) {
+        ctx.drawImage(
+            PADDLE_IMAGE,
+            -paddle.width/2+paddle.width/3*i, 
+            -paddle.height/2, 
+            paddle.width/3, paddle.height);
+    }
+    // ctx.fillStyle = "#0095DD";
+    // ctx.fillRect(-paddle.width/2, -paddle.height/2, paddle.width, paddle.height);
     ctx.restore();
 }
 

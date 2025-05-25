@@ -1,4 +1,5 @@
 body {
+    background-color: #b9cffb;
     margin: 0;
     min-height: 100vh;
     display: flex;
@@ -7,7 +8,6 @@ body {
 }
 
 .main {
-   
     width:1000px;
     height: 811px;
 }
@@ -23,6 +23,7 @@ canvas {
     display: block;
     margin: 0 auto;
 }
+
 #startButton {
     display: block;
     margin: 20px auto;
@@ -34,6 +35,7 @@ canvas {
     border-radius: 5px;
     cursor: pointer;
 }
+
 #startButton:hover {
     background-color: #0077AA;
 }
