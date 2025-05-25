@@ -49,7 +49,7 @@ const ball = {
 
 const paddle = {
     width: 100,
-    height: 10,
+    height: 20,
     x: WIDTH / 2 - 50,
     y: HEIGHT - 40,  // 패들 위치를 위로 조정
     dx: 0,
