@@ -4,7 +4,7 @@ const HEIGHT = 600;     // canvas 높이
 const PADDLE_SPEED = 7; // paddle 속도
 const BALL_X_SPEED = 1;   // 공 x축으로 움직이는 속도
 const BALL_Y_SPEED = 1;   // 공 y축으로 움직이는 속도
-const BALL_STYLE = 0;   // 공 스타일 (0: wood, 1: stone, 2: iron, 3: gold, 4: diamond)
+const BALL_STYLE = 4;   // 공 스타일 (0: wood, 1: stone, 2: iron, 3: gold, 4: diamond)
 // 배경화면 (오버월드, 네더월드, 엔더월드)
 const BACKGROUND_IMAGES = [];
 
@@ -18,7 +18,11 @@ const ballStyle = [
 const brickRowCount = 10;
 const brickColumnCount = 15;
 const brickStyle = [
-    ['mainGame/bricks/overworld/stone.png', 'mainGame/bricks/overworld/iron.png', 'mainGame/bricks/overworld/diamond.png'], 
+    ['mainGame/bricks/overworld/stone.png', 
+    'mainGame/bricks/overworld/wood.png',
+    'mainGame/bricks/overworld/iron.png', 
+    'mainGame/bricks/overworld/gold.png',
+    'mainGame/bricks/overworld/diamond.png'], 
     [], 
     []]; // 오버월드, 네더월드, 엔더월드
 const bricks = [];
@@ -26,6 +30,16 @@ const brickSize = 40;      // 블록 크기
 const brickPadding = 1;
 const brickOffsetTop = 50;  // 위쪽 여백 증가
 const brickOffsetLeft = 0;  // 좌우 여백 증가
+
+const brickImages = [];     // 벽돌 이미지 저장하는 배열
+
+for(let i = 0; i < brickStyle[0].length; i++) {    // 벽돌 이미지 불러오는 반복문
+    const img = new Image();
+    img.src = brickStyle[0][i];
+    brickImages.push(img);
+};
+
+console.log(brickImages);
 
 // 게임 진행 전역 변수
 let gameStarted = false;
@@ -75,7 +89,9 @@ $(document).ready(function () {
         bricks[c] = [];
         for(let r = 0; r < brickRowCount; r++) {
             if(Math.random() > 0.3) {  // 70% 확률로 벽돌 생성
-                bricks[c][r] = { x: 0, y: 0, status: 1 };
+                let randomInt = Math.floor(Math.random() * 5) + 1;
+                console.log(randomInt);
+                bricks[c][r] = { x: 0, y: 0, status: randomInt };
             } else {
                 bricks[c][r] = { x: 0, y: 0, status: 0 };
             }
@@ -127,7 +143,7 @@ function collisionDetection() {
     for(let c = 0; c < brickColumnCount; c++) {
         for(let r = 0; r < brickRowCount; r++) {
             const b = bricks[c][r];
-            if(b.status === 1) {
+            if(b.status >= 1) {
                 if(ball.x + ball.width > b.x && 
                     ball.x < b.x + brickSize &&
                     ball.y + ball.height > b.y && 
@@ -198,14 +214,16 @@ function drawPaddle() {
 function drawBricks() {
     for(let c = 0; c < brickColumnCount; c++) {
         for(let r = 0; r < brickRowCount; r++) {
-            if(bricks[c][r].status === 1) {
+            if(bricks[c][r].status >= 1) {
                 const brickX = (c * (brickSize + brickPadding)) + brickOffsetLeft;
                 const brickY = (r * (brickSize + brickPadding)) + brickOffsetTop;
                 bricks[c][r].x = brickX;
                 bricks[c][r].y = brickY;
-                
-                ctx.fillStyle = "#0095DD";
-                ctx.fillRect(brickX, brickY, brickSize, brickSize);
+
+                const img = brickImages[bricks[c][r].status - 1];
+                ctx.drawImage(img, brickX, brickY, brickSize, brickSize);
+                //ctx.fillStyle = "#0095DD";
+                //ctx.fillRect(brickX, brickY, brickSize, brickSize);
             }
         }
     }
