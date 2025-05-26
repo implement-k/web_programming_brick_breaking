@@ -4,7 +4,7 @@ const HEIGHT = 600;     // canvas 높이
 const PADDLE_SPEED = 7; // paddle 속도
 const BALL_X_SPEED = 1;   // 공 x축으로 움직이는 속도
 const BALL_Y_SPEED = 1;   // 공 y축으로 움직이는 속도
-const BALL_STYLE = 4;   // 공 스타일 (0: wood, 1: stone, 2: iron, 3: gold, 4: diamond)
+const BALL_STYLE = 0;   // 공 스타일 (0: wood, 1: stone, 2: iron, 3: gold, 4: diamond)
 // 배경화면 (오버월드, 네더월드, 엔더월드)
 const BACKGROUND_IMAGES = [];
 
@@ -15,8 +15,8 @@ const ballStyle = [
     'mainGame/ball/gold.png',
     'mainGame/ball/diamond.png'
 ];
-const brickRowCount = 10;
-const brickColumnCount = 15;
+const brickRowCount = 8;
+const brickColumnCount = 18;
 const brickStyle = [
     ['mainGame/bricks/overworld/stone.png', 
     'mainGame/bricks/overworld/wood.png',
@@ -26,11 +26,13 @@ const brickStyle = [
     [], 
     []]; // 오버월드, 네더월드, 엔더월드
 const bricks = [];
-const brickSize = 40;      // 블록 크기
-const brickPadding = 1;
-const brickOffsetTop = 50;  // 위쪽 여백 증가
+const brickSize = 50;      // 블록 크기
+const brickPadding = 0;
+const brickOffsetTop = 0;  // 위쪽 여백 증가
 const brickOffsetLeft = 0;  // 좌우 여백 증가
 
+// 블럭 별 생성 확률 [ 돌, 나무, 철, 금, 다이아 순서 ]
+const brickRatio = [0.4, 0.625, 0.85, 0.95, 1.0];
 const brickImages = [];     // 벽돌 이미지 저장하는 배열
 
 for(let i = 0; i < brickStyle[0].length; i++) {    // 벽돌 이미지 불러오는 반복문
@@ -52,8 +54,8 @@ let leftPressed = false;
 const ball = {
     x: WIDTH / 2,
     y: HEIGHT - 50,  // 공의 시작 위치 조정
-    width: 40,       // 막대 모양의 공
-    height: 40,
+    width: 20,       // 막대 모양의 공
+    height: 20,
     dx: BALL_X_SPEED,
     dy: BALL_Y_SPEED,
     rotation: 0,
@@ -88,18 +90,35 @@ $(document).ready(function () {
     drawStartScreen();
     
     // 벽돌 초기화
+    let sc = 0, wc = 0, ic  = 0, gc = 0, dc = 0;
     for(let c = 0; c < brickColumnCount; c++) {
         bricks[c] = [];
         for(let r = 0; r < brickRowCount; r++) {
             if(Math.random() > 0.3) {  // 70% 확률로 벽돌 생성
-                let randomInt = Math.floor(Math.random() * 5) + 1;
-                console.log(randomInt);
-                bricks[c][r] = { x: 0, y: 0, status: randomInt };
+                let brickType = Math.random();
+                if(brickType < brickRatio[0]) {
+                    bricks[c][r] = { x: 0, y: 0, status: 1};
+                    sc++;
+                } else if(brickType < brickRatio[1]) {
+                    bricks[c][r] = { x: 0, y: 0, status: 2};
+                    wc++;
+                } else if(brickType < brickRatio[2]) {
+                    bricks[c][r] = { x: 0, y: 0, status: 3};
+                    ic++;
+                } else if(brickType < brickRatio[3]) {
+                    bricks[c][r] = { x: 0, y: 0, status: 4};
+                    gc++;
+                } else {
+                    bricks[c][r] = { x: 0, y: 0, status: 5};
+                    dc++;
+                }
             } else {
                 bricks[c][r] = { x: 0, y: 0, status: 0 };
             }
         }
     }
+
+    console.log(sc, wc, ic, gc, dc);
 
     $(document).keydown(keyDownHandler);
     $(document).keyup(keyUpHandler);
@@ -232,6 +251,7 @@ function drawBricks() {
 
                 const img = brickImages[bricks[c][r].status - 1];
                 ctx.drawImage(img, brickX, brickY, brickSize, brickSize);
+
                 //ctx.fillStyle = "#0095DD";
                 //ctx.fillRect(brickX, brickY, brickSize, brickSize);
             }
