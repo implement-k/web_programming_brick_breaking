@@ -11,7 +11,18 @@
 <body>
     <div class="main">
         <img class="main_title" src="images/title.png">
-        <canvas id="gameCanvas" width="900" height="650"></canvas>
+        <section>
+            <canvas id="gameCanvas" width="900" height="650"></canvas>
+            <!-- 죽었습니다. -->
+            <div class="dead">
+                <div class="dead_alert">
+                    <div>죽었습니다!</div>
+                    <div>점수: 0</div>
+                    <button>리스폰</button>
+                    <button>타이틀 화면으로</button>
+                </div>
+            </div>
+        </section>
         <button id="startButton">게임 시작</button>
     </div>
 </body>

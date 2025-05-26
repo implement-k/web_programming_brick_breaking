@@ -1,13 +1,12 @@
 // 설정
-const WIDTH = 800;      // canvas 넓이
-const HEIGHT = 600;     // canvas 높이
 const PADDLE_SPEED = 7; // paddle 속도
 const BALL_X_SPEED = 1;   // 공 x축으로 움직이는 속도
 const BALL_Y_SPEED = 1;   // 공 y축으로 움직이는 속도
 const BALL_STYLE = 0;   // 공 스타일 (0: wood, 1: stone, 2: iron, 3: gold, 4: diamond)
 
 let STEP = 0;               // 난이도(0: 쉬움, 1: 보통, 2: 어려움)
-
+// 전역 변수로 선언
+let canvas, ctx;
 // 배경화면 (오버월드, 네더월드, 엔더월드)
 const overworld = new Image();
 overworld.src = 'mainGame/background/overworld.png';
@@ -62,8 +61,8 @@ let leftPressed = false;
 
 // 게임 오브젝트 설정
 const ball = {
-    x: WIDTH / 2,
-    y: HEIGHT - 50,  // 공의 시작 위치 조정
+    x: 900 / 2,
+    y: 650 - 50,  // 공의 시작 위치 조정
     width: 20,       // 막대 모양의 공
     height: 20,
     dx: BALL_X_SPEED,
@@ -76,8 +75,8 @@ const ball = {
 const paddle = {
     width: 99,
     height: 33,
-    x: WIDTH / 2 - 50,
-    y: HEIGHT - 40,  // 패들 위치를 위로 조정
+    x: 900 / 2 - 50,
+    y: 650 - 40,  // 패들 위치를 위로 조정
     dx: 0,
     tilt: 0,
     maxTilt: Math.PI / 6  // 30도
@@ -91,8 +90,6 @@ ball.image.src = ballStyle[BALL_STYLE];
 const SOUND_EFFECT = {
     paddle: new Audio('mainGame/paddle/slime.ogg'),
 };
-// 전역 변수로 선언
-let canvas, ctx;
 
 $(document).ready(function () {
     // canvas load
@@ -154,7 +151,7 @@ function drawStartScreen() {
     
     ctx.font = "30px Arial";
     ctx.textAlign = "center";
-    ctx.fillText("벽돌깨기 게임", WIDTH/2, HEIGHT/2);
+    ctx.fillText("벽돌깨기 게임", canvas.width/2, canvas.height/2);
 }
 
 function keyDownHandler(e) {
@@ -273,6 +270,11 @@ function drawBricks() {
     }
 }
 
+function gameover() {
+    gameStarted = false;
+    $('.dead').css('display', 'flex');
+}
+
 // 메인 게임 루프
 function draw() {
     if (!gameStarted) return;
@@ -323,10 +325,9 @@ function draw() {
     if(ball.y < 0) {
         ball.dy = -ball.dy;
     }
+    
     else if(ball.y + ball.height > canvas.height) {
-        // 게임 오버 조건
-        alert("게임 오버!");
-        document.location.reload();
+        gameover();
     }
 
     requestAnimationFrame(draw);

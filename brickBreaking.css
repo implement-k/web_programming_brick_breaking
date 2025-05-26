@@ -22,7 +22,6 @@ canvas {
     border-radius: 10px;
     border: 1px solid black;
     display: block;
-    margin: 0 auto;
 }
 
 #startButton {
@@ -39,4 +38,25 @@ canvas {
 
 #startButton:hover {
     background-color: #0077AA;
+}
+
+section{
+    position:relative;
+    margin: 0 auto;
+}
+
+.dead{
+    position: absolute;
+    display:none;
+    justify-content: center;
+    align-items: center;
+    top:0;
+    left:0;
+    width:900px;
+    height:650px;
+    background-color: rgba(0, 0, 0, .3);
+}
+
+.dead_alert{
+    color:white;
 }
