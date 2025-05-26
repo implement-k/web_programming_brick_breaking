@@ -5,8 +5,19 @@ const PADDLE_SPEED = 7; // paddle 속도
 const BALL_X_SPEED = 1;   // 공 x축으로 움직이는 속도
 const BALL_Y_SPEED = 1;   // 공 y축으로 움직이는 속도
 const BALL_STYLE = 0;   // 공 스타일 (0: wood, 1: stone, 2: iron, 3: gold, 4: diamond)
+
+let STEP = 0;               // 난이도(0: 쉬움, 1: 보통, 2: 어려움)
+
 // 배경화면 (오버월드, 네더월드, 엔더월드)
-const BACKGROUND_IMAGES = [];
+const overworld = new Image();
+overworld.src = 'mainGame/background/overworld.png';
+overworld.onload = function() {
+    if (ctx) drawStartScreen();
+};
+
+const BACKGROUND_IMAGES = [
+    overworld,
+];
 
 const ballStyle = [
     'mainGame/ball/wood.png',
@@ -29,7 +40,6 @@ const brickOffsetLeft = 0;  // 좌우 여백 증가
 
 // 게임 진행 전역 변수
 let gameStarted = false;
-let step = 1;               // 난이도
 // 키보드 컨트롤
 let rightPressed = false;
 let leftPressed = false;
@@ -62,6 +72,9 @@ PADDLE_IMAGE.src = 'mainGame/paddle/slime.png';
 
 ball.image.src = ballStyle[BALL_STYLE];
 
+const SOUND_EFFECT = {
+    paddle: new Audio('mainGame/paddle/slime.ogg'),
+};
 // 전역 변수로 선언
 let canvas, ctx;
 
@@ -100,8 +113,10 @@ $(document).ready(function () {
 
 // 초기 화면 그리기
 function drawStartScreen() {
-    ctx.clearRect(0, 0, WIDTH, HEIGHT);
-    ctx.fillStyle = "#0095DD";
+    if (BACKGROUND_IMAGES[STEP].complete) {
+        ctx.drawImage(BACKGROUND_IMAGES[STEP], 0, 0, canvas.width, canvas.height);
+    }
+    
     ctx.font = "30px Arial";
     ctx.textAlign = "center";
     ctx.fillText("벽돌깨기 게임", WIDTH/2, HEIGHT/2);
@@ -148,6 +163,7 @@ function paddleCollision() {
     if(ball.y + ball.height > paddle.y &&
         ball.x + ball.width > paddle.x && 
         ball.x < paddle.x + paddle.width) {
+        SOUND_EFFECT.paddle.play();
         
         // 충돌 위치에 따른 반사 각도 조정
         const hitPoint = (ball.x + ball.width/2 - paddle.x) / paddle.width;
@@ -200,8 +216,6 @@ function drawPaddle() {
             -paddle.height/2, 
             paddle.width/3, paddle.height);
     }
-    // ctx.fillStyle = "#0095DD";
-    // ctx.fillRect(-paddle.width/2, -paddle.height/2, paddle.width, paddle.height);
     ctx.restore();
 }
 
@@ -226,6 +240,12 @@ function draw() {
     if (!gameStarted) return;
     
     ctx.clearRect(0, 0, canvas.width, canvas.height);
+    
+    // 배경 이미지 그리기
+    if (BACKGROUND_IMAGES[STEP] && BACKGROUND_IMAGES[STEP].complete) {
+        ctx.drawImage(BACKGROUND_IMAGES[STEP], 0, 0, canvas.width, canvas.height);
+    }
+    
     drawBricks();
     drawBall();
     drawPaddle();
