@@ -45,18 +45,68 @@ section{
     margin: 0 auto;
 }
 
+/* 죽었습니다. 화면 구성 */
 .dead{
     position: absolute;
     display:none;
+    /* display:flex; */
     justify-content: center;
     align-items: center;
     top:0;
     left:0;
     width:900px;
     height:650px;
-    background-color: rgba(0, 0, 0, .3);
+    background-color: rgba(99, 0, 0, 0.623);
 }
 
 .dead_alert{
+    font-family: 'galmuri11';
     color:white;
+}
+
+.dead_alert div:nth-of-type(1) {
+    font-size:40px;
+    margin-bottom:50px;
+    text-align: center;
+}
+
+.dead_alert div:nth-of-type(2) {
+    margin-bottom:50px;
+    text-align: center;
+}
+
+.dead_alert button {
+    font-family: 'galmuri11';
+    height: 50px;  /* 고정 크기 사용 */
+    width: 500px;
+    cursor: pointer;
+    overflow: hidden;
+    white-space: nowrap;
+    user-select: none;
+    background-image: url('https://i.ibb.co/rb2TWXL/bgbtn.png');
+    background-position: center;
+    background-size: cover;
+    background-color: #999;
+    margin-bottom: 10px;
+    image-rendering: pixelated;
+    border: 2px solid #000;
+    color: #DDD;
+    text-shadow: 2px 2px #000A;
+    box-shadow: inset -2px -4px #0006, inset 2px 2px #FFF7;
+    padding-bottom: 0.3em;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size:medium;
+}
+
+.dead_alert button:hover {
+    background-color: rgba(100, 100, 255, .45);
+    text-shadow: 2px 2px #202013CC;
+    color: #FFFFA0;
+    background-blend-mode: multiply;
+}
+
+.dead_alert button:active {
+    box-shadow: inset -2px -4px #0004, inset 2px 2px #FFF5;
 }
