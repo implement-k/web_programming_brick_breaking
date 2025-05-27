@@ -45,6 +45,14 @@ section{
     margin: 0 auto;
 }
 
+#gameCanvas {
+    display:none;
+}
+
+#bossCanvas {
+    display:none;
+}
+
 /* 죽었습니다. 화면 구성 */
 .dead{
     position: absolute;

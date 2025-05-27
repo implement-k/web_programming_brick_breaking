@@ -1,4 +1,6 @@
 // 설정
+const WIDTH = 900;
+const HEIGHT = 650;
 const PADDLE_SPEED = 7; // paddle 속도
 const BALL_X_SPEED = 1;   // 공 x축으로 움직이는 속도
 const BALL_Y_SPEED = 1;   // 공 y축으로 움직이는 속도
@@ -17,6 +19,12 @@ overworld.onload = function() {
 const BACKGROUND_IMAGES = [
     overworld,
 ];
+
+const HOTBAR_IMG = new Image();
+HOTBAR_IMG.src = 'mainGame/hotbar/hotbar.png';
+HOTBAR_IMG.onload = function() {
+    if (ctx) drawStartScreen();
+}
 
 const ballStyle = [
     'mainGame/ball/wood.png',
@@ -61,8 +69,8 @@ let leftPressed = false;
 
 // 게임 오브젝트 설정
 const ball = {
-    x: 900 / 2,
-    y: 650 - 50,  // 공의 시작 위치 조정
+    x: HEIGHT / 2,
+    y: WIDTH - 50,  // 공의 시작 위치 조정
     width: 20,       // 막대 모양의 공
     height: 20,
     dx: BALL_X_SPEED,
@@ -75,12 +83,20 @@ const ball = {
 const paddle = {
     width: 99,
     height: 33,
-    x: 900 / 2 - 50,
-    y: 650 - 40,  // 패들 위치를 위로 조정
+    x: WIDTH / 2 - 50,
+    y: HEIGHT - 150,  // 패들 위치를 위로 조정
     dx: 0,
     tilt: 0,
     maxTilt: Math.PI / 6  // 30도
 };
+
+const hotbar = {
+    src: HOTBAR_IMG,
+    x: WIDTH /2 - 195,
+    y: HEIGHT - 60,
+    width: 390,
+    height: 54
+}
 
 const PADDLE_IMAGE = new Image();
 PADDLE_IMAGE.src = 'mainGame/paddle/slime.png';
@@ -97,10 +113,44 @@ $(document).ready(function () {
     ctx = canvas.getContext('2d');
 
     // 초기 화면 그리기
-    drawStartScreen();
+    init();
+    $(document).keydown(keyDownHandler);
+    $(document).keyup(keyUpHandler);
+
+    // 시작 버튼 처리
+    $('#startButton').click(function() {
+        $('#gameCanvas').show();
+        gameStarted = true;
+        $(this).hide();
+        draw();
+    });
+    // 리스폰 버튼 처리
+    $('#respawn').click(() => {
+        init();
+        $('.dead').hide();
+        gameStarted = true;
+        draw();
+    });
+})
+
+// requestAnimationFrame 프레임 따라서 속도 달라짐 -> 속도 조정 필요
+// 초기화 함수
+function init() {
+    // 공 초기화
+    ball.x = WIDTH / 2;
+    ball.y = HEIGHT - 110;
+    ball.rotation = 0;
+    ball.speed = 0;
     
-    // 벽돌 초기화
+    // 패들 초기화
+    paddle.x = WIDTH / 2 - 50;
+    paddle.y = HEIGHT - 100;
+    paddle.tilt = 0;
+
+    drawStartScreen();
+
     let sc = 0, wc = 0, ic  = 0, gc = 0, dc = 0;
+
     for(let c = 0; c < brickColumnCount; c++) {
         bricks[c] = [];
         for(let r = 0; r < brickRowCount; r++) {
@@ -127,26 +177,15 @@ $(document).ready(function () {
             }
         }
     }
-
-    console.log(sc, wc, ic, gc, dc);
-
-    $(document).keydown(keyDownHandler);
-    $(document).keyup(keyUpHandler);
-
-    // 시작 버튼 이벤트 처리
-    $('#startButton').click(function() {
-        gameStarted = true;
-        $(this).hide();
-        draw();
-    });
-})
-
-// requestAnimationFrame 프레임 따라서 속도 달라짐 -> 속도 조정 필요
+}
 
 // 초기 화면 그리기
 function drawStartScreen() {
     if (BACKGROUND_IMAGES[STEP].complete) {
         ctx.drawImage(BACKGROUND_IMAGES[STEP], 0, 0, canvas.width, canvas.height);
+    }
+    if (hotbar.src.complete) {
+        ctx.drawImage(hotbar.src, hotbar.x, hotbar.y, hotbar.width, hotbar.height);
     }
     
     ctx.font = "30px Arial";
@@ -270,6 +309,11 @@ function drawBricks() {
     }
 }
 
+function drawHotbar() {
+    ctx.save();
+    ctx.drawImage(hotbar.src, hotbar.x, hotbar.y, hotbar.width, hotbar.height);
+}
+
 function gameover() {
     gameStarted = false;
     $('.dead').css('display', 'flex');
@@ -291,6 +335,7 @@ function draw() {
     drawPaddle();
     collisionDetection();
     paddleCollision();
+    drawHotbar();
 
     // 패들 이동 및 기울기 처리
     if(rightPressed) {
