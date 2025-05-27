@@ -124,6 +124,7 @@ ball.image.src = ballStyle[BALL_STYLE];
 
 const SOUND_EFFECT = {
     paddle: new Audio('mainGame/paddle/slime.ogg'),
+    eatItem: new Audio('mainGame/paddle/pop.mp3')
 };
 
 $(document).ready(function () {
@@ -265,13 +266,25 @@ function collisionDetection() {
 
 // 떨어지는 아이템 그리기
 function drawFallingItems() {
+    let deleteIdx = [];
     for(let i = 0; i < fallingItems.length; i++) {
         const item = fallingItems[i];
+        if (item.y + item.height > paddle.y &&
+            item.x + item.width > paddle.x &&
+            item.x < paddle.x + paddle.width
+        ) {
+            SOUND_EFFECT.eatItem.play();
+            deleteIdx.push(i);
+            continue;
+        }
         item.y += item.dy;
 
         // 아이템 그리기
         ctx.drawImage(item.image, item.x, item.y, item.width, item.height);
-
+    }
+    
+    for (let i = deleteIdx.length-1; i >= 0; i--) {
+        fallingItems.splice(deleteIdx[i], 1);
     }
 }
 
