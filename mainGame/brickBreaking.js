@@ -59,7 +59,26 @@ for(let i = 0; i < brickStyle[0].length; i++) {    // 벽돌 이미지 불러오
     brickImages.push(img);
 };
 
-console.log(brickImages);
+// 아이템 이미지 경로 저장 배열
+const itemPaths = [
+    'mainGame/items/wood.png',
+    'mainGame/items/iron.png',
+    'mainGame/items/gold.png',
+    'mainGame/items/diamond.png',
+    'mainGame/items/stick.png'
+];
+
+const itemImages = [];
+
+for(let i = 0; i < itemPaths.length; i++) {
+    const img = new Image();
+    img.src = itemPaths[i];
+    itemImages.push(img);
+}
+
+// 블럭 파괴 시 아이템 드랍
+const fallingItems = [];
+
 
 // 게임 진행 전역 변수
 let gameStarted = false;
@@ -221,11 +240,38 @@ function collisionDetection() {
                     ball.x < b.x + brickSize &&
                     ball.y + ball.height > b.y && 
                     ball.y < b.y + brickSize) {
+                    
+                    let tmp = b.status;
                     b.status = 0;
                     ball.dy = -ball.dy;
+
+                    if(tmp >= 2 && tmp <= 5) {
+                        const itemType = tmp - 2;
+                        fallingItems.push({
+                            x: b.x + brickSize / 2 - 16,
+                            y: b.y + brickSize / 2 - 16,
+                            width: 32,
+                            height: 32,
+                            dy: 1,
+                            image: itemImages[itemType],
+                            type: itemType
+                        });
+                    }
                 }
             }
         }
+    }
+}
+
+// 떨어지는 아이템 그리기
+function drawFallingItems() {
+    for(let i = 0; i < fallingItems.length; i++) {
+        const item = fallingItems[i];
+        item.y += item.dy;
+
+        // 아이템 그리기
+        ctx.drawImage(item.image, item.x, item.y, item.width, item.height);
+
     }
 }
 
@@ -333,6 +379,7 @@ function draw() {
     drawBricks();
     drawBall();
     drawPaddle();
+    drawFallingItems();
     collisionDetection();
     paddleCollision();
     drawHotbar();
