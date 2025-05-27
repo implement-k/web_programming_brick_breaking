@@ -6,12 +6,29 @@
     <title>벽돌깨기 게임</title>
     <link rel="stylesheet" href="brickBreaking.css"/>
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-    <script src="brickBreaking.js"></script>
+    <script src="mainGame/brickBreaking.js"></script>
+    <script src="mainGame/processGame.js"></script>
+    <!-- minecraft 기본 폰트 -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/galmuri/dist/galmuri.css" />
 </head>
 <body>
     <div class="main">
         <img class="main_title" src="images/title.png">
-        <canvas id="gameCanvas" width="900" height="650"></canvas>
+        <section>
+            <!-- 공 튀기기 -->
+            <canvas id="gameCanvas" width="900" height="650"></canvas>
+            <!-- 보스전 -->
+            <canvas id="bossCanvas" width="900" height="650"></canvas>
+            <!-- 죽었습니다. -->
+            <div class="dead">
+                <div class="dead_alert">
+                    <div>죽었습니다!</div>
+                    <div>점수: 0</div>
+                    <button id="respawn">리스폰</button>
+                    <button id="go2title">타이틀 화면으로</button>
+                </div>
+            </div>
+        </section>
         <button id="startButton">게임 시작</button>
     </div>
 </body>
