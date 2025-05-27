@@ -76,9 +76,10 @@ for(let i = 0; i < itemPaths.length; i++) {
     itemImages.push(img);
 }
 
+// 먹은 아이템
+const havingItems = new Map();
 // 블럭 파괴 시 아이템 드랍
 const fallingItems = [];
-
 
 // 게임 진행 전역 변수
 let gameStarted = false;
@@ -283,7 +284,11 @@ function drawFallingItems() {
         ctx.drawImage(item.image, item.x, item.y, item.width, item.height);
     }
     
+    // fallingItem에서 아이템 제거 및 인벤토리에 추가
     for (let i = deleteIdx.length-1; i >= 0; i--) {
+        const itemType = fallingItems[deleteIdx[i]].type;
+        if (!havingItems.has(itemType)) havingItems.set(itemType, 0);
+        havingItems.set(itemType, havingItems.get(itemType)+1);
         fallingItems.splice(deleteIdx[i], 1);
     }
 }
@@ -368,9 +373,32 @@ function drawBricks() {
     }
 }
 
+// 핫바 그리기
 function drawHotbar() {
     ctx.save();
+    // 핫바 그리기
     ctx.drawImage(hotbar.src, hotbar.x, hotbar.y, hotbar.width, hotbar.height);
+
+    // 핫바 속 아이템 그리기
+    let i = 0;
+    for (let [itemType, count] of havingItems.entries()) {
+        // 아이템
+        ctx.drawImage(itemImages[itemType], hotbar.x + 11 + i*42, hotbar.y + 8, 33, 33);
+        
+        // 아이템 개수
+        // if (count == 1) {
+        //     i++;
+        //     continue;
+        // }
+        ctx.font = "20px Minecraftia";
+        ctx.textAlign = "right";
+        ctx.fillStyle = "rgba(0, 0, 0, .5)";
+        ctx.fillText(count, hotbar.x + 53 + 42*i, hotbar.y + 46);
+        ctx.fillStyle = "#FFFFFF";
+        ctx.fillText(count, hotbar.x + 50 + 42*i, hotbar.y + 43);
+        
+        i++;
+    }
 }
 
 function gameover() {
