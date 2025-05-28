@@ -35,28 +35,14 @@ const ballStyle = [
 ];
 const brickRowCount = 8;
 const brickColumnCount = 18;
-// const tmpcnt = 0
-// const brickRowCount = tmpcnt;
-// const brickColumnCount = tmpcnt;
 const brickStyle = [
     ['mainGame/bricks/overworld/stone.png', 
     'mainGame/bricks/overworld/wood.png',
     'mainGame/bricks/overworld/iron.png', 
     'mainGame/bricks/overworld/gold.png',
-    'mainGame/bricks/overworld/diamond.png'],
-
-    ['mainGame/bricks/nether/netherrack.png',
-    'mainGame/bricks/nether/mangrove.png',
-    'mainGame/bricks/nether/quartz.png',
-    'mainGame/bricks/nether/nether_gold.png',
-    'mainGame/bricks/nether/ancient.png'], 
-
-    ['mainGame/bricks/ender/end_stone.png',
-    'mainGame/bricks/ender/end_bricks.png',
-    'mainGame/bricks/ender/amethyst.png',
-    'mainGame/bricks/ender/raw_gold.png',
-    'mainGame/bricks/ender/obsidian.png'
-    ]]; // 오버월드, 네더월드, 엔더월드
+    'mainGame/bricks/overworld/diamond.png'], 
+    [], 
+    []]; // 오버월드, 네더월드, 엔더월드
 const bricks = [];
 const brickSize = 50;      // 블록 크기
 const brickPadding = 0;
@@ -65,14 +51,12 @@ const brickOffsetLeft = 0;  // 좌우 여백 증가
 
 // 블럭 별 생성 확률 [ 돌, 나무, 철, 금, 다이아 순서 ]
 const brickRatio = [0.4, 0.625, 0.85, 0.95, 1.0];
-const brickImages = [[],[],[]];     // 벽돌 이미지 저장하는 배열
+const brickImages = [];     // 벽돌 이미지 저장하는 배열
 
-for(let i = 0; i < brickStyle.length; i++) {    // 벽돌 이미지 불러오는 반복문
-    for(let j = 0; j < brickStyle[i].length; j++) {
-        const img = new Image();
-        img.src = brickStyle[i][j];
-        brickImages[i].push(img);
-    }
+for(let i = 0; i < brickStyle[0].length; i++) {    // 벽돌 이미지 불러오는 반복문
+    const img = new Image();
+    img.src = brickStyle[0][i];
+    brickImages.push(img);
 };
 
 // 아이템 이미지 경로 저장 배열
@@ -94,15 +78,11 @@ for(let i = 0; i < itemPaths.length; i++) {
 
 // 먹은 아이템
 let havingItems = new Map();
-
 // 블럭 파괴 시 아이템 드랍
 let fallingItems = [];
 
 // 게임 진행 전역 변수
 let gameStarted = false;
-let isClear = false;
-let gameDifficulty = 3;     // 난이도
-
 // 키보드 컨트롤
 let rightPressed = false;
 let leftPressed = false;
@@ -146,8 +126,7 @@ ball.image.src = ballStyle[BALL_STYLE];
 const SOUND_EFFECT = {
     paddle: new Audio('mainGame/paddle/slime.ogg'),
     eatItem: new Audio('mainGame/paddle/pop.mp3'),
-    death: new Audio('mainGame/etc_sound/death.mp3'),
-    clear: new Audio('mainGame/etc_sound/levelup.mp3')
+    death: new Audio('mainGame/etc_sound/death.mp3')
 };
 
 $(document).ready(function () {
@@ -202,19 +181,19 @@ function init() {
             if(Math.random() > 0.3) {  // 70% 확률로 벽돌 생성
                 let brickType = Math.random();
                 if(brickType < brickRatio[0]) {
-                    bricks[c][r] = { x: 0, y: 0, status: 1, life: 1};
+                    bricks[c][r] = { x: 0, y: 0, status: 1};
                     sc++;
                 } else if(brickType < brickRatio[1]) {
-                    bricks[c][r] = { x: 0, y: 0, status: 2, life: 1};
+                    bricks[c][r] = { x: 0, y: 0, status: 2};
                     wc++;
                 } else if(brickType < brickRatio[2]) {
-                    bricks[c][r] = { x: 0, y: 0, status: 3, life: 2};
+                    bricks[c][r] = { x: 0, y: 0, status: 3};
                     ic++;
                 } else if(brickType < brickRatio[3]) {
-                    bricks[c][r] = { x: 0, y: 0, status: 4, life: 2};
+                    bricks[c][r] = { x: 0, y: 0, status: 4};
                     gc++;
                 } else {
-                    bricks[c][r] = { x: 0, y: 0, status: 5, life: 3};
+                    bricks[c][r] = { x: 0, y: 0, status: 5};
                     dc++;
                 }
             } else {
@@ -266,26 +245,22 @@ function collisionDetection() {
                     ball.x < b.x + brickSize &&
                     ball.y + ball.height > b.y && 
                     ball.y < b.y + brickSize) {
-                    ball.dy = -ball.dy;
+                    
                     let tmp = b.status;
-                    if(b.life === 1) {
-                        b.status = 0;
-                        
+                    b.status = 0;
+                    ball.dy = -ball.dy;
 
-                        if(tmp >= 2 && tmp <= 5) {
-                            const itemType = tmp - 2;
-                            fallingItems.push({
-                                x: b.x + brickSize / 2 - 16,
-                                y: b.y + brickSize / 2 - 16,
-                                width: 32,
-                                height: 32,
-                                dy: 1,
-                                image: itemImages[itemType],
-                                type: itemType
-                            });
-                        }
-                    } else {
-                        b.life--;
+                    if(tmp >= 2 && tmp <= 5) {
+                        const itemType = tmp - 2;
+                        fallingItems.push({
+                            x: b.x + brickSize / 2 - 16,
+                            y: b.y + brickSize / 2 - 16,
+                            width: 32,
+                            height: 32,
+                            dy: 1,
+                            image: itemImages[itemType],
+                            type: itemType
+                        });
                     }
                 }
             }
@@ -368,7 +343,6 @@ function drawBall() {
     ctx.restore();
 }
 
-// 패들 그리기
 function drawPaddle() {
     ctx.save();
     ctx.translate(paddle.x + paddle.width/2, paddle.y + paddle.height/2);
@@ -383,18 +357,16 @@ function drawPaddle() {
     ctx.restore();
 }
 
-function drawBricks(difficulty) {
-    let cnt = 0;
+function drawBricks() {
     for(let c = 0; c < brickColumnCount; c++) {
         for(let r = 0; r < brickRowCount; r++) {
             if(bricks[c][r].status >= 1) {
-                cnt ++;
                 const brickX = (c * (brickSize + brickPadding)) + brickOffsetLeft;
                 const brickY = (r * (brickSize + brickPadding)) + brickOffsetTop;
                 bricks[c][r].x = brickX;
                 bricks[c][r].y = brickY;
 
-                const img = brickImages[difficulty - 1][bricks[c][r].status - 1];
+                const img = brickImages[bricks[c][r].status - 1];
                 ctx.drawImage(img, brickX, brickY, brickSize, brickSize);
 
                 //ctx.fillStyle = "#0095DD";
@@ -402,9 +374,6 @@ function drawBricks(difficulty) {
             }
         }
     }
-
-    // 블록 하나도 없다면 클리어
-    if (cnt == 0 && fallingItems.length == 0) isClear = true;
 }
 
 // 핫바 그리기
@@ -420,10 +389,10 @@ function drawHotbar() {
         ctx.drawImage(itemImages[itemType], hotbar.x + 11 + i*42, hotbar.y + 8, 33, 33);
         
         // 아이템 개수
-        if (count == 1) {
-            i++;
-            continue;
-        }
+        // if (count == 1) {
+        //     i++;
+        //     continue;
+        // }
         ctx.font = "20px Minecraftia";
         ctx.textAlign = "right";
         ctx.fillStyle = "rgba(0, 0, 0, .5)";
@@ -435,49 +404,15 @@ function drawHotbar() {
     }
 }
 
-// 죽을때
 function gameover() {
     gameStarted = false;
     SOUND_EFFECT.death.play();
     $('.dead').css('display', 'flex');
 }
 
-// 클리어
-function gameclear() {
-    SOUND_EFFECT.clear.play();
-    $('.clear').css('display', 'flex');
-    for (let [itemType, count] of havingItems.entries()) {
-        const newDiv = document.createElement('div');
-        newDiv.className = 'clear_item';
-        newDiv.css({})
-
-        // 아이템
-        ctx.drawImage(itemImages[itemType], hotbar.x + 11 + i*42, hotbar.y + 8, 33, 33);
-        
-        // 아이템 개수
-        if (count == 1) {
-            i++;
-            continue;
-        }
-        ctx.font = "20px Minecraftia";
-        ctx.textAlign = "right";
-        ctx.fillStyle = "rgba(0, 0, 0, .5)";
-        ctx.fillText(count, hotbar.x + 53 + 42*i, hotbar.y + 46);
-        ctx.fillStyle = "#FFFFFF";
-        ctx.fillText(count, hotbar.x + 50 + 42*i, hotbar.y + 43);
-        
-        i++;
-    }
-    havingItems
-}
-
 // 메인 게임 루프
 function draw() {
     if (!gameStarted) return;
-    if (isClear) {
-        gameclear();
-        return;
-    }
     
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     
@@ -485,8 +420,8 @@ function draw() {
     if (BACKGROUND_IMAGES[STEP] && BACKGROUND_IMAGES[STEP].complete) {
         ctx.drawImage(BACKGROUND_IMAGES[STEP], 0, 0, canvas.width, canvas.height);
     }
-
-    drawBricks(gameDifficulty);
+    
+    drawBricks();
     drawBall();
     drawPaddle();
     drawFallingItems();

@@ -20,7 +20,6 @@ body {
 
 canvas {
     border-radius: 10px;
-    border: 1px solid black;
     display: block;
 }
 
@@ -117,4 +116,43 @@ section{
 
 .dead_alert button:active {
     box-shadow: inset -2px -4px #0004, inset 2px 2px #FFF5;
+}
+
+/* 클리어 화면 구성 */
+.clear {
+    font-family: 'galmuri11';
+    color: white;
+    position:absolute;
+    top:0;
+    left:0;
+    width:900px;
+    height: 650px;
+    display:none;
+    background-image: url('mainGame/background/soil.png');
+    background-position: center;
+    background-size: cover;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+}
+
+.clear div:nth-of-type(1) {
+    font-size:40px;
+    margin-top: 30px;
+    margin-bottom:25px;
+}
+
+.clear div:nth-of-type(2) {
+    margin-bottom:25px;
+}
+
+.clear img {
+    margin-bottom: 19px;
+    width:420px;
+}
+
+.clear_item{
+    position:absolute;
+    width: 39px;
+    height: 39px;
 }
