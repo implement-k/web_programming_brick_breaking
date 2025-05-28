@@ -35,9 +35,6 @@ const ballStyle = [
 ];
 const brickRowCount = 8;
 const brickColumnCount = 18;
-// const tmpcnt = 0
-// const brickRowCount = tmpcnt;
-// const brickColumnCount = tmpcnt;
 const brickStyle = [
     ['mainGame/bricks/overworld/stone.png', 
     'mainGame/bricks/overworld/wood.png',
@@ -86,7 +83,6 @@ let fallingItems = [];
 
 // 게임 진행 전역 변수
 let gameStarted = false;
-let isClear = false;
 // 키보드 컨트롤
 let rightPressed = false;
 let leftPressed = false;
@@ -130,8 +126,7 @@ ball.image.src = ballStyle[BALL_STYLE];
 const SOUND_EFFECT = {
     paddle: new Audio('mainGame/paddle/slime.ogg'),
     eatItem: new Audio('mainGame/paddle/pop.mp3'),
-    death: new Audio('mainGame/etc_sound/death.mp3'),
-    clear: new Audio('mainGame/etc_sound/levelup.mp3')
+    death: new Audio('mainGame/etc_sound/death.mp3')
 };
 
 $(document).ready(function () {
@@ -348,7 +343,6 @@ function drawBall() {
     ctx.restore();
 }
 
-// 패들 그리기
 function drawPaddle() {
     ctx.save();
     ctx.translate(paddle.x + paddle.width/2, paddle.y + paddle.height/2);
@@ -363,13 +357,10 @@ function drawPaddle() {
     ctx.restore();
 }
 
-// 벽돌 그리기
 function drawBricks() {
-    let cnt = 0;
     for(let c = 0; c < brickColumnCount; c++) {
         for(let r = 0; r < brickRowCount; r++) {
             if(bricks[c][r].status >= 1) {
-                cnt ++;
                 const brickX = (c * (brickSize + brickPadding)) + brickOffsetLeft;
                 const brickY = (r * (brickSize + brickPadding)) + brickOffsetTop;
                 bricks[c][r].x = brickX;
@@ -383,9 +374,6 @@ function drawBricks() {
             }
         }
     }
-
-    // 블록 하나도 없다면 클리어
-    if (cnt == 0) isClear = true;
 }
 
 // 핫바 그리기
@@ -401,10 +389,10 @@ function drawHotbar() {
         ctx.drawImage(itemImages[itemType], hotbar.x + 11 + i*42, hotbar.y + 8, 33, 33);
         
         // 아이템 개수
-        if (count == 1) {
-            i++;
-            continue;
-        }
+        // if (count == 1) {
+        //     i++;
+        //     continue;
+        // }
         ctx.font = "20px Minecraftia";
         ctx.textAlign = "right";
         ctx.fillStyle = "rgba(0, 0, 0, .5)";
@@ -416,49 +404,15 @@ function drawHotbar() {
     }
 }
 
-// 죽을때
 function gameover() {
     gameStarted = false;
     SOUND_EFFECT.death.play();
     $('.dead').css('display', 'flex');
 }
 
-// 클리어
-function gameclear() {
-    SOUND_EFFECT.clear.play();
-    $('.clear').css('display', 'flex');
-    for (let [itemType, count] of havingItems.entries()) {
-        const newDiv = document.createElement('div');
-        newDiv.className = 'clear_item';
-        newDiv.css({})
-
-        // 아이템
-        ctx.drawImage(itemImages[itemType], hotbar.x + 11 + i*42, hotbar.y + 8, 33, 33);
-        
-        // 아이템 개수
-        if (count == 1) {
-            i++;
-            continue;
-        }
-        ctx.font = "20px Minecraftia";
-        ctx.textAlign = "right";
-        ctx.fillStyle = "rgba(0, 0, 0, .5)";
-        ctx.fillText(count, hotbar.x + 53 + 42*i, hotbar.y + 46);
-        ctx.fillStyle = "#FFFFFF";
-        ctx.fillText(count, hotbar.x + 50 + 42*i, hotbar.y + 43);
-        
-        i++;
-    }
-    havingItems
-}
-
 // 메인 게임 루프
 function draw() {
     if (!gameStarted) return;
-    if (isClear) {
-        gameclear();
-        return;
-    }
     
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     
