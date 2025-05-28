@@ -298,7 +298,9 @@ function drawFallingItems() {
     let deleteIdx = [];
     for(let i = 0; i < fallingItems.length; i++) {
         const item = fallingItems[i];
+        // 슬라임 영역 안에 있을 때 아이템 먹기
         if (item.y + item.height > paddle.y &&
+            item.y < paddle.y + paddle.height &&
             item.x + item.width > paddle.x &&
             item.x < paddle.x + paddle.width
         ) {
