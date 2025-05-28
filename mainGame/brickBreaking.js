@@ -39,20 +39,23 @@ const brickColumnCount = 18;
 // const brickRowCount = tmpcnt;
 // const brickColumnCount = tmpcnt;
 const brickStyle = [
-    [
-        'mainGame/bricks/overworld/stone.png', 
-        'mainGame/bricks/overworld/wood.png',
-        'mainGame/bricks/overworld/iron.png', 
-        'mainGame/bricks/overworld/gold.png',
-        'mainGame/bricks/overworld/diamond.png'
-    ], [
-        'mainGame/bricks/nether/netherrack.png',
-        'mainGame/bricks/nether/mangrove.png',
-        'mainGame/bricks/nether/quartz.png',
-        'mainGame/bricks/nether/nether_gold.png',
-        'mainGame/bricks/nether/ancient.png'
-    ], [
+    ['mainGame/bricks/overworld/stone.png', 
+    'mainGame/bricks/overworld/wood.png',
+    'mainGame/bricks/overworld/iron.png', 
+    'mainGame/bricks/overworld/gold.png',
+    'mainGame/bricks/overworld/diamond.png'],
 
+    ['mainGame/bricks/nether/netherrack.png',
+    'mainGame/bricks/nether/mangrove.png',
+    'mainGame/bricks/nether/quartz.png',
+    'mainGame/bricks/nether/nether_gold.png',
+    'mainGame/bricks/nether/ancient.png'], 
+
+    ['mainGame/bricks/ender/end_stone.png',
+    'mainGame/bricks/ender/end_bricks.png',
+    'mainGame/bricks/ender/amethyst.png',
+    'mainGame/bricks/ender/raw_gold.png',
+    'mainGame/bricks/ender/obsidian.png'
     ]]; // 오버월드, 네더월드, 엔더월드
 const bricks = [];
 const brickSize = 50;      // 블록 크기
@@ -64,7 +67,7 @@ const brickOffsetLeft = 0;  // 좌우 여백 증가
 const brickRatio = [0.4, 0.625, 0.85, 0.95, 1.0];
 const brickImages = [[],[],[]];     // 벽돌 이미지 저장하는 배열
 
-for(let i = 0; i < brickStyle.length - 1; i++) {    // 벽돌 이미지 불러오는 반복문 (임시로 엔더 제외)
+for(let i = 0; i < brickStyle.length; i++) {    // 벽돌 이미지 불러오는 반복문
     for(let j = 0; j < brickStyle[i].length; j++) {
         const img = new Image();
         img.src = brickStyle[i][j];
@@ -91,6 +94,7 @@ for(let i = 0; i < itemPaths.length; i++) {
 
 // 먹은 아이템
 let havingItems = new Map();
+
 // 블럭 파괴 시 아이템 드랍
 let fallingItems = [];
 
@@ -282,7 +286,6 @@ function collisionDetection() {
                         }
                     } else {
                         b.life--;
-                        console.log(b.life);
                     }
                 }
             }
@@ -403,7 +406,7 @@ function drawBricks(difficulty) {
     }
 
     // 블록 하나도 없다면 클리어
-    if (cnt == 0) isClear = true;
+    if (cnt == 0 && fallingItems.length == 0) isClear = true;
 }
 
 // 핫바 그리기
