@@ -39,17 +39,21 @@ const brickColumnCount = 18;
 // const brickRowCount = tmpcnt;
 // const brickColumnCount = tmpcnt;
 const brickStyle = [
-    ['mainGame/bricks/overworld/stone.png', 
-    'mainGame/bricks/overworld/wood.png',
-    'mainGame/bricks/overworld/iron.png', 
-    'mainGame/bricks/overworld/gold.png',
-    'mainGame/bricks/overworld/diamond.png'], 
-    ['mainGame/bricks/nether/netherrack.png',
+    [
+        'mainGame/bricks/overworld/stone.png', 
+        'mainGame/bricks/overworld/wood.png',
+        'mainGame/bricks/overworld/iron.png', 
+        'mainGame/bricks/overworld/gold.png',
+        'mainGame/bricks/overworld/diamond.png'
+    ], [
+        'mainGame/bricks/nether/netherrack.png',
         'mainGame/bricks/nether/mangrove.png',
         'mainGame/bricks/nether/quartz.png',
         'mainGame/bricks/nether/nether_gold.png',
-        'mainGame/bricks/nether/ancient.png'], 
-    []]; // 오버월드, 네더월드, 엔더월드
+        'mainGame/bricks/nether/ancient.png'
+    ], [
+
+    ]]; // 오버월드, 네더월드, 엔더월드
 const bricks = [];
 const brickSize = 50;      // 블록 크기
 const brickPadding = 0;
@@ -93,7 +97,7 @@ let fallingItems = [];
 // 게임 진행 전역 변수
 let gameStarted = false;
 let isClear = false;
-let gameDifficulty = 2;     // 난이도
+let gameDifficulty = 3;     // 난이도
 
 // 키보드 컨트롤
 let rightPressed = false;
@@ -291,7 +295,9 @@ function drawFallingItems() {
     let deleteIdx = [];
     for(let i = 0; i < fallingItems.length; i++) {
         const item = fallingItems[i];
+        // 슬라임 영역 안에 있을 때 아이템 먹기
         if (item.y + item.height > paddle.y &&
+            item.y < paddle.y + paddle.height &&
             item.x + item.width > paddle.x &&
             item.x < paddle.x + paddle.width
         ) {
