@@ -403,7 +403,7 @@ function drawBricks(difficulty) {
         }
     }
 
-    // 블록 하나도 없다면 클리어
+    // 블록이 하나도 없고, 떨어지고 있는 아이템이 없다면 클리어
     if (cnt == 0 && fallingItems.length == 0) isClear = true;
 }
 
