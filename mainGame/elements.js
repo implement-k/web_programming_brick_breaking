@@ -63,12 +63,12 @@ class Ball {
     };
 
     // 공 위치 업데이트
-    updateRocation() {
+    updateLocation() {
         this.x += this.dx;
         this.y += this.dy;
     }
 
-    draw(ctx) {
+    draw() {
         ctx.save();
         ctx.translate(this.x + this.width/2, this.y + this.height/2);
         ctx.rotate(this.rotation);
@@ -95,7 +95,7 @@ class Paddle {
     width = 99; height = 33;
     dx = 0;
     tilt = 0;
-    maxTile = Math.PI / 10;
+    maxTilt = Math.PI / 10;
     image = new Image();
     speed = 7;
     collisionSound = new Audio('mainGame/paddle/slime.ogg');
@@ -127,9 +127,36 @@ class Paddle {
         }
 
         this.x = Math.max(0, Math.min(canvas.width - this.width, this.x + this.dx));
+    };
+
+    collisionDetection(ball) {
+        if(ball.isCollision(this.x, this.y, this.width, this.height)) {
+            this.collisionSound.play();
+            
+            // 충돌 위치에 따른 반사 각도 조정
+            const hitPoint = (ball.x + ball.width/2 - this.x) / this.width;
+            // 기본 반사 각도 (-45도 ~ 45도)
+            const baseAngle = (hitPoint - 0.5) * Math.PI/2;
+            // 패들의 기울기를 반사 각도에 추가
+            const angle = baseAngle + this.tilt;
+            
+            // 기울기에 따른 속도 증가 (최대 50% 증가)
+            const tiltSpeedBonus = 1 + Math.abs(this.tilt / this.maxTilt) * 0.5;
+            const baseSpeed = Math.sqrt(BALL_X_SPEED * BALL_X_SPEED + BALL_Y_SPEED * BALL_Y_SPEED);
+            const speed = baseSpeed * tiltSpeedBonus;
+            
+            // 새로운 속도와 방향만 계산 (기본 속도 유지)
+            const newDx = speed * Math.sin(angle);
+            const newDy = -speed * Math.cos(angle);
+            
+            // 위치가 겹치지 않도록 약간 위로 이동
+            ball.y = this.y - ball.height;
+            ball.dx = newDx;
+            ball.dy = newDy;
+        }
     }
 
-    draw(ctx) {
+    draw() {
         ctx.save();
         ctx.translate(this.x + this.width/2, this.y + this.height/2);
         ctx.rotate(this.tilt);
@@ -253,7 +280,7 @@ class BrickManager {
                             // TODO
                             if(tmp >= 2 && tmp <= 5) {
                                 const itemType = tmp - 2;
-                                fallingItems.push(new Item(x, y, itemImages[itemType], itemType));
+                                fallingItems.push(new Item(b.x, b.y, itemImages[itemType], itemType));
                             }
                         } else {
                             b.life--;
@@ -297,7 +324,7 @@ class Hotbar {
         this.image.src = "mainGame/hotbar/hotbar.png";
     }
 
-    draw(ctx, havingItems) {
+    draw(havingItems) {
         ctx.save();
         ctx.drawImage(this.image, this.x, this.y, this.width, this.height);
 

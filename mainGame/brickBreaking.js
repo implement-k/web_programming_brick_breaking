@@ -25,7 +25,7 @@ let brickManager;
 // requestAnimationFrame 프레임 따라서 속도 달라짐 -> 속도 조정 필요
 // 초기화 함수
 function brick_breaking_init() {
-    ball = new Ball(WIDTH/2, HEIGHT-110);
+    ball = new Ball(WIDTH/2, HEIGHT-150);
     paddle = new Paddle(WIDTH/2-50, HEIGHT-100);
     hotbar = new Hotbar(WIDTH/2-195, HEIGHT-60);
     brickManager = new BrickManager(gameDifficulty);
@@ -73,29 +73,6 @@ function drawFallingItems() {
         if (!havingItems.has(itemType)) havingItems.set(itemType, 0);
         havingItems.set(itemType, havingItems.get(itemType)+1);
         fallingItems.splice(deleteIdx[i], 1);
-    }
-}
-
-// 패들과 공의 충돌 처리
-function paddleCollision() {
-    if(ball.isCollision(paddle.x, paddle.y, paddle.width, paddle.height)) {
-        paddle.collisionSound.play();
-        
-        // 충돌 위치에 따른 반사 각도 조정
-        const hitPoint = (ball.x + ball.width/2 - paddle.x) / paddle.width;
-        // 기본 반사 각도 (-45도 ~ 45도)
-        const baseAngle = (hitPoint - 0.5) * Math.PI/2;
-        // 패들의 기울기를 반사 각도에 추가
-        const angle = baseAngle + paddle.tilt;
-        
-        // 기울기에 따른 속도 증가 (최대 50% 증가)
-        const tiltSpeedBonus = 1 + Math.abs(paddle.tilt / paddle.maxTilt) * 0.5;
-        const baseSpeed = Math.sqrt(BALL_X_SPEED * BALL_X_SPEED + BALL_Y_SPEED * BALL_Y_SPEED);
-        const speed = baseSpeed * tiltSpeedBonus;
-        
-        // 새로운 속도와 방향 계산
-        ball.dx = speed * Math.sin(angle);
-        ball.dy = -speed * Math.cos(angle);
     }
 }
 
@@ -151,19 +128,19 @@ function draw() {
     }
 
     isClear = brickManager.draw(fallingItems.length);
-    ball.draw(ctx);
-    paddle.draw(ctx);
+    ball.draw();
+    paddle.draw();
     drawFallingItems();
     brickManager.collisionDetection(ball);
-    paddleCollision();
-    hotbar.draw(ctx, havingItems);
+    paddle.collisionDetection(ball);
+    hotbar.draw(havingItems);
 
     // 패들 이동 및 기울기 처리
     paddle.updateRocation(canvas, leftPressed, rightPressed);
 
     // 공 회전 및 이동
     ball.updateRotation();
-    ball.updateRocation();
+    ball.updateLocation();
 
     // 벽 충돌 처리
     if(ball.x + ball.width > canvas.width || ball.x < 0) {
