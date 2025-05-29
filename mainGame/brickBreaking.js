@@ -29,7 +29,7 @@ function brick_breaking_init() {
     paddle = new Paddle(WIDTH/2-50, HEIGHT-100);
     hotbar = new Hotbar(WIDTH/2-195, HEIGHT-60);
     brickManager = new BrickManager(gameDifficulty);
-
+    
     drawStartScreen();
     havingItems = new Map();
     fallingItems = [];
@@ -62,7 +62,7 @@ function drawFallingItems() {
             continue;
         }
         item.y += item.dy;
-
+        
         // 아이템 그리기
         ctx.drawImage(item.image, item.x, item.y, item.width, item.height);
     }
@@ -85,20 +85,57 @@ function gameover() {
 
 // 클리어
 function gameclear() {
+    // 테스트용 코드
+    /*
+    havingItems.set(1, 2);
+    havingItems.set(0, 1);
+    havingItems.set(4, 5);
+    havingItems.set(2, 3);
+    havingItems.set(3, 4);
+    */
+    
     SOUND_EFFECT.clear.play();
     $('.clear').css('display', 'flex');
+    
+    let i = 0;
     for (let [itemType, count] of havingItems.entries()) {
-        const newDiv = document.createElement('div');
+        const newDiv = $('<div />').addClass('clear_item');
+        
+        newDiv.css({
+            'background-image': `url(${itemImages[itemType].src})`,
+            'background-size': 'contain',
+            'left': `${260 + i * 43}px`,
+            'top': '535px',
+        });
+        
+        if(count > 1) {
+            const countSpan = $('<span />').text(count).css({
+                'position': 'absolute',
+                'bottom': '0',
+                'right': '0',
+                'font-family': 'Minecraftia',
+                'font-size': '15px',
+                'color': '#FFFFFF',
+                'text-shadow': '1px 1px 0 #000000',
+                'padding': '0px'
+            });
+            newDiv.append(countSpan);
+        }
+        
+        $('.clear').append(newDiv);
+        i++;
+
+        /* const newDiv = document.createElement('div');
         newDiv.className = 'clear_item';
         newDiv.css({})
-
+        
         // 아이템
         ctx.drawImage(itemImages[itemType], hotbar.x + 11 + i*42, hotbar.y + 8, 33, 33);
         
         // 아이템 개수
         if (count == 1) {
-            i++;
-            continue;
+        i++;
+        continue;
         }
         ctx.font = "20px Minecraftia";
         ctx.textAlign = "right";
@@ -108,8 +145,9 @@ function gameclear() {
         ctx.fillText(count, hotbar.x + 50 + 42*i, hotbar.y + 43);
         
         i++;
+        */
     }
-    havingItems
+    
 }
 
 // 메인 게임 루프
@@ -126,7 +164,7 @@ function draw() {
     if (BACKGROUND_IMAGES[gameDifficulty-1] && BACKGROUND_IMAGES[gameDifficulty-1].complete) {
         ctx.drawImage(BACKGROUND_IMAGES[gameDifficulty-1], 0, 0, canvas.width, canvas.height);
     }
-
+    
     isClear = brickManager.draw(fallingItems.length);
     ball.draw();
     paddle.draw();
@@ -134,14 +172,14 @@ function draw() {
     brickManager.collisionDetection(ball);
     paddle.collisionDetection(ball);
     hotbar.draw(havingItems);
-
+    
     // 패들 이동 및 기울기 처리
     paddle.updateRocation(canvas, leftPressed, rightPressed);
-
+    
     // 공 회전 및 이동
     ball.updateRotation();
     ball.updateLocation();
-
+    
     // 벽 충돌 처리
     if(ball.x + ball.width > canvas.width || ball.x < 0) {
         ball.dx = -ball.dx;
@@ -154,6 +192,6 @@ function draw() {
         console.log(ball.y, ball.height, canvas.height);
         gameover();
     }
-
+    
     requestAnimationFrame(draw);
 }
