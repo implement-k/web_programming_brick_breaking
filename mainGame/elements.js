@@ -1,0 +1,324 @@
+// 공
+const BALL_X_SPEED = 1;   // 공 x축으로 움직이는 속도
+const BALL_Y_SPEED = 1;   // 공 y축으로 움직이는 속도
+const BALL_STYLE = 0;   // 공 스타일 (0: wood, 1: stone, 2: iron, 3: gold, 4: diamond)
+const BALL_DIR = [
+    'mainGame/ball/wood.png',
+    'mainGame/ball/stone.png',
+    'mainGame/ball/iron.png',
+    'mainGame/ball/gold.png',
+    'mainGame/ball/diamond.png'
+];
+
+// 아이템
+// 아이템 이미지 경로 저장 배열
+const itemPaths = [
+    'mainGame/items/wood.png',
+    'mainGame/items/iron.png',
+    'mainGame/items/gold.png',
+    'mainGame/items/diamond.png',
+    'mainGame/items/stick.png'
+];
+const itemImages = [];
+for(let i = 0; i < itemPaths.length; i++) {
+    const img = new Image();
+    img.src = itemPaths[i];
+    itemImages.push(img);
+}
+
+// 공
+class Ball {
+    x; y;
+    width = 20; height= 25;
+    dx = BALL_X_SPEED; dy = BALL_Y_SPEED;
+    rotation = 0;
+    speed = 0;
+    image = new Image();
+
+    constructor(x, y, width = 20, height = 25, dx = BALL_X_SPEED, dy = BALL_Y_SPEED) {
+        this.x = x;
+        this.y = y;
+        this.width = width;
+        this.height = height;
+        this.dx = dx;
+        this.dy = dy;
+        this.image.src = BALL_DIR[BALL_STYLE];
+    }
+
+    // 공 충돌
+    isCollision(elementX, elementY, elementWidth, elementHeight) {
+        if (
+            this.x + this.width >= elementX &&
+            this.x <= elementX + elementWidth &&
+            this.y + this.height >= elementY &&
+            this.y <= elementY + elementHeight
+        ) return true;
+        return false;
+    };
+
+    // 공 회전 업데이트
+    updateRotation() {
+        if(this.dx > 0) this.rotation -= 0.1 * Math.abs(this.dx); // 반시계 방향
+        else this.rotation += 0.1 * Math.abs(this.dx); // 시계 방향
+    };
+
+    // 공 위치 업데이트
+    updateRocation() {
+        this.x += this.dx;
+        this.y += this.dy;
+    }
+
+    draw(ctx) {
+        ctx.save();
+        ctx.translate(this.x + this.width/2, this.y + this.height/2);
+        ctx.rotate(this.rotation);
+
+        if (this.image.complete) {
+            ctx.drawImage(
+                this.image,
+                -this.width/2,
+                -this.height/2,
+                this.width + 10,
+                this.height + 4
+            );
+        } else {
+            ctx.fillStyle = "#0095DD";
+            ctx.fillRect(-this.width/2, -this.height/2, this.width, this.height);
+        }
+        ctx.restore();
+    };
+}
+
+// paddle
+class Paddle {
+    x; y;
+    width = 99; height = 33;
+    dx = 0;
+    tilt = 0;
+    maxTile = Math.PI / 10;
+    image = new Image();
+    speed = 7;
+    collisionSound = new Audio('mainGame/paddle/slime.ogg');
+    eatSound = new Audio('mainGame/paddle/pop.mp3');
+
+    constructor(x, y, speed=7, width=99, height=33, dx=0, tilt=0) {
+        this.x = x;
+        this.y = y;
+        this.width = width;
+        this.height = height;
+        this.dx = dx;
+        this.tilt = tilt;
+        this.image.src = 'mainGame/paddle/slime.png';
+        this.speed = speed;
+    }
+
+    updateRocation(canvas, leftPressed, rightPressed) {
+        if(rightPressed) {
+            this.dx = this.speed;
+            this.tilt = Math.min(this.tilt + 0.1, this.maxTilt);
+        }
+        else if(leftPressed) {
+            this.dx = -this.speed;
+            this.tilt = Math.max(this.tilt - 0.1, -this.maxTilt);
+        }
+        else {
+            this.dx = 0;
+            this.tilt *= 0.95; // 기울기 점차 감소
+        }
+
+        this.x = Math.max(0, Math.min(canvas.width - this.width, this.x + this.dx));
+    }
+
+    draw(ctx) {
+        ctx.save();
+        ctx.translate(this.x + this.width/2, this.y + this.height/2);
+        ctx.rotate(this.tilt);
+        for (let i = 0; i<3; i++) {
+            ctx.drawImage(
+                this.image,
+                -this.width/2+this.width/3*i, 
+                -this.height/2, 
+                this.width/3, this.height);
+        }
+        ctx.restore();
+    };
+}
+
+class Item {
+    x; y;
+    width = 32; height = 32;
+    dy = 1;
+    image;
+    type; 
+
+    constructor(x, y, image, type) {
+        this.x = x;
+        this.y = y;
+        this.image = image;
+        this.type = type;
+    }
+}
+
+class Brick {
+    x; y;
+    status; life;
+    brickSize = 50;
+    image;
+
+    constructor(x, y, status, life, image=undefined) {
+        this.x = x;
+        this.y = y;
+        this.status = status;
+        this.life = life;
+        if (status != 0) this.image = image;
+    }
+}
+
+class BrickManager {
+    brickSize = 50;
+    dir = [[
+            'mainGame/bricks/overworld/stone.png', 
+            'mainGame/bricks/overworld/wood.png',
+            'mainGame/bricks/overworld/iron.png', 
+            'mainGame/bricks/overworld/gold.png',
+            'mainGame/bricks/overworld/diamond.png'
+        ], [
+            'mainGame/bricks/nether/netherrack.png',
+            'mainGame/bricks/nether/mangrove.png',
+            'mainGame/bricks/nether/quartz.png',
+            'mainGame/bricks/nether/nether_gold.png',
+            'mainGame/bricks/nether/ancient.png'
+        ], [
+            'mainGame/bricks/ender/end_stone.png',
+            'mainGame/bricks/ender/end_bricks.png',
+            'mainGame/bricks/ender/amethyst.png',
+            'mainGame/bricks/ender/raw_gold.png',
+            'mainGame/bricks/ender/obsidian.png'
+    ]];
+    images = [];
+    brickRowCount = 8;
+    brickColumnCount = 18;
+    // 블럭 별 생성 확률 [ 돌, 나무, 철, 금, 다이아 순서 ]
+    brickRatio = [0.4, 0.625, 0.85, 0.95, 1.0];
+    bricks = [];
+    
+    constructor(difficulty) {
+        for (let i = 0; i<this.dir[difficulty-1].length; i++) {
+            const img = new Image();
+            img.src = this.dir[difficulty-1][i];
+            this.images.push(img);
+        }
+
+        let sc = 0, wc = 0, ic  = 0, gc = 0, dc = 0;
+
+        for(let c = 0; c < this.brickColumnCount; c++) {
+            this.bricks[c] = [];
+            for(let r = 0; r < this.brickRowCount; r++) {
+                if(Math.random() > 0.3) {  // 70% 확률로 벽돌 생성
+                    let brickType = Math.random();
+                    if(brickType < this.brickRatio[0]) {
+                        this.bricks[c][r] = new Brick(0, 0, 1, 1, this.images[0]);
+                        sc++;
+                    } else if(brickType < this.brickRatio[1]) {
+                        this.bricks[c][r] = new Brick(0, 0, 1, 1, this.images[1]);
+                        wc++;
+                    } else if(brickType < this.brickRatio[2]) {
+                        this.bricks[c][r] = new Brick(0, 0, 3, 2, this.images[2]);
+                        ic++;
+                    } else if(brickType < this.brickRatio[3]) {
+                        this.bricks[c][r] = new Brick(0, 0, 4, 2, this.images[3]);
+                        gc++;
+                    } else {
+                        this.bricks[c][r] = new Brick(0, 0, 5, 3, this.images[4]);
+                        dc++;
+                    }
+                } else {
+                    this.bricks[c][r] = new Brick(0, 0, 0, 0);
+                }
+            }
+        }
+    }
+
+    collisionDetection(ball) {
+        for(let c = 0; c < this.brickColumnCount; c++) {
+            for(let r = 0; r < this.brickRowCount; r++) {
+                const b = this.bricks[c][r];
+                if(b.status >= 1) {
+                    if(ball.isCollision(b.x, b.y, this.brickSize, this.brickSize)) {
+                        ball.dy = -ball.dy;
+                        let tmp = b.status;
+                        if(b.life === 1) {
+                            b.status = 0;
+
+                            // TODO
+                            if(tmp >= 2 && tmp <= 5) {
+                                const itemType = tmp - 2;
+                                fallingItems.push(new Item(x, y, itemImages[itemType], itemType));
+                            }
+                        } else {
+                            b.life--;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    draw(fallingItemsCnt) {
+        let cnt = 0;
+        for(let c = 0; c < this.brickColumnCount; c++) {
+            for(let r = 0; r < this.brickRowCount; r++) {
+                if(this.bricks[c][r].status >= 1) {
+                    cnt ++;
+                    const brickX = c * this.brickSize;
+                    const brickY = r * this.brickSize;
+                    this.bricks[c][r].x = brickX;
+                    this.bricks[c][r].y = brickY;
+
+                    ctx.drawImage(this.bricks[c][r].image, brickX, brickY, this.brickSize, this.brickSize);
+                }
+            }
+        }
+
+        // 블록 하나도 없다면 클리어
+        if (cnt == 0 && fallingItemsCnt == 0) return true;
+        return false;
+    }
+}
+
+class Hotbar {
+    image = new Image();
+    x; y;
+    width = 390; height= 54;
+
+    constructor(x, y) {
+        this.x = x;
+        this.y = y;
+        this.image.src = "mainGame/hotbar/hotbar.png";
+    }
+
+    draw(ctx, havingItems) {
+        ctx.save();
+        ctx.drawImage(this.image, this.x, this.y, this.width, this.height);
+
+        // 핫바 속 아이템 그리기
+        let i = 0;
+        for (let [itemType, count] of havingItems.entries()) {
+            // 아이템
+            ctx.drawImage(itemImages[itemType], hotbar.x + 11 + i*42, hotbar.y + 8, 33, 33);
+            
+            // 아이템 개수
+            if (count == 1) {
+                i++;
+                continue;
+            }
+            ctx.font = "20px Minecraftia";
+            ctx.textAlign = "right";
+            ctx.fillStyle = "rgba(0, 0, 0, .5)";
+            ctx.fillText(count, hotbar.x + 53 + 42*i, hotbar.y + 46);
+            ctx.fillStyle = "#FFFFFF";
+            ctx.fillText(count, hotbar.x + 50 + 42*i, hotbar.y + 43);
+            i++;
+        }
+    }
+}

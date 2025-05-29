@@ -49,7 +49,7 @@ section{
 }
 
 #bossCanvas {
-    display:none;
+    display:block;
 }
 
 /* 죽었습니다. 화면 구성 */
