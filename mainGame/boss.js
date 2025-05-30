@@ -173,8 +173,6 @@ function init() {
     havingItems = new Map();
     fallingItems = [];
 
-    let sc = 0, wc = 0, ic  = 0, gc = 0, dc = 0;
-
     for(let c = 0; c < brickColumnCount; c++) {
         bricks[c] = [];
         for(let r = 0; r < brickRowCount; r++) {
@@ -182,19 +180,14 @@ function init() {
                 let brickType = Math.random();
                 if(brickType < brickRatio[0]) {
                     bricks[c][r] = { x: 0, y: 0, status: 1};
-                    sc++;
                 } else if(brickType < brickRatio[1]) {
                     bricks[c][r] = { x: 0, y: 0, status: 2};
-                    wc++;
                 } else if(brickType < brickRatio[2]) {
                     bricks[c][r] = { x: 0, y: 0, status: 3};
-                    ic++;
                 } else if(brickType < brickRatio[3]) {
                     bricks[c][r] = { x: 0, y: 0, status: 4};
-                    gc++;
                 } else {
                     bricks[c][r] = { x: 0, y: 0, status: 5};
-                    dc++;
                 }
             } else {
                 bricks[c][r] = { x: 0, y: 0, status: 0 };

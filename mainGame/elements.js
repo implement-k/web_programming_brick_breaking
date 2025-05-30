@@ -236,28 +236,21 @@ class BrickManager {
             this.images.push(img);
         }
 
-        let sc = 0, wc = 0, ic  = 0, gc = 0, dc = 0;
-
         for(let c = 0; c < this.brickColumnCount; c++) {
             this.bricks[c] = [];
             for(let r = 0; r < this.brickRowCount; r++) {
-                if(Math.random() > 0.3) {  // 70% 확률로 벽돌 생성
+                if(Math.random() > 0.98) {  // 70% 확률로 벽돌 생성
                     let brickType = Math.random();
                     if(brickType < this.brickRatio[0]) {
                         this.bricks[c][r] = new Brick(0, 0, 1, 1, this.images[0]);
-                        sc++;
                     } else if(brickType < this.brickRatio[1]) {
-                        this.bricks[c][r] = new Brick(0, 0, 1, 1, this.images[1]);
-                        wc++;
+                        this.bricks[c][r] = new Brick(0, 0, 2, 1, this.images[1]);
                     } else if(brickType < this.brickRatio[2]) {
                         this.bricks[c][r] = new Brick(0, 0, 3, 2, this.images[2]);
-                        ic++;
                     } else if(brickType < this.brickRatio[3]) {
                         this.bricks[c][r] = new Brick(0, 0, 4, 2, this.images[3]);
-                        gc++;
                     } else {
                         this.bricks[c][r] = new Brick(0, 0, 5, 3, this.images[4]);
-                        dc++;
                     }
                 } else {
                     this.bricks[c][r] = new Brick(0, 0, 0, 0);
@@ -280,6 +273,7 @@ class BrickManager {
                             // TODO
                             if(tmp >= 2 && tmp <= 5) {
                                 const itemType = tmp - 2;
+                                console.log(itemType);
                                 fallingItems.push(new Item(b.x, b.y, itemImages[itemType], itemType));
                             }
                         } else {
