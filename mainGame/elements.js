@@ -343,3 +343,20 @@ class Hotbar {
         }
     }
 }
+
+// 게임 화면에 유저를 위한 정보 (hotbar, timer, gameDifficulty, 체력, 갑바)
+class User {
+    havingItems = [];
+
+    constructor() {
+
+    }
+
+    clone() {
+        return new User();
+    }
+
+    draw() {
+        
+    }
+}

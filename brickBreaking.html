@@ -15,11 +15,13 @@
     <script src="mainGame/elements.js"></script>
     <!-- 3. 메인 게임 -->
     <script src="mainGame/brickBreaking.js"></script>
-    <!-- 4. 보스전 -->
-    <!-- <script src="mainGame/boss.js"></script> -->
-    <!-- 5. 게임 키보드 handler 로딩 -->
+    <!-- 4. 보스전 요소들 로딩 -->
+    <script src="mainGame/boss/elements.js"></script>
+    <!-- 5. 보스전 -->
+    <script src="mainGame/boss/boss.js"></script>
+    <!-- 6. 게임 키보드 handler 로딩 -->
     <script src="mainGame/movement.js"></script>
-    <!-- 6. mainjs -->
+    <!-- 7. mainjs -->
     <script src="main.js"></script>
     <!-- mainGame js 로딩 끝 -->
     <link rel="stylesheet" href="game.css">
@@ -35,6 +37,7 @@
     <audio id="bgm" src="title_bgm.mp3" autoplay loop></audio>
     <audio id="btn-sound" src="btn.mp3"></audio>
 
+    <button id="tmp_boss_start">보스전 시작</button>
     <!-- 시작 화면 -->
     <div id="title-screen">
         <button class="button" id="start-btn">START</button>
@@ -88,8 +91,6 @@
         <section>
             <!-- 공 튀기기 -->
             <canvas id="gameCanvas" width="900" height="650"></canvas>
-            <!-- 보스전 -->
-            <canvas id="bossCanvas" width="900" height="650"></canvas>
             <!-- 죽었습니다. -->
             <div class="dead">
                 <div class="dead_alert">

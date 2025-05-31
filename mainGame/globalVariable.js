@@ -13,9 +13,11 @@ let gameDifficulty = 1; // 난이도  (1: 오버월드, 2: 네더월드, 3: 엔�
 let rightPressed = false;
 let leftPressed = false;
 
-let ball, paddle, hotbar;
+let ball, paddle, hotbar, hud;
 
 const SOUND_EFFECT = {
     death: new Audio('mainGame/etc_sound/death.mp3'),
     clear: new Audio('mainGame/etc_sound/levelup.mp3')
 };
+
+let user;
