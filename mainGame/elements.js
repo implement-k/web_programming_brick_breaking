@@ -239,7 +239,7 @@ class BrickManager {
         for(let c = 0; c < this.brickColumnCount; c++) {
             this.bricks[c] = [];
             for(let r = 0; r < this.brickRowCount; r++) {
-                if(Math.random() > 0.98) {  // 70% 확률로 벽돌 생성
+                if(Math.random() > 0.3) {  // 70% 확률로 벽돌 생성
                     let brickType = Math.random();
                     if(brickType < this.brickRatio[0]) {
                         this.bricks[c][r] = new Brick(0, 0, 1, 1, this.images[0]);

@@ -156,3 +156,7 @@ section{
     width: 35px;
     height: 35px;
 }
+
+#craftingTable {
+    pointer-events: none;
+}
