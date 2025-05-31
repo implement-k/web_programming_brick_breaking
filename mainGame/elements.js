@@ -17,7 +17,8 @@ const itemPaths = [
     'mainGame/items/iron.png',
     'mainGame/items/gold.png',
     'mainGame/items/diamond.png',
-    'mainGame/items/stick.png'
+    'mainGame/items/stick.png',
+    'mainGame/items/plank.png'
 ];
 const itemImages = [];
 for(let i = 0; i < itemPaths.length; i++) {
