@@ -148,21 +148,30 @@ class Boss{
     defaultY;                   // sin파 y축 위치
     dx; dy;                     // dx: 가로 속도, dy: 위 아래로 움직이는 속도
     width; height;              // 보스 크기
+    originalImage = new Image() // 일반 이미지 저장
+    imageSpawn = new Image()    // 스폰 이미지 저장
     image = new Image();        // 보스 이미지
     imageAngry = new Image();   // 공격시 보스 이미지
+    imageHit = new Image();     // 맞았을때 보스 이미지
     spawnSound;                 // 스폰시 소리
     hitSound;                   // 공에 맞았을때 소리
-    deathSound;                 // 죽었을때 소리        
+    deathSound;                 // 죽었을때 소리 
+    isSpawning = false;       
     isDying = false;
     deathAnimation = 0;
     particles = [];
     droppedItem = null;
     isInvulnerable = false;
     invulnerableTimer = 0;
+    defaultDx;
+    defaultDy;
+    hitStopTime = null;    // hit 상태를 위한 타이머
+    attackStopTime = null; // 발사체 발사를 위한 타이머
+    spawnStopTime = null;
     
     constructor(
-        health, x, y, defaultY ,dx, dy, width, height, bossImageDir, imageAngryDir, 
-        spawnSoundDir, hitSoundDir, deathSound
+        health, x, y, defaultY ,dx, dy, width, height, bossImageDir, imageSpawnDir, imageAngryDir, 
+        imageHitDir, spawnSoundDir, hitSoundDir, deathSound
     ) {
         this.health = health;
         this.x = x;
@@ -170,29 +179,26 @@ class Boss{
         this.defaultY = defaultY;
         this.dx = dx;
         this.dy = dy;
+        this.defaultDx = dx;
+        this.defaultDy = dy;
         this.width = width;
         this.height = height;
+        this.originalImage.src = bossImageDir;
         this.image.src = bossImageDir;
         this.imageAngry.src = imageAngryDir;
+        this.imageHit.src = imageHitDir;
         this.spawnSound = new Audio(spawnSoundDir);
         this.hitSound = new Audio(hitSoundDir);
         this.deathSound = new Audio(deathSound);
-    }
+        this.imageSpawn.src = imageSpawnDir;
 
-    createParticles() {
-        const particleCount = 20;
-        for (let i = 0; i < particleCount; i++) {
-            const angle = (Math.PI * 2 * i) / particleCount;
-            const speed = 5;
-            this.particles.push({
-                x: this.x + this.width / 2,
-                y: this.y + this.height / 2,
-                dx: Math.cos(angle) * speed,
-                dy: Math.sin(angle) * speed,
-                size: 5,
-                alpha: 1
-            });
-        }
+        // 처음 스폰 
+        this.isSpawning = true;
+        this.spawnStartTime = Date.now();
+        this.spawnDuration = 2000; // 2초
+        this.currentWidth = 0;
+        this.currentHeight = 0;
+        this.spawnSound.play();
     }
 
     dropItem() {
@@ -205,6 +211,25 @@ class Boss{
             image: new Image()
         };
         this.droppedItem.image.src = 'mainGame/items/diamond.png';
+    }
+
+    hit(currentTime) {
+        this.hitSound.currentTime = 0; 
+        this.hitSound.play();
+
+        this.image = this.imageHit;
+        this.dx = this.dx * 0.1;
+        this.dy = 0.3;
+        this.hitStopTime = currentTime;  // hitStopTime 사용
+    }
+
+    releaseHit(currentTime) {
+        if (this.hitStopTime && currentTime - this.hitStopTime >= 1000) {
+            this.dx = this.defaultDx;
+            this.dy = this.defaultDy;
+            this.image = this.originalImage;
+            this.hitStopTime = null;  // hitStopTime 초기화
+        }
     }
 
     calculateNext() {
@@ -231,40 +256,64 @@ class Boss{
 
     // boss 객체 복사하는 함수
     clone() {
-        return new Boss(
+        const boss = new Boss(
             this.health, this.x, this.y, this.defaultY, this.dx, this.dy, 
-            this.width, this.height, this.image.src, this.imageAngry.src,
-            this.spawnSound.src, this.hitSound.src, this.deathSound.src);
+            this.width, this.height, this.originalImage.src, this.imageSpawn.src, this.imageAngry.src,
+            this.imageHit.src, this.spawnSound.src, this.hitSound.src, this.deathSound.src
+        );
+        
+        // 스폰 관련 속성 초기화
+        boss.isSpawning = true;
+        boss.spawnStartTime = Date.now();
+        boss.spawnDuration = 2000;
+        boss.currentWidth = 0;
+        boss.currentHeight = 0;
+        
+        return boss;
+    }
+
+    checkInvulnerable() {
+        return this.isSpawning || this.isInvulnerable;
     }
 
     draw() {
         ctx.save();
-        
-        if (this.isDying) {
-            // 파티클 그리기
-            for (const particle of this.particles) {
-                ctx.beginPath();
-                ctx.fillStyle = `rgba(255, 255, 255, ${particle.alpha})`;
-                ctx.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);
-                ctx.fill();
-            }
 
-            // 아이템 그리기
-            if (this.droppedItem) {
-                ctx.drawImage(
-                    this.droppedItem.image,
-                    this.droppedItem.x - this.droppedItem.width / 2,
-                    this.droppedItem.y - this.droppedItem.height / 2,
-                    this.droppedItem.width,
-                    this.droppedItem.height
-                );
+        if (this.isSpawning) {
+            const currentTime = Date.now();
+            const elapsed = currentTime - this.spawnStartTime;
+            const progress = Math.min(elapsed / this.spawnDuration, 1);
+
+            // 크기 계산
+            this.currentWidth = this.width * progress;
+            this.currentHeight = this.height * progress;
+
+            // 중앙 정렬을 위한 위치 조정
+            const offsetX = (this.width - this.currentWidth) / 2;
+            const offsetY = (this.height - this.currentHeight) / 2;
+
+            ctx.drawImage(
+                this.imageSpawn,
+                this.x + offsetX,
+                this.y + offsetY,
+                this.currentWidth,
+                this.currentHeight
+            );
+
+            // 스폰 애니메이션 종료
+            if (progress >= 1) {
+                this.isSpawning = false;
+                this.currentWidth = this.width;
+                this.currentHeight = this.height;
             }
+        } else if (this.isDying) {
+            // 죽었을때
         } else {
             // 기존 보스 그리기 코드
             if (this.dx > 0) {
                 ctx.scale(-1, 1);
                 ctx.drawImage(
-                    this.health <= 5 ? this.imageAngry : this.image,
+                    this.image,
                     -this.x - this.width,
                     this.y,
                     this.width,
@@ -272,7 +321,7 @@ class Boss{
                 );
             } else {
                 ctx.drawImage(
-                    this.health <= 5 ? this.imageAngry : this.image,
+                    this.image,
                     this.x,
                     this.y,
                     this.width,
@@ -293,6 +342,12 @@ class BossManager{
         ['mainGame/boss/ghast/ghast.png', 'mainGame/boss/ghast/ghast_angry.png'],   // 220, 277
         ['mainGame/goss/ender_dragon.webp']     // 400, 408
     ];
+    bossHitImageDirs = [
+        'mainGame/boss/wither/wither_hit.png'
+    ];
+    bossSpawnImageDirs = [
+        'mainGame/boss/wither/wither_spawn.png'
+    ];
     bossSpawnSoundDirs = [
         'mainGame/boss/wither/spawn.mp3',
     ];
@@ -310,7 +365,7 @@ class BossManager{
     constructor(difficulty) {
         // 위더
         this.bosses.push(new Boss(
-            20,  // health
+            7,  // health
             canvas.width/2 - this.size[0][0]/2,  // x
             this.y,  // y
             this.y, // defaultY
@@ -319,7 +374,9 @@ class BossManager{
             this.size[0][0],  // width
             this.size[0][1],  // height
             this.bossImageDirs[0][0],  // bossImageDir
+            this.bossSpawnImageDirs[0],
             this.bossImageDirs[0][0],  // imageAngry
+            this.bossHitImageDirs[0],
             this.bossSpawnSoundDirs[0], // 보스 스폰 sound
             this.bossHitSoundDirs[0],   // 보스 맞는 sound
             this.bossDeathSoundDirs[0]  // 보스 죽는 sound
@@ -335,7 +392,9 @@ class BossManager{
             this.size[1][0],  // width
             this.size[1][1],  // height
             this.bossImageDirs[1][0],  // bossImageDir
+            this.bossSpawnImageDirs[1],
             this.bossImageDirs[1][1],  // imageAngry
+            this.bossHitImageDirs[1],
             this.bossSpawnSoundDirs[1], // 보스 스폰 sound
             this.bossHitSoundDirs[1],   // 보스 맞는 sound
             this.bossDeathSoundDirs[1]  // 보스 죽는 sound
@@ -351,7 +410,9 @@ class BossManager{
             this.size[2][0],  // width
             this.size[2][1],  // height
             this.bossImageDirs[2][0],  // bossImageDir
+            this.bossSpawnImageDirs[2],
             this.bossImageDirs[2][0],  // imageAngry
+            this.bossHitImageDirs[2],
             this.bossSpawnSoundDirs[2], // 보스 스폰 sound
             this.bossHitSoundDirs[2],   // 보스 맞는 sound
             this.bossDeathSoundDirs[2]  // 보스 죽는 sound
@@ -361,7 +422,8 @@ class BossManager{
     }
 
     init(difficulty) {
-        this.curBoss = this.bosses[difficulty-1];
+        // 새로운 보스 인스턴스 생성
+        this.curBoss = this.bosses[difficulty-1].clone();
     }
 
     manageProjectile(projectileManager) {
@@ -370,20 +432,19 @@ class BossManager{
         // 발사 시간이 되었는지 체크
         if (currentTime - projectileManager.lastFireTime >= projectileManager.nextFireDelay) {
             // 보스가 멈춘 상태에서 발사체 생성
-            this.curBoss.originalDx = this.curBoss.dx;  // 원래 속도 저장
-            this.curBoss.dx = 0;  // 보스 정지
-            this.curBoss.stopTime = currentTime;  // 정지 시작 시간 저장
+            this.curBoss.dx = this.curBoss.dx * 0.1;  // 보스 정지
+            this.curBoss.attackStopTime = currentTime;  // attackStopTime 사용
             
             projectileManager.createProjectiles(this.curBoss);
             projectileManager.lastFireTime = currentTime;
             projectileManager.nextFireDelay = projectileManager.getRandomDelay();
         }
         // 보스가 멈춰있는 상태라면
-        else if (this.curBoss.stopTime) {
+        else if (this.curBoss.attackStopTime) {
             // 0.5초가 지났다면 다시 움직임
-            if (currentTime - this.curBoss.stopTime >= 500) {
-                this.curBoss.dx = this.curBoss.originalDx;  // 원래 속도로 복구
-                this.curBoss.stopTime = null;  // 정지 상태 해제
+            if (currentTime - this.curBoss.attackStopTime >= 500) {
+                this.curBoss.dx = this.curBoss.dx < 0 ? -this.curBoss.defaultDx: this.curBoss.defaultDx;;  // 원래 속도로 복구
+                this.curBoss.attackStopTime = null;  // attackStopTime 초기화
             }
         }
         
@@ -392,10 +453,11 @@ class BossManager{
     }
 
     collisionDetection(ball) {
-        if(!this.curBoss.isDying && !this.curBoss.isInvulnerable && 
+        const currentTime = Date.now();
+        
+        if(!this.curBoss.isDying && !this.curBoss.checkInvulnerable() && 
            ball.isCollision(this.curBoss.x, this.curBoss.y, this.curBoss.width, this.curBoss.height)) {
-            this.curBoss.hitSound.currentTime = 0;  // 오디오 위치를 처음으로 리셋
-            this.curBoss.hitSound.play();
+            this.curBoss.hit(currentTime);
             console.log(this.curBoss.health);
             
             // 공의 중심점
@@ -431,17 +493,19 @@ class BossManager{
                 }
             }
             
+            // 공이 지속해서 보스에게 피해주는 경우 없게 하기 위해 무적 시간 추가
             this.curBoss.isInvulnerable = true;
             
             if (this.curBoss.health <= 1) {
                 this.curBoss.isDying = true;
-                this.curBoss.createParticles();
                 this.curBoss.dropItem();
                 this.curBoss.deathSound.play();
             } else {
                 this.curBoss.health--;
             }       
-        }
+        } 
+
+        this.curBoss.releaseHit(currentTime);
     }
 
     isDying() {

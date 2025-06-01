@@ -13,7 +13,7 @@ $(document).ready(function () {
     // manager 들 초기화
     user = new User(5);      // 전역변수
     bossGame = new BossGame(gameDifficulty);
-    gameDifficulty = 2;
+    gameDifficulty = 1;
 
     // 개발 시에만 if 문 사용, 완성시에는 초기에 brick_breaking_init만 사용하면 됨.
     if (CUR_GAME_STATE == GAME_STATE.BRICK_BREAKING) {
