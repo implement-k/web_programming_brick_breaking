@@ -28,6 +28,7 @@ class BossGame {
         // 화면 초기화
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 
+        this.background.src = this.backgroundDir[difficulty-1];
         this.ball = new Ball(WIDTH/2, HEIGHT-150, 2, -2);
         this.paddle = new Paddle(WIDTH/2-50, HEIGHT-100);
         this.hotbar = new Hotbar(WIDTH/2-195, HEIGHT-60);
