@@ -93,34 +93,54 @@ function getClickSection(pos) {
 }
 
 // 조합 완료 확인
-function checkCraftResult(craftingItems) {
+function checkCraftResult() {
 	let sum = 0;
+	let resultIndex = 0;
 	for(let i = 0; i < craftingItems.length; i++) {
 		for(let j = 0; j < craftingItems[i].length; j++) {
 			sum += craftingItems[i][j];
 		}
 	}
-	if(sum == 1) {
-		// 조합 완료 아이템
-		const newDiv = $('<div />').addClass('clear_item').css({
-			'left': `538px`,
-			'top': '280px',
-			'position': 'absolute',
-			'cursor': 'move'
-		});
-		
+	if(sum === 1) resultIndex = 4;
+	
+	console.log(resultIndex);
+
+
+	// 조합 완료 아이템
+	const newDiv = $('<div />').attr('id', 'result_item').addClass('clear_item').css({
+		'left': `538px`,
+		'top': '280px',
+		'position': 'absolute',
+		'cursor': 'move'
+	});
+	
+	if(resultIndex > 0) {
 		const newImg = $('<img />').addClass('clear_item');
-		
-		newImg.attr('src', itemPaths[5]);
-		newImg.css({
-			'width': '32px',
-			'height': '32px'
-		});
+
+		newImg.attr('src', itemPaths[resultIndex]).css({'width': '32px', 'height': '32px'});
 		newDiv.append(newImg);
-		
+
+		newDiv.on('mousedown', function(e) {
+				
+
+			$('.item_in_craft').remove();
+			if (!havingItems.has(4)) havingItems.set(4, 0);
+			havingItems.set(4, havingItems.get(4)+1);
+
+			havingItems.set(0, havingItems.get(0)-1);
+
+
+			for(let i = 0; i < craftingItems.length; i++) {
+				for(let j = 0; j < craftingItems.length; j++) {
+					craftingItems[i][j] = 0;
+				}
+			}
+		});
+			
 		$('.clear').append(newDiv);
 	}
 }
+
 
 // 조합창에 올려진 아이템을 저장하는 배열
 let craftingItems = [
@@ -167,6 +187,7 @@ function handleLeftClick(e, newDiv, newImg) {
 				currentlyDraggingDiv = newDiv;
 
                 if (clickSection === 'crafting') {
+					newDiv.removeClass('item_in_craft');
                     let i;
                     for (i = 0; i < 9; i++) {
                         if (pos.left >= craftingPos[i].left && pos.left <= craftingPos[i].left + 40 &&
@@ -178,9 +199,11 @@ function handleLeftClick(e, newDiv, newImg) {
                 }
             } else {
 				currentlyDraggingDiv = null;
-
+				$('#result_item').remove();
                 // 드래그 놓기
                 if (clickSection === 'crafting') {
+
+					newDiv.addClass('item_in_craft');
 					const centerX = pos.left + newDiv.outerWidth() / 2;
 					const centerY = pos.top + newDiv.outerHeight() / 2;
 
@@ -198,14 +221,15 @@ function handleLeftClick(e, newDiv, newImg) {
                     let indexY = parseInt(i % 3);
 
                     if (itmSrc === 'wood') craftingItems[indexX][indexY] = 1;
-                    else if (itmSrc === 'plank') craftingItems[indexX][indexY] = 2;
-                    else if (itmSrc === 'stick') craftingItems[indexX][indexY] = 3;
+                    else if (itmSrc === 'stick') craftingItems[indexX][indexY] = 2;
+                    else if (itmSrc === 'plank') craftingItems[indexX][indexY] = 3;
                     else if (itmSrc === 'iron') craftingItems[indexX][indexY] = 4;
                     else if (itmSrc === 'gold') craftingItems[indexX][indexY] = 5;
                     else if (itmSrc === 'diamond') craftingItems[indexX][indexY] = 6;
 
-                    let result = checkCraftResult(craftingItems);
+					checkCraftResult();
                 }
+
             }
         }
     }
@@ -281,6 +305,7 @@ function drawInventory() {
 
 		const newImg = $('<img />').addClass('clear_item').attr('src', itemPaths[itemType]).css({ 'width': '32px', 'height': '32px' });
 		newDiv.append(newImg);
+		newDiv.attr('data-type', itemType);
 	
 		// 아이템 수량 출력하는 span
 		const countSpan = $('<span />').text(count).css({
@@ -315,16 +340,13 @@ function drawInventory() {
 function gameclear() {
 	
 	// TEST
+	
+
 	havingItems.set(1, 2);
 	havingItems.set(0, 1);
 	havingItems.set(4, 5);
 	havingItems.set(2, 3);
 	havingItems.set(3, 4);
-	havingItems.set(5, 51);
-	havingItems.set(6, 51);
-	havingItems.set(7, 51);
-	havingItems.set(8, 51);
-	havingItems.set(9, 51);
 		
 	SOUND_EFFECT.clear.play();
 	$('.clear').css('display', 'flex');
