@@ -1,4 +1,3 @@
-
 // 배경화면 (오버월드, 네더월드, 엔더월드)
 const overworld = new Image();
 overworld.src = 'mainGame/background/overworld.png';
@@ -437,47 +436,56 @@ function gameclear() {
 
 			
 // 메인 게임 루프
-function draw() {
-	if (!gameStarted) return;
-	if (isClear) {
-		gameclear();
-		return;
-	}
-				
-	ctx.clearRect(0, 0, canvas.width, canvas.height);
-				
-	// 배경 이미지 그리기
-	if (BACKGROUND_IMAGES[gameDifficulty-1] && BACKGROUND_IMAGES[gameDifficulty-1].complete) {
-		ctx.drawImage(BACKGROUND_IMAGES[gameDifficulty-1], 0, 0, canvas.width, canvas.height);
-	}
-				
-	isClear = brickManager.draw(fallingItems.length);
-	ball.draw();
-	paddle.draw();
-	drawFallingItems();
-	brickManager.collisionDetection(ball);
-	paddle.collisionDetection(ball);
-	hotbar.draw(havingItems);
-				
-	// 패들 이동 및 기울기 처리
-	paddle.updateRocation(canvas, leftPressed, rightPressed);
-				
-	// 공 회전 및 이동
-	ball.updateRotation();
-	ball.updateLocation();
-				
-	// 벽 충돌 처리
-	if(ball.x + ball.width > canvas.width || ball.x < 0) {
-		ball.dx = -ball.dx;
-	}
-	if(ball.y < 0) {
-		ball.dy = -ball.dy;
-	}
-				
-	else if(ball.y + ball.height > canvas.height) {
-		console.log(ball.y, ball.height, canvas.height);
-		gameover();
-	}
-				
-	requestAnimationFrame(draw);
+function draw(currentTime) {
+    if (!gameStarted) return;
+    if (isClear) {
+        gameclear();
+        return;
+    }
+    
+    // deltaTime 계산
+    const deltaTime = currentTime - (draw.lastTime || currentTime);
+    draw.lastTime = currentTime;
+
+    const timeStep = 1000 / 60; // 목표 60fps
+    const normalizedDeltaTime = deltaTime / timeStep;
+    
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    
+    // 배경 이미지 그리기
+    if (BACKGROUND_IMAGES[gameDifficulty-1] && BACKGROUND_IMAGES[gameDifficulty-1].complete) {
+        ctx.drawImage(BACKGROUND_IMAGES[gameDifficulty-1], 0, 0, canvas.width, canvas.height);
+    }
+    
+    isClear = brickManager.draw(fallingItems.length);
+    ball.draw();
+    paddle.draw();
+    drawFallingItems();
+    brickManager.collisionDetection(ball);
+    paddle.collisionDetection(ball);
+    hotbar.draw(havingItems);
+    
+    // 패들 이동 및 기울기 처리
+    paddle.updateRocation(canvas, leftPressed, rightPressed);
+    
+    // 공 회전 및 이동
+    ball.updateRotation();
+    ball.updatePosition(normalizedDeltaTime);
+    
+    // 벽 충돌 처리
+    if(ball.x + ball.width > canvas.width || ball.x < 0) {
+        ball.dx = -ball.dx;
+        // 벽에 부딪힐 때 위치 보정
+        if(ball.x < 0) ball.x = 0;
+        if(ball.x + ball.width > canvas.width) ball.x = canvas.width - ball.width;
+    }
+    if(ball.y < 0) {
+        ball.dy = -ball.dy;
+        ball.y = 0; // 천장에 부딪힐 때 위치 보정
+    }
+    else if(ball.y + ball.height > canvas.height) {
+        gameover();
+    }
+    
+    requestAnimationFrame(draw);
 }

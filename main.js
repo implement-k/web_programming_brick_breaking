@@ -11,7 +11,7 @@ $(document).ready(function () {
     $(document).keyup(keyUpHandler);
 
     // manager 들 초기화
-    user = new User();      // 전역변수
+    user = new User(5);      // 전역변수
     bossGame = new BossGame(gameDifficulty);
     gameDifficulty = 2;
 
@@ -23,6 +23,7 @@ $(document).ready(function () {
     // 임시: 보스전 시작버튼
     $('#tmp_boss_start').click(() => {
         gameStarted = false;
+        $('.clear').hide();
         bossGame.init(gameDifficulty);
     });
     // 시작 버튼 처리

@@ -13,42 +13,25 @@ const BALL_DIR = [
 // 아이템
 // 아이템 이미지 경로 저장 배열
 const itemPaths = [
-    'mainGame/items/wood.png', //0
-    'mainGame/items/iron.png', //1
-    'mainGame/items/gold.png', //2
-    'mainGame/items/diamond.png', //3
-    'mainGame/items/plank.png', //4
-    'mainGame/items/stick.png', //5
-
-    'mainGame/items/sword/iron_sword.png',   // 1 + 5
-    'mainGame/items/sword/golden_sword.png', // 2 + 5
-    'mainGame/items/sword/diamond_sword.png',  // 3 + 5
-    'mainGame/items/sword/wooden_sword.png',  // 4 + 5
-
-    'mainGame/items/boots/iron_boots.png',  // 1 + 9
-    'mainGame/items/boots/golden_boots.png', // 2 + 9
-    'mainGame/items/boots/diamond_boots.png', // 3 + 9
-
-    'mainGame/items/reggings/iron_reggings.png',  // 1 + 12
-    'mainGame/items/reggings/golden_reggings.png', // 2 + 12
-    'mainGame/items/reggings/diamond_reggings.png', // 3 + 12
-
-    'mainGame/items/chestplate/iron_chestplate.png',  // 1 + 15
-    'mainGame/items/chestplate/gold_chestplate.png',  // 2 + 15
-    'mainGame/items/chestplate/diamond_chestplate.png',  // 3 + 15
-
-    'mainGame/items/helmet/iron_helmet.png',  // 1 + 18
-    'mainGame/items/helmet/golden_helmet.png',  // 2 + 18
-    'mainGame/items/helmet/diamond_helmet.png'  // 3 + 18
-    
+    'mainGame/items/wood.png',
+    'mainGame/items/iron.png',
+    'mainGame/items/gold.png',
+    'mainGame/items/diamond.png',
+    'mainGame/items/stick.png',
+    'mainGame/items/plank.png'
 ];
 const itemImages = [];
-for(let i = 0; i < itemPaths.length; i++) {
-    console.log(i);
-    const img = new Image();
-    img.src = itemPaths[i];
-    itemImages.push(img);
-}
+const loadItemImages = () => {
+    return Promise.all(itemPaths.map(path => {
+        return new Promise((resolve) => {
+            const img = new Image();
+            img.onload = () => resolve(img);
+            img.src = path;
+            itemImages.push(img);
+        });
+    }));
+};
+loadItemImages();
 
 // 공
 class Ball {
@@ -158,7 +141,6 @@ class Paddle {
 
     collisionDetection(ball) {
         if(ball.isCollision(this.x, this.y, this.width, this.height)) {
-            this.collisionSound.currentTime = 0;  // 오디오 위치를 처음으로 리셋
             this.collisionSound.play();
             
             // 충돌 위치에 따른 반사 각도 조정
@@ -335,56 +317,129 @@ class BrickManager {
     }
 }
 
+// 핫바 구성 (완성)
 class Hotbar {
-    image = new Image();
+    image;
     x; y;
-    width = 390; height= 54;
+    width = 393; height= 55;
+    posX = [9, 52, 94, 137, 180, 223, 265, 308, 351]
 
-    constructor(x, y) {
+    constructor(x, y, image) {
         this.x = x;
         this.y = y;
-        this.image.src = "mainGame/hotbar/hotbar.png";
+        this.image = image;
     }
 
     draw(havingItems) {
+        if (!this.image || !this.image.complete) return;
+        
         ctx.save();
         ctx.drawImage(this.image, this.x, this.y, this.width, this.height);
 
         // 핫바 속 아이템 그리기
         let i = 0;
         for (let [itemType, count] of havingItems.entries()) {
-            // 아이템
-            ctx.drawImage(itemImages[itemType], hotbar.x + 11 + i*42, hotbar.y + 8, 33, 33);
+            // 아이템이 존재하고 로드되었는지 확인
+            const itemImage = itemImages[itemType];
+            if (itemImage && itemImage.complete) {
+                ctx.drawImage(itemImage, this.x + this.posX[i], this.y + 9, 33, 33);
+            }
             
             // 아이템 개수
             if (count == 1) {
                 i++;
                 continue;
             }
-            ctx.font = "20px Minecraftia";
+            ctx.font = "18px Minecraftia";
             ctx.textAlign = "right";
             ctx.fillStyle = "rgba(0, 0, 0, .5)";
-            ctx.fillText(count, hotbar.x + 53 + 42*i, hotbar.y + 46);
+            ctx.fillText(count, this.x + this.posX[i] + 41, this.y + 45);
             ctx.fillStyle = "#FFFFFF";
-            ctx.fillText(count, hotbar.x + 50 + 42*i, hotbar.y + 43);
+            ctx.fillText(count, this.x + this.posX[i] + 38, this.y + 42);
             i++;
         }
+
+        ctx.restore();
+    }
+}
+
+// 체력 바 (완성)
+class Heart {
+    x; y;
+    image = [new Image(), new Image()];
+    health; maxHealth;
+
+    constructor(x, y, maxHealth) {
+        this.x = x;
+        this.y = y;
+        this.health = maxHealth;
+        this.maxHealth = maxHealth;
+        this.image[0].src = 'mainGame/user/heart_empty.png';
+        this.image[1].src = 'mainGame/user/heart_fill.png';
+    }
+
+    draw() {
+        ctx.save();
+    
+        // 채워진 하트 그리기
+        for (let i = 0; i<this.health; i++) {
+            if (this.image[1].complete) ctx.drawImage(this.image[1], this.x + i*19, this.y, 19, 19);
+        }
+            
+        // 빈 하트 그리기
+        for (let i = this.health; i<this.maxHealth; i++) {
+            if (this.image[0].complete) ctx.drawImage(this.image[0], this.x + i*19, this.y, 19, 19);
+        }
+
+        ctx.restore();
     }
 }
 
 // 게임 화면에 유저를 위한 정보 (hotbar, timer, gameDifficulty, 체력, 갑바)
 class User {
     havingItems = [];
+    having
+    hotbars = [];
+    xpbars = [];
+    curHotbar;
+    heart;
 
-    constructor() {
+    constructor(health) {
+        // 번호별 핫바 구성
+        for (let i = 1; i<10; i++) {
+            let hotbarImg = new Image();
+            hotbarImg.src = 'mainGame/hotbar/hotbar' + i + '.png';
+            this.hotbars.push(new Hotbar(253, 595, hotbarImg));
+        }
+        this.curHotbar = this.hotbars[1];
+
+        // 레벨별 xpbar 구성
+        for (let i = 1; i<4; i++) {
+            let xpbar = new Image();
+            xpbar.src = 'mainGame/xpbar/level' + i + '.png';
+            this.xpbars.push(xpbar);
+        }
+        
+        // 체력바 구성
+        this.heart = new Heart(256, 560, health);
+
+        // 보호구 바 구성
+        // this.
+    }
+
+    init() {
 
     }
 
     clone() {
-        return new User();
+        // return new User();
     }
 
     draw() {
-
+        ctx.save();
+        this.curHotbar.draw(havingItems);
+        this.heart.draw();
+        ctx.drawImage(this.xpbars[1], 256, 570, 387, 23);
+        ctx.restore();
     }
 }

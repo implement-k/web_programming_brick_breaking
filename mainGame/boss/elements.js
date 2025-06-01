@@ -97,8 +97,8 @@ class ProjectileManager {
     }
 
     // 발사체와 패들의 충돌 검사
-    checkCollisions(paddle) {
-        for (let i = this.projectiles.length - 1; i >= 0; i--) {
+    checkCollisions(paddle, canvas) {
+        for(let i = this.projectiles.length - 1; i >= 0; i--) {
             const projectile = this.projectiles[i];
             
             // 패들과 충돌

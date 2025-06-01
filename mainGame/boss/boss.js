@@ -14,14 +14,14 @@ class BossGame {
     difficulty;
     isStarted = false;
     ball; paddle; hotbar;
+
     constructor(difficulty) {
         this.background.src = this.backgroundDir[difficulty-1];
         this.bossManager = new BossManager(difficulty);
         this.projectileManager = new ProjectileManager(difficulty);
-        this.originUser = user.clone();
-        this.user = user.clone();
+        // this.originUser = user.clone();
+        // this.user = user.clone();
         this.difficulty = difficulty;
-        // draw 메서드의 this 바인딩 유지
         this.draw = this.draw.bind(this);
     }
 
@@ -29,40 +29,38 @@ class BossGame {
         // 화면 초기화
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-        this.ball = new Ball(WIDTH/2, HEIGHT-150, 1.5, 1.5);
+        this.ball = new Ball(WIDTH/2, HEIGHT-150, 2, -2);
         this.paddle = new Paddle(WIDTH/2-50, HEIGHT-100);
         this.hotbar = new Hotbar(WIDTH/2-195, HEIGHT-60);
-        this.bossManager.init(this.difficulty);
-        this.projectileManager.init(this.difficulty);
-        user = this.originUser.clone();
+        this.bossManager.init(difficulty);
+        this.projectileManager.init(difficulty);
+        // user = this.originUser.clone();
         this.isStarted = true;
-        this.difficulty = difficulty;
         this.draw();
-    }
-
-    setDifficulty(difficulty) {
-        this.background.src = this.backgroundDir[difficulty-1];
-        this.bossManager.setBoss(difficulty);
-        this.difficulty = difficulty;
     }
 
     draw() {
         if (!this.isStarted) return;
 
         ctx.clearRect(0, 0, canvas.width, canvas.height);
-        ctx.drawImage(this.background, 0, 0, canvas.width, canvas.height);
+        if (this.background.complete) {
+            ctx.drawImage(this.background, 0, 0, canvas.width, canvas.height);
+        }
 
-        this.bossManager.collisionDetection(this.ball); // 보스 - 공 충돌 관리
+        // 보스와 공의 충돌 체크
+        this.bossManager.collisionDetection(this.ball);
+        this.paddle.collisionDetection(this.ball);
 
-        this.ball.draw();                   // 칼
-        this.paddle.draw();                 // 패들
-        this.bossManager.draw();            // 보스, 보스 체력
-        this.projectileManager.draw();      // 발사체
-        this.user.draw();                   // hotbar, 레벨, 체력, 갑바, 시간
+        // 발사체 관리
+        this.bossManager.manageProjectile(this.projectileManager);
+        this.projectileManager.draw();
 
-        this.bossManager.manageProjectile(this.projectileManager); // 보스 - 발사체 관리
-        this.paddle.collisionDetection(this.ball);   // 패들 - 공 충돌관리
-        // 발사체 - 패들 충돌 관리
+        // 그리기
+        this.ball.draw();
+        this.paddle.draw();
+        this.bossManager.draw();
+        // this.user.draw();
+        user.draw();
 
         // 패들 이동 및 기울기 처리
         this.paddle.updateRocation(canvas, leftPressed, rightPressed);
@@ -77,32 +75,10 @@ class BossGame {
         }
         if(this.ball.y < 0) {
             this.ball.dy = -this.ball.dy;
+        } else if(this.ball.y + this.ball.height > canvas.height) {
+            this.isStarted = false;
+            return;
         }
-        // 체력 관리
-        else if(this.ball.y + this.ball.height > canvas.height) {
-            this.gameover();
-        }
-        
-        // 아이템과 패들의 충돌 처리
-        // if (boss.droppedItem) {
-        //     const item = boss.droppedItem;
-        //     const itemLeft = item.x - item.width / 2;
-        //     const itemRight = item.x + item.width / 2;
-        //     const itemTop = item.y - item.height / 2;
-        //     const itemBottom = item.y + item.height / 2;
-
-        //     if (itemRight >= paddle.x && 
-        //         itemLeft <= paddle.x + paddle.width &&
-        //         itemBottom >= paddle.y && 
-        //         itemTop <= paddle.y + paddle.height) {
-        //         // 아이템 효과 적용
-        //         boss.droppedItem = null;
-        //         // 예: 점수 추가, 패들 크기 증가 등
-        //         score += 1000;
-        //     } else if (item.y > canvas.height) {
-        //         boss.droppedItem = null;
-        //     }
-        // }
 
         requestAnimationFrame(this.draw);
     }
