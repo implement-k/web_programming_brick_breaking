@@ -13,14 +13,38 @@ const BALL_DIR = [
 // 아이템
 // 아이템 이미지 경로 저장 배열
 const itemPaths = [
-    'mainGame/items/wood.png',
-    'mainGame/items/iron.png',
-    'mainGame/items/gold.png',
-    'mainGame/items/diamond.png',
-    'mainGame/items/stick.png'
+    'mainGame/items/wood.png', //0
+    'mainGame/items/iron.png', //1
+    'mainGame/items/gold.png', //2
+    'mainGame/items/diamond.png', //3
+    'mainGame/items/plank.png', //4
+    'mainGame/items/stick.png', //5
+
+    'mainGame/items/sword/iron_sword.png',   // 1 + 5
+    'mainGame/items/sword/golden_sword.png', // 2 + 5
+    'mainGame/items/sword/diamond_sword.png',  // 3 + 5
+    'mainGame/items/sword/wooden_sword.png',  // 4 + 5
+
+    'mainGame/items/boots/iron_boots.png',  // 1 + 9
+    'mainGame/items/boots/golden_boots.png', // 2 + 9
+    'mainGame/items/boots/diamond_boots.png', // 3 + 9
+
+    'mainGame/items/reggings/iron_reggings.png',  // 1 + 12
+    'mainGame/items/reggings/golden_reggings.png', // 2 + 12
+    'mainGame/items/reggings/diamond_reggings.png', // 3 + 12
+
+    'mainGame/items/chestplate/iron_chestplate.png',  // 1 + 15
+    'mainGame/items/chestplate/gold_chestplate.png',  // 2 + 15
+    'mainGame/items/chestplate/diamond_chestplate.png',  // 3 + 15
+
+    'mainGame/items/helmet/iron_helmet.png',  // 1 + 18
+    'mainGame/items/helmet/golden_helmet.png',  // 2 + 18
+    'mainGame/items/helmet/diamond_helmet.png'  // 3 + 18
+    
 ];
 const itemImages = [];
 for(let i = 0; i < itemPaths.length; i++) {
+    console.log(i);
     const img = new Image();
     img.src = itemPaths[i];
     itemImages.push(img);
