@@ -4,18 +4,18 @@ const HEIGHT = 650;
 
 let canvas, ctx;
 
-// 가지고 있는 아이템
-let havingItems = new Map();
-
-let gameDifficulty = 3; // 난이도  (1: 오버월드, 2: 네더월드, 3: 엔더월드)
+let gameDifficulty = 1; // 난이도  (1: 오버월드, 2: 네더월드, 3: 엔더월드)
 
 // 키보드 컨트롤
 let rightPressed = false;
 let leftPressed = false;
+let curHotbarIdx = 1;
 
-let ball, paddle, hotbar;
+let ball, paddle, hotbar, hud;
 
 const SOUND_EFFECT = {
     death: new Audio('mainGame/etc_sound/death.mp3'),
     clear: new Audio('mainGame/etc_sound/levelup.mp3')
 };
+
+let user, userCheckpoint;

@@ -153,6 +153,10 @@ section{
 
 .clear_item{
     position:absolute;
-    width: 39px;
-    height: 39px;
+    width: 32px;
+    height: 32px;
+}
+
+#craftingTable {
+    pointer-events: none;
 }
