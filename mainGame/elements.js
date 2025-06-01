@@ -30,16 +30,19 @@ for(let i = 0; i < itemPaths.length; i++) {
 class Ball {
     x; y;
     width = 20; height= 25;
-    dx = BALL_X_SPEED; dy = BALL_Y_SPEED;
+    dx; dy;
+    defaultDx; defaultDy;
     rotation = 0;
     speed = 0;
     image = new Image();
 
-    constructor(x, y, width = 20, height = 25, dx = BALL_X_SPEED, dy = BALL_Y_SPEED) {
+    constructor(x, y, dx = 1, dy = 1, width = 20, height = 25) {
         this.x = x;
         this.y = y;
         this.width = width;
         this.height = height;
+        this.defaultDx = dx;
+        this.defaultDy = dy;
         this.dx = dx;
         this.dy = dy;
         this.image.src = BALL_DIR[BALL_STYLE];
@@ -131,6 +134,7 @@ class Paddle {
 
     collisionDetection(ball) {
         if(ball.isCollision(this.x, this.y, this.width, this.height)) {
+            this.collisionSound.currentTime = 0;  // 오디오 위치를 처음으로 리셋
             this.collisionSound.play();
             
             // 충돌 위치에 따른 반사 각도 조정
@@ -142,7 +146,7 @@ class Paddle {
             
             // 기울기에 따른 속도 증가 (최대 50% 증가)
             const tiltSpeedBonus = 1 + Math.abs(this.tilt / this.maxTilt) * 0.5;
-            const baseSpeed = Math.sqrt(BALL_X_SPEED * BALL_X_SPEED + BALL_Y_SPEED * BALL_Y_SPEED);
+            const baseSpeed = Math.sqrt(ball.defaultDx * ball.defaultDx + ball.defaultDy * ball.defaultDy);
             const speed = baseSpeed * tiltSpeedBonus;
             
             // 새로운 속도와 방향만 계산 (기본 속도 유지)
@@ -357,6 +361,6 @@ class User {
     }
 
     draw() {
-        
+
     }
 }

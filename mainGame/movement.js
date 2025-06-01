@@ -5,6 +5,7 @@ function keyDownHandler(e) {
     else if(e.key === "Left" || e.key === "ArrowLeft") {
         leftPressed = true;
     }
+    
 }
 
 function keyUpHandler(e) {

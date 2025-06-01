@@ -13,6 +13,7 @@ $(document).ready(function () {
     // manager 들 초기화
     user = new User();      // 전역변수
     bossGame = new BossGame(gameDifficulty);
+    gameDifficulty = 2;
 
     // 개발 시에만 if 문 사용, 완성시에는 초기에 brick_breaking_init만 사용하면 됨.
     if (CUR_GAME_STATE == GAME_STATE.BRICK_BREAKING) {
@@ -22,7 +23,7 @@ $(document).ready(function () {
     // 임시: 보스전 시작버튼
     $('#tmp_boss_start').click(() => {
         gameStarted = false;
-        bossGame.init();
+        bossGame.init(gameDifficulty);
     });
     // 시작 버튼 처리
     $('#startButton').click(function() {
