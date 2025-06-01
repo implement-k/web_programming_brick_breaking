@@ -88,7 +88,6 @@ function getClickSection(pos) {
 	let x = pos.left;
 	let y = pos.top;
 	if(x >= 310 && x <= 410 && y >= 230 && y <= 330) return 'crafting';
-	else if(x >= 525 && x <= 585 && y >= 265 && y <= 330) return 'result';
 	else if(x >= 255 && x <= 610 && y >= 395 && y <= 540) return 'inventory';
 }
 
@@ -96,45 +95,120 @@ function getClickSection(pos) {
 function checkCraftResult() {
 	let sum = 0;
 	let resultIndex = 0;
+	let usedItem = new Map();
+
+	// 나무 원목 -> 판자
 	for(let i = 0; i < craftingItems.length; i++) {
 		for(let j = 0; j < craftingItems[i].length; j++) {
 			sum += craftingItems[i][j];
 		}
 	}
-	if(sum === 1) resultIndex = 4;
-	
-	console.log(resultIndex);
+	if(sum === 1) {
+		resultIndex = 4;
+		usedItem.set(1, 1);
+	}
 
+	// 막대기 조합
+	const centerColumn = [craftingItems[0][1], craftingItems[1][1], craftingItems[2][1]];
 
-	// 조합 완료 아이템
-	const newDiv = $('<div />').attr('id', 'result_item').addClass('clear_item').css({
-		'left': `538px`,
-		'top': '280px',
-		'position': 'absolute',
-		'cursor': 'move'
-	});
+    // 경우 1: 상단 + 중간
+    if (centerColumn[0] === 5 && centerColumn[1] === 5 &&
+        craftingItems[0][0] === 0 && craftingItems[0][2] === 0 &&
+        craftingItems[1][0] === 0 && craftingItems[1][2] === 0 &&
+        craftingItems[2][0] === 0 && craftingItems[2][1] === 0 && craftingItems[2][2] === 0
+    ) {
+		resultIndex = 5;
+		usedItem.set(5, 2);
+	}
+    // 경우 2: 중간 + 하단
+    if (centerColumn[1] === 5 && centerColumn[2] === 5 &&
+        craftingItems[0][0] === 0 && craftingItems[0][1] === 0 && craftingItems[0][2] === 0 &&
+        craftingItems[1][0] === 0 && craftingItems[1][2] === 0 &&
+        craftingItems[2][0] === 0 && craftingItems[2][2] === 0
+    ) {
+		resultIndex = 5;
+		usedItem.set(5, 2);
+    }
+
+	// 검 조합
+	if(craftingItems[0][0] == 0 && craftingItems[0][1] > 0 && craftingItems[0][2] == 0
+		&& craftingItems[1][0] == 0 && craftingItems[1][1] == craftingItems[0][1] && craftingItems[1][2] == 0
+		&& craftingItems[2][0] == 0 && craftingItems[2][1] == 6 && craftingItems[2][2] == 0) {
+		resultIndex = craftingItems[0][1] + 4;
+		usedItem.set(craftingItems[0][1], 2);
+		usedItem.set(6, 1);
+	}
+
+	// 모자 조합
+	let tmpV = craftingItems[0][0]
+	if(tmpV > 0 && craftingItems[0][1] == tmpV && craftingItems[1][0] == tmpV
+		&& craftingItems[1][0] == tmpV && craftingItems[1][1] == 0 && craftingItems[1][2] == tmpV
+		&& craftingItems[2][0] == 0 && craftingItems[2][1] == 0 && craftingItems[2][2] == 0) {
+		resultIndex = tmpV + 17;
+		usedItem.set(tmpV, 5);
+	}
+
+	// 갑옷 조합
+	tmpV = craftingItems[0][0];
+	if(tmpV > 0 && craftingItems[0][1] == 0 && craftingItems[0][2] == tmpV
+		&& craftingItems[1][0] == tmpV && craftingItems[1][1] == tmpV && craftingItems[1][2] == tmpV
+		&& craftingItems[2][0] == tmpV && craftingItems[2][1] == tmpV && craftingItems[2][2]) {
+		resultIndex = tmpV + 14;
+		usedItem.set(tmpV, 8);
+	}
+
+	// 바지 조합
+	tmpV = craftingItems[0][0];
+	if(tmpV > 0 && craftingItems[0][1] == tmpV && craftingItems[0][2] == tmpV
+		&& craftingItems[1][0] == tmpV && craftingItems[1][1] == 0 && craftingItems[1][2] == tmpV
+		&& craftingItems[2][0] == tmpV && craftingItems[2][1] == 0 && craftingItems[2][2] == tmpV) {
+		resultIndex = tmpV + 11;
+		usedItem.set(tmpV, 7);
+	}
+
+	// 신발 조합
+	tmpV = craftingItems[1][0];
+	if(craftingItems[0][0] == 0 && craftingItems[0][1] == 0 && craftingItems[0][2] == 0
+		&& tmpV > 0 && craftingItems[1][1] == 0 && craftingItems[1][2] == tmpV
+		&& craftingItems[2][0] == tmpV && craftingItems[2][1] == 0 && craftingItems[2][2] == tmpV) {
+		resultIndex = tmpV + 8;
+		usedItem.set(tmpV, 4);
+	}
 	
 	if(resultIndex > 0) {
+		// 조합 완료 아이템
+		const newDiv = $('<div />').addClass('clear_item').css({
+			'left': `538px`,
+			'top': '280px',
+			'position': 'absolute',
+			'cursor': 'move'
+		});
+
 		const newImg = $('<img />').addClass('clear_item');
 
 		newImg.attr('src', itemPaths[resultIndex]).css({'width': '32px', 'height': '32px'});
 		newDiv.append(newImg);
 
 		newDiv.on('mousedown', function(e) {
-				
 
-			$('.item_in_craft').remove();
-			if (!havingItems.has(4)) havingItems.set(4, 0);
-			havingItems.set(4, havingItems.get(4)+1);
-
-			havingItems.set(0, havingItems.get(0)-1);
-
+			for(let [itemType, count] of usedItem.entries()) {
+				let current = havingItems.get(itemType - 1);
+				havingItems.set(itemType - 1, current - count);
+				if(havingItems.get(itemType - 1) == 0) {
+					havingItems.delete(itemType - 1);
+				}
+			}
 
 			for(let i = 0; i < craftingItems.length; i++) {
 				for(let j = 0; j < craftingItems.length; j++) {
 					craftingItems[i][j] = 0;
 				}
 			}
+			
+			if(havingItems.has(resultIndex)) havingItems.set(resultIndex, havingItems.get(resultIndex) + 1);
+			else havingItems.set(resultIndex, 1);
+			$('.clear_item').remove();
+			drawInventory();
 		});
 			
 		$('.clear').append(newDiv);
@@ -176,6 +250,7 @@ function handleLeftClick(e, newDiv, newImg) {
     const pos = newDiv.position();
 
     if (e.button === 0) {
+		
         let clickSection = getClickSection(pos);
         if (clickSection === 'inventory' || clickSection === 'crafting') {
             itemClicked = !itemClicked;
@@ -221,11 +296,11 @@ function handleLeftClick(e, newDiv, newImg) {
                     let indexY = parseInt(i % 3);
 
                     if (itmSrc === 'wood') craftingItems[indexX][indexY] = 1;
-                    else if (itmSrc === 'stick') craftingItems[indexX][indexY] = 2;
-                    else if (itmSrc === 'plank') craftingItems[indexX][indexY] = 3;
-                    else if (itmSrc === 'iron') craftingItems[indexX][indexY] = 4;
-                    else if (itmSrc === 'gold') craftingItems[indexX][indexY] = 5;
-                    else if (itmSrc === 'diamond') craftingItems[indexX][indexY] = 6;
+                    else if (itmSrc === 'stick') craftingItems[indexX][indexY] = 6;
+                    else if (itmSrc === 'plank') craftingItems[indexX][indexY] = 5;
+                    else if (itmSrc === 'iron') craftingItems[indexX][indexY] = 2;
+                    else if (itmSrc === 'gold') craftingItems[indexX][indexY] = 3;
+                    else if (itmSrc === 'diamond') craftingItems[indexX][indexY] = 4;
 
 					checkCraftResult();
                 }
@@ -271,6 +346,10 @@ function handleRightClick(e, originalDiv, originalImg) {
 		fontSize: '14px',
 		color: '#FFFFFF',
 		textShadow: '1px 1px 0 #000000'
+	});
+
+	halfSpan.on('contextmenu', function(e) {
+		e.preventDefault();
 	});
 
 	halfDiv.append(halfImg).append(halfSpan);
@@ -319,6 +398,9 @@ function drawInventory() {
 		});
 		newDiv.append(countSpan);
 		
+		countSpan.on('contextmenu', function(e) {
+		e.preventDefault();
+	});
 
 		// 좌클릭 이벤트 추가 - 아이템 이동
 		newDiv.on('mousedown', function(e) {
@@ -339,15 +421,14 @@ function drawInventory() {
 // 클리어
 function gameclear() {
 	
-	// TEST
+	havingItems.set(1, 20);  // 철
+	havingItems.set(0, 20);  // 원목
+	havingItems.set(4, 20);  // plank
+	havingItems.set(2, 20);  // gold
+	havingItems.set(3, 20);  // diamond
+	havingItems.set(5, 20);  // stick
 	
 
-	havingItems.set(1, 2);
-	havingItems.set(0, 1);
-	havingItems.set(4, 5);
-	havingItems.set(2, 3);
-	havingItems.set(3, 4);
-		
 	SOUND_EFFECT.clear.play();
 	$('.clear').css('display', 'flex');
 	
