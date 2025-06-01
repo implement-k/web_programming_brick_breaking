@@ -35,9 +35,9 @@ class ProjectileManager {
     nextFireDelay = 0;
     delay;              // ms단위, delay +- 2초에서 랜덤으로 공격 
     projectileSize = [[40, 40], [40, 40], [40, 40]];
-    delaies = [4000, 3000, 2000];   // 공격 간격
+    delaies = [4000, 3000, 2500];   // 공격 간격
     damages = [1, 2, 3];            // 발사체 데미지
-    speeds = [2, 3, 4];
+    speeds = [1.4, 1.7, 2];
     projectile;
     difficulty;
     
@@ -97,34 +97,54 @@ class ProjectileManager {
     }
 
     // 발사체와 패들의 충돌 검사
-    checkCollisions(paddle, canvas) {
+    checkCollisions(paddle) {
         for(let i = this.projectiles.length - 1; i >= 0; i--) {
             const projectile = this.projectiles[i];
-            
-            // 패들과 충돌
-            if (projectile.x + projectile.width >= paddle.x &&
-                projectile.x <= paddle.x + paddle.width &&
-                projectile.y + projectile.height >= paddle.y &&
-                projectile.y <= paddle.y + paddle.height) {
+
+            // 이동
+
+            const prevX = projectile.x;
+            const prevY = projectile.y;
+
+            projectile.x += projectile.dx;
+            projectile.y += projectile.dy;
+
+            // 먼저 충돌 체크
+            if (this.checkProjectilePaddleCollision(projectile, paddle, prevX, prevY)) { 
+                console.log(projectile, 'hit');
+                user.hit(projectile.damage);
                 this.projectiles.splice(i, 1);
                 continue;
             }
-            
-            // 화면 아래와 충돌
+        
             if (projectile.y + projectile.height > canvas.height) {
                 this.projectiles.splice(i, 1);
                 continue;
             }
-            
-            // 화면 좌우 벽과 충돌
             if (projectile.x <= 0 || projectile.x + projectile.width >= canvas.width) {
-                projectile.dx = -projectile.dx;  // x방향 반전
+                projectile.dx = -projectile.dx;
             }
-            
-            // 발사체 이동
-            projectile.x += projectile.dx;
-            projectile.y += projectile.dy;
         }
+    }
+
+    checkProjectilePaddleCollision(projectile, paddle, prevX, prevY) {
+        // 현재 위치에서의 충돌
+        const currentCollision = (
+            projectile.x + projectile.width >= paddle.x &&
+            projectile.x <= paddle.x + paddle.width &&
+            projectile.y + projectile.height >= paddle.y &&
+            projectile.y <= paddle.y + paddle.height
+        );
+        
+        // 이전 위치에서의 충돌 (터널링 방지)
+        const prevCollision = (
+            prevX + projectile.width >= paddle.x &&
+            prevX <= paddle.x + paddle.width &&
+            prevY + projectile.height >= paddle.y &&
+            prevY <= paddle.y + paddle.height
+        );
+        
+        return currentCollision || prevCollision;
     }
 
     draw() {
@@ -195,7 +215,7 @@ class Boss{
         // 처음 스폰 
         this.isSpawning = true;
         this.spawnStartTime = Date.now();
-        this.spawnDuration = 2000; // 2초
+        this.spawnDuration = 3000; // 2초
         this.currentWidth = 0;
         this.currentHeight = 0;
         this.spawnSound.play();
@@ -360,7 +380,7 @@ class BossManager{
     bosses = [];
     curBoss;
     size = [[170, 150], [119, 150], [147, 150]];    // 보스 사이즈(이미지 해상도에 맞는)
-    y = 100;    // 보스 위
+    y = 100;    // 보스 y 위치
 
     constructor(difficulty) {
         // 위더
@@ -430,8 +450,9 @@ class BossManager{
         const currentTime = Date.now();
         
         // 발사 시간이 되었는지 체크
-        if (currentTime - projectileManager.lastFireTime >= projectileManager.nextFireDelay) {
+        if (!this.isDying() && currentTime - projectileManager.lastFireTime >= projectileManager.nextFireDelay) {
             // 보스가 멈춘 상태에서 발사체 생성
+            this.curBoss.image.src = this.curBoss.imageAngry.src;
             this.curBoss.dx = this.curBoss.dx * 0.1;  // 보스 정지
             this.curBoss.attackStopTime = currentTime;  // attackStopTime 사용
             
@@ -443,6 +464,7 @@ class BossManager{
         else if (this.curBoss.attackStopTime) {
             // 0.5초가 지났다면 다시 움직임
             if (currentTime - this.curBoss.attackStopTime >= 500) {
+                this.curBoss.image.src = this.curBoss.originalImage.src;
                 this.curBoss.dx = this.curBoss.dx < 0 ? -this.curBoss.defaultDx: this.curBoss.defaultDx;;  // 원래 속도로 복구
                 this.curBoss.attackStopTime = null;  // attackStopTime 초기화
             }

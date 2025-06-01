@@ -4,9 +4,6 @@ const HEIGHT = 650;
 
 let canvas, ctx;
 
-// 가지고 있는 아이템
-let havingItems = new Map();
-
 let gameDifficulty = 1; // 난이도  (1: 오버월드, 2: 네더월드, 3: 엔더월드)
 
 // 키보드 컨트롤
@@ -21,4 +18,4 @@ const SOUND_EFFECT = {
     clear: new Audio('mainGame/etc_sound/levelup.mp3')
 };
 
-let user;
+let user, userCheckpoint;

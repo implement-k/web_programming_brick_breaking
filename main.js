@@ -12,6 +12,7 @@ $(document).ready(function () {
 
     // manager 들 초기화
     user = new User(5);      // 전역변수
+    userCheckpoint = user.clone();
     bossGame = new BossGame(gameDifficulty);
     gameDifficulty = 1;
 

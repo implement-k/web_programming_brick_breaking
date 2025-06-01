@@ -30,7 +30,7 @@ function brick_breaking_init() {
 	brickManager = new BrickManager(gameDifficulty);
 	
 	drawStartScreen();
-	havingItems = new Map();
+    user = userCheckpoint.clone();
 	fallingItems = [];
 }
 
@@ -69,8 +69,8 @@ function drawFallingItems() {
 	// fallingItem에서 아이템 제거 및 인벤토리에 추가
 	for (let i = deleteIdx.length-1; i >= 0; i--) {
 		const itemType = fallingItems[deleteIdx[i]].type;
-		if (!havingItems.has(itemType)) havingItems.set(itemType, 0);
-		havingItems.set(itemType, havingItems.get(itemType)+1);
+		if (!user.havingItems.has(itemType)) user.havingItems.set(itemType, 0);
+		user.havingItems.set(itemType, user.havingItems.get(itemType)+1);
 		fallingItems.splice(deleteIdx[i], 1);
 	}
 }
@@ -191,10 +191,10 @@ function checkCraftResult() {
 		newDiv.on('mousedown', function(e) {
 
 			for(let [itemType, count] of usedItem.entries()) {
-				let current = havingItems.get(itemType - 1);
-				havingItems.set(itemType - 1, current - count);
-				if(havingItems.get(itemType - 1) == 0) {
-					havingItems.delete(itemType - 1);
+				let current = user.havingItems.get(itemType - 1);
+				user.havingItems.set(itemType - 1, current - count);
+				if(user.havingItems.get(itemType - 1) == 0) {
+					user.havingItems.delete(itemType - 1);
 				}
 			}
 
@@ -204,8 +204,8 @@ function checkCraftResult() {
 				}
 			}
 			
-			if(havingItems.has(resultIndex)) havingItems.set(resultIndex, havingItems.get(resultIndex) + 1);
-			else havingItems.set(resultIndex, 1);
+			if(user.havingItems.has(resultIndex)) user.havingItems.set(resultIndex, user.havingItems.get(resultIndex) + 1);
+			else user.havingItems.set(resultIndex, 1);
 			$('.clear_item').remove();
 			drawInventory();
 		});
@@ -371,7 +371,7 @@ function handleRightClick(e, originalDiv, originalImg) {
 // 조합창에 아이템을 그리는 함수
 function drawInventory() {
 	let index = 0;
-	for(let [itemType, count] of havingItems.entries()) {
+	for(let [itemType, count] of user.havingItems.entries()) {
 		
 		// 아이템 그리기
 		const newDiv = $('<div />').addClass('clear_item').css({
@@ -420,12 +420,12 @@ function drawInventory() {
 // 클리어
 function gameclear() {
 	
-	havingItems.set(1, 20);  // 철
-	havingItems.set(0, 20);  // 원목
-	havingItems.set(4, 20);  // plank
-	havingItems.set(2, 20);  // gold
-	havingItems.set(3, 20);  // diamond
-	havingItems.set(5, 20);  // stick
+	user.havingItems.set(1, 20);  // 철
+	user.havingItems.set(0, 20);  // 원목
+	user.havingItems.set(4, 20);  // plank
+	user.havingItems.set(2, 20);  // gold
+	user.havingItems.set(3, 20);  // diamond
+	user.havingItems.set(5, 20);  // stick
 	
 
 	SOUND_EFFECT.clear.play();
@@ -463,7 +463,7 @@ function draw(currentTime) {
     drawFallingItems();
     brickManager.collisionDetection(ball);
     paddle.collisionDetection(ball);
-    hotbar.draw(havingItems);
+    user.draw();
     
     // 패들 이동 및 기울기 처리
     paddle.updateRocation(canvas, leftPressed, rightPressed);

@@ -319,26 +319,30 @@ class BrickManager {
 
 // 핫바 구성 (완성)
 class Hotbar {
-    image;
+    images = [];
     x; y;
     width = 393; height= 55;
     posX = [9, 52, 94, 137, 180, 223, 265, 308, 351]
 
-    constructor(x, y, image) {
+    constructor(x, y) {
+        // 번호별 핫바 구성
+        for (let i = 1; i<10; i++) {
+            let hotbarImg = new Image();
+            hotbarImg.src = 'mainGame/hotbar/hotbar' + i + '.png';
+            this.images.push(hotbarImg);
+        }
         this.x = x;
         this.y = y;
-        this.image = image;
     }
 
     draw(havingItems) {
-        if (!this.image || !this.image.complete) return;
-        
         ctx.save();
-        ctx.drawImage(this.image, this.x, this.y, this.width, this.height);
+        ctx.drawImage(this.images[curHotbarIdx-1], this.x, this.y, this.width, this.height);
 
         // 핫바 속 아이템 그리기
         let i = 0;
         for (let [itemType, count] of havingItems.entries()) {
+            if (i == this.posX.length) break;
             // 아이템이 존재하고 로드되었는지 확인
             const itemImage = itemImages[itemType];
             if (itemImage && itemImage.complete) {
@@ -395,24 +399,23 @@ class Heart {
     }
 }
 
+// 갑바 바 (구현 예정)
+class Armor {
+
+}
+
 // 게임 화면에 유저를 위한 정보 (hotbar, timer, gameDifficulty, 체력, 갑바)
 class User {
-    havingItems = [];
+    havingItems = new Map();
     having
-    hotbars = [];
+    hotbar;
     xpbars = [];
-    curHotbar;
     heart;
+    armor;
+    hitSound = new Audio('mainGame/user/hit.mp3');
 
     constructor(health) {
-        // 번호별 핫바 구성
-        for (let i = 1; i<10; i++) {
-            let hotbarImg = new Image();
-            hotbarImg.src = 'mainGame/hotbar/hotbar' + i + '.png';
-            this.hotbars.push(new Hotbar(253, 595, hotbarImg));
-        }
-        this.curHotbar = this.hotbars[1];
-
+        this.hotbar = new Hotbar(253, 595);
         // 레벨별 xpbar 구성
         for (let i = 1; i<4; i++) {
             let xpbar = new Image();
@@ -428,18 +431,38 @@ class User {
     }
 
     init() {
+        this.heart.health = 5;
+    }
 
+    hit(damage) {
+        this.heart.health -= damage;
+        this.hitSound.play();
+    }
+
+    isDead() {
+        return this.heart.health <= 0;
     }
 
     clone() {
-        // return new User();
+        const clonedUser = new User(this.heart.maxHealth);
+        
+        // 현재 체력 상태 복사
+        clonedUser.heart.health = this.heart.health;
+        
+        // havingItems Map 복사 (깊은 복사)
+        clonedUser.havingItems = new Map(this.havingItems);
+        
+        // xpbar 복사
+        clonedUser.xpbars = [...this.xpbars];
+        
+        return clonedUser;
     }
 
     draw() {
         ctx.save();
-        this.curHotbar.draw(havingItems);
+        this.hotbar.draw(this.havingItems);
         this.heart.draw();
-        ctx.drawImage(this.xpbars[1], 256, 570, 387, 23);
+        ctx.drawImage(this.xpbars[gameDifficulty-1], 256, 570, 387, 23);
         ctx.restore();
     }
 }

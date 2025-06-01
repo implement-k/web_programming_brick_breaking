@@ -19,8 +19,7 @@ class BossGame {
         this.background.src = this.backgroundDir[difficulty-1];
         this.bossManager = new BossManager(difficulty);
         this.projectileManager = new ProjectileManager(difficulty);
-        // this.originUser = user.clone();
-        // this.user = user.clone();
+        user.init();
         this.difficulty = difficulty;
         this.draw = this.draw.bind(this);
     }
@@ -34,25 +33,28 @@ class BossGame {
         this.hotbar = new Hotbar(WIDTH/2-195, HEIGHT-60);
         this.bossManager.init(difficulty);
         this.projectileManager.init(difficulty);
-        // user = this.originUser.clone();
+        user.init();
         this.isStarted = true;
         this.draw();
     }
 
     draw() {
         if (!this.isStarted) return;
+        if (user.isDead()) {
+            SOUND_EFFECT.death.play();
+	        $('.dead').css('display', 'flex');
+            return
+        }
 
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         if (this.background.complete) {
             ctx.drawImage(this.background, 0, 0, canvas.width, canvas.height);
         }
 
-        // 보스와 공의 충돌 체크
-        this.bossManager.collisionDetection(this.ball);
-        this.paddle.collisionDetection(this.ball);
 
-        // 발사체 관리
-        this.bossManager.manageProjectile(this.projectileManager);
+        this.bossManager.collisionDetection(this.ball); // 보스 - 공 충돌
+        this.paddle.collisionDetection(this.ball);      // 공 - 패들 충돌
+        this.bossManager.manageProjectile(this.projectileManager);// 발사체 0-유저 충돌
         this.projectileManager.draw();
 
         // 그리기
@@ -76,8 +78,8 @@ class BossGame {
         if(this.ball.y < 0) {
             this.ball.dy = -this.ball.dy;
         } else if(this.ball.y + this.ball.height > canvas.height) {
-            this.isStarted = false;
-            return;
+            this.ball = new Ball(WIDTH/2, HEIGHT-150, 2, -2);
+            user.hit(1);
         }
 
         requestAnimationFrame(this.draw);
