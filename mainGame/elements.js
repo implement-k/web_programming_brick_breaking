@@ -406,7 +406,6 @@ class Heart {
 
     draw() {
         ctx.save();
-    
         // 채워진 하트 그리기
         for (let i = 0; i<this.health; i++) {
             if (this.image[1].complete) ctx.drawImage(this.image[1], this.x + i*19, this.y, 19, 19);
@@ -423,7 +422,34 @@ class Heart {
 
 // 갑바 바 (구현 예정)
 class Armor {
+    x; y;
+    image = [new Image(), new Image()];
+    defense; maxDefense;
 
+    constructor(x, y, defense) {
+        this.x = x;
+        this.y = y;
+        this.defense = 0;
+        this.maxDefense = defense;
+        this.image[0].src = 'mainGame/user/armor_empty.png';
+        this.image[1].src = 'mainGame/user/armor_fill.png';
+    }
+
+    draw() {
+        console.log(this.defense);
+        ctx.save()
+        // 채워진 갑옷 그리기
+        for(let i = 0; i < this.defense; i++) {
+            if(this.image[1].complete) ctx.drawImage(this.image[1], this.x + i*19, this.y, 19, 19);
+        }
+
+        // 빈 갑옷 그리기
+        for(let i = this.defense; i < this.maxDefense; i++) {
+            if(this.image[0].complete) ctx.drawImage(this.image[0], this.x + i*19, this.y, 19, 19);
+        }
+
+        ctx.restore();
+    }
 }
 
 // 게임 화면에 유저를 위한 정보 (hotbar, timer, gameDifficulty, 체력, 갑바)
@@ -434,12 +460,14 @@ class User {
     xpbars = [];
     heart;
     armor;
+    defense;
     hitSound = new Audio('mainGame/user/hit.mp3');
     equippedItems = new Map();
     hitImage = new Image();
     hitTime = null;
 
-    constructor(health) {
+    constructor(health, defense) {
+        console.log("객체 생성");
         this.hotbar = new Hotbar(253, 595);
         // 레벨별 xpbar 구성
         for (let i = 1; i<4; i++) {
@@ -454,11 +482,13 @@ class User {
         this.hitImage.src = 'mainGame/boss/ghast/user_hit.png';
         this.hitTime = null;
         // 보호구 바 구성
+        this.armor = new Armor(469, 560, defense);
         // this.
     }
 
     init() {
         this.heart.health = 5;
+        this.armor.defense = 0;
     }
 
     hit(difficulty, damage) {
@@ -481,11 +511,19 @@ class User {
         return this.heart.health <= 0;
     }
 
+    setArmor(armor) {
+        if(this.armor) console.log('armor')
+        this.armor.defense = armor;
+    }
+
     clone() {
-        const clonedUser = new User(this.heart.maxHealth);
+        const clonedUser = new User(this.heart.maxHealth, 9);
         
         // 현재 체력 상태 복사
         clonedUser.heart.health = this.heart.health;
+
+        // 현재 방어력 상태 복사
+        clonedUser.armor.defense = this.armor.defense;
         
         // havingItems Map 복사 (깊은 복사)
         clonedUser.havingItems = new Map(this.havingItems);
@@ -500,6 +538,7 @@ class User {
         ctx.save();
         this.hotbar.draw(this.havingItems);
         this.heart.draw();
+        this.armor.draw();
         ctx.drawImage(this.xpbars[gameDifficulty-1], 256, 570, 387, 23);
         if (gameDifficulty == 2 && this.hitTime) {
             console.log(this.hitTime);
@@ -514,4 +553,5 @@ class User {
             console.log(` - ${key}: ${value}`);
         }
     }
+
 }

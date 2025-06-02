@@ -429,6 +429,8 @@ function drawInventory() {
 			if(itemInfo[1] == 'boots' || itemInfo[1] == 'chestplate' || itemInfo[1] == 'helmet' || itemInfo[1] == 'leggings' || itemInfo[1] == 'sword') {
 				user.equippedItems.set(itemInfo[1], itmSrc);
 				user.currentItems();
+				user.setArmor(5);
+				// user.armor.defense = 5;
 				let tmpEquipped = $('.equipped-highlight');
 				for(let i = 0; i < tmpEquipped.length; i++) {
 					let tmpImg = $(tmpEquipped[i]).find('img').attr('src');
@@ -448,7 +450,6 @@ function drawInventory() {
 
 // 클리어
 function gameclear() {
-	
 	user.havingItems.set(1, 20);  // 철
 	user.havingItems.set(0, 20);  // 원목
 	user.havingItems.set(4, 20);  // plank
@@ -506,7 +507,7 @@ function draw(currentTime) {
     
     // 공 회전 및 이동
     ball.updateRotation();
-    ball.updatePosition(normalizedDeltaTime);
+    ball.updateLocation(normalizedDeltaTime);
     
     // 벽 충돌 처리
     if(ball.x + ball.width > canvas.width || ball.x < 0) {

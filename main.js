@@ -10,10 +10,10 @@ $(document).ready(function () {
     $(document).keydown(keyDownHandler);
     $(document).keyup(keyUpHandler);
 
-    gameDifficulty = 2;  // 먼저 난이도 설정
+    gameDifficulty = 1;  // 먼저 난이도 설정
     
     // manager 들 초기화
-    user = new User(5);      // 전역변수
+    user = new User(5, 9);      // 전역변수
     userCheckpoint = user.clone();
     bossGame = new BossGame(gameDifficulty);  // 난이도 설정 후 생성
 
