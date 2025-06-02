@@ -492,7 +492,7 @@ class MainGame {
         ball.draw();
         paddle.draw();
         this.drawFallingItems();
-        this.brickManager.collisionDetection(ball, this.fallingItems);
+        this.brickManager.collisionDetection(ball);
         paddle.collisionDetection(ball);
         user.draw();
         
@@ -515,20 +515,7 @@ class MainGame {
             ball.y = 0; // 천장에 부딪힐 때 위치 보정
         }
         else if(ball.y + ball.height > canvas.height) {
-            // Use proper user.hit() function with difficulty=1, damage=1
-            user.hit(1, 1);
-            
-            // Check if user is dead using proper method
-            if(user.isDead()) {
-                this.gameover();
-                return;
-            }
-            
-            // Reset ball if user still alive
-            ball.x = WIDTH/2;
-            ball.y = HEIGHT-150;
-            ball.dx = Math.random() > 0.5 ? 2 : -2;
-            ball.dy = -2;
+            this.gameover();
         }
         
         requestAnimationFrame((time) => this.draw(time));
@@ -537,3 +524,52 @@ class MainGame {
 
 // 메인 게임 인스턴스 생성
 const mainGame = new MainGame();
+
+// 기존 함수들을 호환성을 위해 유지
+function brick_breaking_init() {
+    mainGame.init();
+}
+
+function drawStartScreen() {
+    mainGame.drawStartScreen();
+}
+
+function drawFallingItems() {
+    mainGame.drawFallingItems();
+}
+
+function gameover() {
+    mainGame.gameover();
+}
+
+function getClickSection(pos) {
+    return mainGame.getClickSection(pos);
+}
+
+function checkCraftResult() {
+    mainGame.checkCraftResult();
+}
+
+function handleLeftClick(e, newDiv, newImg) {
+    mainGame.handleLeftClick(e, newDiv, newImg);
+}
+
+function handleRightClick(e, originalDiv, originalImg) {
+    mainGame.handleRightClick(e, originalDiv, originalImg);
+}
+
+function drawInventory() {
+    mainGame.drawInventory();
+}
+
+function gameclear() {
+    mainGame.gameclear();
+}
+
+function startBoss() {
+    mainGame.startBoss();
+}
+
+function draw(currentTime) {
+    mainGame.draw(currentTime);
+}

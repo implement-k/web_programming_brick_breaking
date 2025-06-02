@@ -9,17 +9,15 @@ $(document).ready(function () {
     ctx = canvas.getContext('2d');
     $(document).keydown(keyDownHandler);
     $(document).keyup(keyUpHandler);
-
-    gameDifficulty = 2;  // 먼저 난이도 설정
     
     // manager 들 초기화
     user = new User(5);      // 전역변수
     userCheckpoint = user.clone();
     bossGame = new BossGame(gameDifficulty);  // 난이도 설정 후 생성
 
-    // 개발 시에만 if 문 사용, 완성시에는 초기에 brick_breaking_init만 사용하면 됨.
+    // 개발 시에만 if 문 사용, 완성시에는 초기에 mainGame.init만 사용하면 됨.
     if (CUR_GAME_STATE == GAME_STATE.BRICK_BREAKING) {
-        brick_breaking_init();
+        mainGame.init();
     } 
     
     // 임시: 보스전 시작버튼
@@ -31,15 +29,15 @@ $(document).ready(function () {
     // 임시: 게임 시작
     $('#tmp_game_start').click(() => {
         $('#gameCanvas').show();
-        gameStarted = true;
+        mainGame.gameStarted = true;
         $(this).hide();
-        draw();
+        mainGame.draw();
 
         // 마스터 버튼들
         let btn1 = $('<button/>');
         btn1.text('블록 다 깨기');
         btn1.click(() => {
-            isClear = true;
+            mainGame.isClear = true;
     //         for(let i = fallingItems.length-1; i >= 0; i--) {
     //             const item = fallingItems[i];
 
@@ -80,15 +78,15 @@ $(document).ready(function () {
     // 시작 버튼 처리
     $('#startButton').click(function() {
         $('#gameCanvas').show();
-        gameStarted = true;
+        mainGame.gameStarted = true;
         $(this).hide();
-        draw();
+        mainGame.draw();
 
         // 마스터 버튼들
         let btn1 = $('<button/>');
         btn1.text('블록 다 깨기');
         btn1.click(() => {
-            isClear = true;
+            mainGame.isClear = true;
             // 블록 아이템 모두 유저걸로
         });
         $('#masterBtns').append(btn1);
@@ -101,10 +99,10 @@ $(document).ready(function () {
     });
     // 리스폰 버튼 처리
     $('#respawn').click(() => {
-        brick_breaking_init();
+        mainGame.init();
         $('.dead').hide();
-        gameStarted = true;
-        draw();
+        mainGame.gameStarted = true;
+        mainGame.draw();
     });
     
 })

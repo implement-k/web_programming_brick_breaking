@@ -149,16 +149,18 @@ function startMainGame(round) {
     hideScene('story-scene');
     startMiniGameTimer();
     
+    // 메인 게임 초기화
+    mainGame.init();
+    
     // 기존 게임 코드 실행
     $('#gameCanvas').show();
-    gameStarted = true;
-    draw();
+    mainGame.start();
 
     // 마스터 버튼들
     let btn1 = $('<button/>');
     btn1.text('블록 다 깨기');
     btn1.click(() => {
-        isClear = true;
+        mainGame.isClear = true;
         // 블록 아이템 모두 유저걸로
     });
     $('#masterBtns').append(btn1);
