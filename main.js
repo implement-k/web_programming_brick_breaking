@@ -9,8 +9,6 @@ $(document).ready(function () {
     ctx = canvas.getContext('2d');
     $(document).keydown(keyDownHandler);
     $(document).keyup(keyUpHandler);
-
-    gameDifficulty = 2;  // 먼저 난이도 설정
     
     // manager 들 초기화
     user = new User(5);      // 전역변수

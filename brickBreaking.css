@@ -19,6 +19,7 @@ body {
     margin: 0;
     min-height: 100vh;
     display: flex;
+    flex-direction: column;
     justify-content: center;
     align-items: center;
 }
@@ -142,12 +143,39 @@ section{
 #score-scene {
     width: 960px;
     height: 650px;
-    margin: 20px auto;
-    top: 50%;
-    left: 50%;
+    margin: 0 auto;
     display: flex;
     align-items: center;
     justify-content: center;
+}
+
+section {
+    position: relative;
+    margin: 0 auto;
+}
+
+#masterBtns {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin-top: 20px;
+    flex-wrap: wrap;
+}
+
+#masterBtns button {
+    font-family: 'galmuri11';
+    height: 40px;
+    width: 120px;
+    cursor: pointer;
+    background-color: #0095DD;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-size: 14px;
+}
+
+#masterBtns button:hover {
+    background-color: #0077AA;
 }
 
 #title-screen {
