@@ -16,7 +16,7 @@ let fallingItems = [];
 
 // 게임 진행 전역 변수
 let gameStarted = false;
-let isClear = true;
+let isClear = false;
 
 // 블록 관리 클래스
 let brickManager;
@@ -189,7 +189,6 @@ function checkCraftResult() {
 		newDiv.append(newImg);
 
 		newDiv.on('mousedown', function(e) {
-
 			for(let [itemType, count] of usedItem.entries()) {
 				let current = user.havingItems.get(itemType - 1);
 				user.havingItems.set(itemType - 1, current - count);
@@ -242,6 +241,14 @@ $(document).on('mousemove', function(e) {
 			top: `${e.clientY - offsetY}px`
 		});
 	}
+
+	$(document).on('keydown', function(e) {
+    if (e.code === 'Space') {
+        e.preventDefault();
+        startBoss();    
+    }
+});
+
 });
 
 // 아이템을 클릭할 때 이벤트 함수
@@ -376,14 +383,17 @@ function drawInventory() {
 		// 아이템 그리기
 		const newDiv = $('<div />').addClass('clear_item').css({
 			'left': `${262 + (index % 9) * 43}px`,
-			'top': `${400 + (parseInt(index / 9)) * 43}px`,
+			'top': `${398 + (parseInt(index / 9)) * 43}px`,
 			'position': 'absolute',
 			'cursor': 'move'
 		});
 
 		const newImg = $('<img />').addClass('clear_item').attr('src', itemPaths[itemType]).css({ 'width': '32px', 'height': '32px' });
 		newDiv.append(newImg);
-		newDiv.attr('data-type', itemType);
+
+		for(const [key, value] of user.equippedItems) {
+			if(newImg.attr('src').split('/').pop().replace('.png', '') == value) newDiv.addClass('equipped-highlight');
+        }
 	
 		// 아이템 수량 출력하는 span
 		const countSpan = $('<span />').text(count).css({
@@ -412,6 +422,25 @@ function drawInventory() {
 			handleRightClick(e, newDiv, newImg);
 		});
 
+		// 더블클릭 이벤트 추가 - 아이템 장착
+		newDiv.on('dblclick', function(e) {
+			const itmSrc = newImg.attr('src').split('/').pop().replace('.png', '');
+			const itemInfo = itmSrc.split('_');
+			if(itemInfo[1] == 'boots' || itemInfo[1] == 'chestplate' || itemInfo[1] == 'helmet' || itemInfo[1] == 'leggings' || itemInfo[1] == 'sword') {
+				user.equippedItems.set(itemInfo[1], itmSrc);
+				user.currentItems();
+				let tmpEquipped = $('.equipped-highlight');
+				for(let i = 0; i < tmpEquipped.length; i++) {
+					let tmpImg = $(tmpEquipped[i]).find('img').attr('src');
+					let tmpSrc = tmpImg.split('/').pop().replace('.png', '').split('_');
+					if(itemInfo[1] === tmpSrc[1]) {
+						$(tmpEquipped[i]).removeClass('equipped-highlight');
+					}
+				}
+				newDiv.addClass('equipped-highlight');
+			}
+		});
+
 		$('.clear').append(newDiv);
 		index++;
 	}
@@ -432,6 +461,13 @@ function gameclear() {
 	$('.clear').css('display', 'flex');
 	
 	drawInventory();
+}
+
+function startBoss() {
+	if($('.clear').css('display') == 'flex') {
+		$('.clear').css('display', 'none');
+		bossGame.init(gameDifficulty);
+	}
 }
 
 			
@@ -470,7 +506,7 @@ function draw(currentTime) {
     
     // 공 회전 및 이동
     ball.updateRotation();
-    ball.updatePosition(normalizedDeltaTime);
+    ball.updateLocation();
     
     // 벽 충돌 처리
     if(ball.x + ball.width > canvas.width || ball.x < 0) {
