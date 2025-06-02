@@ -7,21 +7,41 @@
     <title>벽돌깨기 게임</title>
     <link rel="stylesheet" href="brickBreaking.css" />
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-    <script src="brickBreaking.js"></script>
+    <!-- 먼저 로드되는 스크립트의 변수를 나중에 로딩되는 스크립트가 사용할 수 있음 -->
+    <!-- 순서 주의!! -->
+    <!-- 1. 전역 변수 -->
+    <script src="mainGame/globalVariable.js"></script>
+    <!-- 2. 게임 요소들 로딩 -->
+    <script src="mainGame/elements.js"></script>
+    <!-- 3. 메인 게임 -->
+    <script src="mainGame/brickBreaking.js"></script>
+    <!-- 4. 보스전 요소들 로딩 -->
+    <script src="mainGame/boss/elements.js"></script>
+    <!-- 5. 보스전 -->
+    <script src="mainGame/boss/boss.js"></script>
+    <!-- 6. 게임 키보드 handler 로딩 -->
+    <script src="mainGame/movement.js"></script>
+    <!-- 7. mainjs -->
+    <script src="main.js"></script>
+    <!-- mainGame js 로딩 끝 -->
+    <script src="mainGame/processGame.js"></script>
 
-    <link rel="stylesheet" href="game.css">
+    <!-- minecraft 기본 폰트 -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/galmuri/dist/galmuri.css" />
     <link href="https://fonts.cdnfonts.com/css/minecraftia" rel="stylesheet">
-    <script src="game.js"></script>
 </head>
 
 <body>
     <audio id="bgm" src="title_bgm.mp3" autoplay loop></audio>
     <audio id="btn-sound" src="btn.mp3"></audio>
 
+    <button id="tmp_boss_start">보스전 시작</button>
+    <button id="tmp_game_start">게임 시작</button>
     <!-- 시작 화면 -->
     <div id="title-screen">
         <button class="button" id="start-btn">START</button>
         <button class="button" id="setting-btn">SETTING</button>
+        <button class="button" id="score-btn">SCORE</button>
     </div>
 
     <!-- 설정 화면 -->
@@ -57,7 +77,20 @@
         </div>
     </div>
 
-    <!-- 스토리 화면 yn-->
+    <!-- 스토리 화면 -->
+    <div id="score-scene" style="display: none;">
+        <div class="score-panel">
+            <h2>스코어</h2>
+            <ul id="score-list">
+                <li>플레이어1 - 12000점</li>
+                <li>플레이어2 - 9500점</li>
+                <li>플레이어3 - 8500점</li>
+                <!-- 여기에 점수 리스트 동적으로 추가 가능 -->
+            </ul>
+            <button class="button" id="score-back-btn">Back</button>
+        </div>
+    </div>
+
     <div id="story-scene" style="display: none;">
         <div class="story-wrapper">
             <img id="story-image" src="" alt="Story Image">
@@ -65,12 +98,29 @@
             <button class="button" id="next-dialogue-btn">다음</button>
         </div>
     </div>
-    <!-- ddd -->
-    <div class="main">
-        <img class="main_title" src="images/title.png">
+    <section>
+        <!-- 공 튀기기 -->
         <canvas id="gameCanvas" width="900" height="650"></canvas>
-        <button id="startButton">게임 시작</button>
-    </div>
+        <!-- 죽었습니다. -->
+        <div class="dead">
+            <div class="dead_alert">
+                <div>죽었습니다!</div>
+                <div>점수: 0</div>
+                <button id="respawn">리스폰</button>
+                <button id="go2title">타이틀 화면으로</button>
+            </div>
+        </div>
+        <!-- 클리어 화면 -->
+        <!-- 수정-->
+        <div class="clear">
+            <div>이제 보스전을 준비하세요.</div>
+            <div>무기와 방어구를 만드세요.</div>
+            <img id="craftingTable" src="mainGame/craftingTable/table.png">
+            <div id="start_method">Space를 눌러 보스전 시작</div>
+        </div>
+    </section>
+    <div id="masterBtns"></div>
+    <script src="game.js"></script>
 </body>
 
 </html>

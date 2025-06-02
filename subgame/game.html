@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <title>BrickCraft - Title</title>
+    <link rel="stylesheet" href="game.css">
+    <link href="https://fonts.cdnfonts.com/css/minecraftia" rel="stylesheet">
+</head>
+
+<body>
+    <audio id="bgm" src="title_bgm.mp3" autoplay loop></audio>
+    <audio id="btn-sound" src="btn.mp3"></audio>
+
+    <!-- 시작 화면 -->
+    <div id="title-screen">
+        <button class="button" id="start-btn">START</button>
+        <button class="button" id="setting-btn">SETTING</button>
+    </div>
+
+    <!-- 설정 화면 -->
+    <div id="setting-scene" style="display: none;">
+        <div class="setting-panel">
+            <h2>설정</h2>
+            <div class="setting-group">
+                <label for="bgm-toggle">배경음악:</label>
+                <button id="bgm-toggle">음악 끄기</button>
+            </div>
+            <div class="setting-group">
+                <label>난이도:</label>
+                <select id="difficulty">
+                    <option value="easy">Easy</option>
+                    <option value="normal" selected>Normal</option>
+                    <option value="hard">Hard</option>
+                </select>
+            </div>
+            <button class="button" id="back-btn">← 뒤로가기</button>
+        </div>
+    </div>
+
+    <!-- 게임 생성 화면 -->
+    <div id="create-scene" style="display: none;">
+        <div class="create-panel">
+            <h2>새 월드</h2>
+            <div class="input-group">
+                <label for="player-name">이름</label>
+                <input type="text" id="player-name" placeholder="플레이어 이름 입력">
+            </div>
+            <button class="button" id="create-btn">Create New World</button>
+            <button class="button" id="cancel-btn">Back</button>
+        </div>
+    </div>
+
+    <!-- 스토리 화면 -->
+    <div id="story-scene" style="display: none;">
+        <div class="story-wrapper">
+            <img id="story-image" src="" alt="Story Image">
+            <div id="speech-box"></div>
+            <button class="button" id="next-dialogue-btn">다음</button>
+        </div>
+    </div>
+
+    <script src="game.js"></script>
+</body>
+
+</html>
