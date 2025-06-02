@@ -7,10 +7,17 @@ class MainGame {
             if (ctx) this.drawStartScreen();
         };
 
+        this.netherworld = new Image();
+        this.netherworld.src = 'mainGame/background/nether.png';
+
+        this.enderworld = new Image();
+        this.enderworld.src = 'mainGame/background/ender.png';
+
+
         this.BACKGROUND_IMAGES = [
             this.overworld,
-            this.overworld,
-            this.overworld,
+            this.netherworld,
+            this.enderworld,
         ];
 
         this.fallingItems = [];

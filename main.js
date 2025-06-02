@@ -30,10 +30,20 @@ $(document).ready(function () {
     });
     // 임시: 게임 시작
     $('#tmp_game_start').click(() => {
+        if (gameDifficulty < 3) {
+            startMainGame(gameDifficulty);
+        } else if (gameDifficulty === 3) {
+            startMainGame(gameDifficulty);
+        } else if (gameDifficulty === 4) {
+            showScene('title-screen');
+            hideScene('main-game');
+        }
+        /*
         $('#gameCanvas').show();
         mainGame.gameStarted = true;
         $(this).hide();
         mainGame.draw();
+        */
 
         // 기존 마스터 버튼들 제거
         $('#masterBtns').empty();

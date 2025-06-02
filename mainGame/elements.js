@@ -53,6 +53,23 @@ const loadItemImages = () => {
 };
 loadItemImages();
 
+const crackPaths = [
+    'mainGame/cracks/crack_1.png',
+    'mainGame/cracks/crack_2.png'
+];
+const crackImages = [];
+const loadCrackImages = () => {
+    return Promise.all(crackPaths.map(path => {
+        return new Promise((resolve) => {
+            const img = new Image();
+            img.onload = () => resolve(img);
+            img.src = path;
+            crackImages.push(img);
+        });
+    }));
+};
+loadCrackImages();
+
 // 공
 class Ball {
     x; y;
@@ -218,7 +235,7 @@ class Item {
 
 class Brick {
     x; y;
-    status; life;
+    status; life; maxlife;
     brickSize = 50;
     image;
 
@@ -227,6 +244,7 @@ class Brick {
         this.y = y;
         this.status = status;
         this.life = life;
+        this.maxlife = life;
         if (status != 0) this.image = image;
     }
 }
@@ -303,7 +321,6 @@ class BrickManager {
                             // TODO
                             if(tmp >= 2 && tmp <= 5) {
                                 const itemType = tmp - 2;
-                                console.log(itemType);
                                 fallingItems.push(new Item(b.x, b.y, itemImages[itemType], itemType));
                             }
                         } else {
@@ -327,6 +344,13 @@ class BrickManager {
                     this.bricks[c][r].y = brickY;
 
                     ctx.drawImage(this.bricks[c][r].image, brickX, brickY, this.brickSize, this.brickSize);
+                    let b = this.bricks[c][r];
+                    if(b.maxlife == 3) {
+                        if(b.life == 2) ctx.drawImage(crackImages[1], brickX, brickY, this.brickSize, this.brickSize);
+                        else if(b.life == 1) ctx.drawImage(crackImages[0], brickX, brickY, this.brickSize, this.brickSize);
+                    } else if(b.maxlife == 2) {
+                        if(b.life == 1) ctx.drawImage(crackImages[0], brickX, brickY, this.brickSize, this.brickSize);
+                    }
                 }
             }
         }
@@ -418,7 +442,7 @@ class Heart {
     }
 }
 
-// 갑바 바 (구현 예정)
+// 갑바 바 (완성)
 class Armor {
     x; 
     y;
