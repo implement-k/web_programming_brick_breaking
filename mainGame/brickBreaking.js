@@ -17,6 +17,11 @@ class MainGame {
         this.gameStarted = false;
         this.isClear = false;
         this.brickManager = null;
+        
+        // 타이머 관련 속성들
+        this.gameStartTime = null;
+        this.timeLimit = 60; // 60초 제한시간
+        this.remainingTime = this.timeLimit;
         this.craftingItems = [
             [0, 0, 0],
             [0, 0, 0],
@@ -47,11 +52,16 @@ class MainGame {
         this.fallingItems = [];
         this.gameStarted = false;
         this.isClear = false;
+        
+        // 타이머 초기화
+        this.gameStartTime = null;
+        this.remainingTime = this.timeLimit;
     }
 
     // 게임 시작
     start() {
         this.gameStarted = true;
+        this.gameStartTime = Date.now(); // 게임 시작 시간 기록
         this.draw();
     }
 
@@ -94,6 +104,39 @@ class MainGame {
             user.havingItems.set(itemType, user.havingItems.get(itemType)+1);
             this.fallingItems.splice(deleteIdx[i], 1);
         }
+    }
+
+    // 타이머 그리기
+    drawTimer() {
+        if (!this.gameStartTime) return;
+        
+        const currentTime = Date.now();
+        const elapsedTime = (currentTime - this.gameStartTime) / 1000; // 초 단위
+        this.remainingTime = Math.max(0, this.timeLimit - elapsedTime);
+        
+        const minutes = Math.floor(this.remainingTime / 60);
+        const seconds = Math.floor(this.remainingTime % 60);
+        const timeString = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+        
+        ctx.save();
+        ctx.font = "24px Arial";
+        ctx.textAlign = "right";
+        
+        // 시간이 30초 이하일 때 빨간색, 그렇지 않으면 흰색
+        if (this.remainingTime <= 30) {
+            ctx.fillStyle = "#FF0000";
+        } else {
+            ctx.fillStyle = "#FFFFFF";
+        }
+        
+        // 텍스트 외곽선
+        ctx.strokeStyle = "#000000";
+        ctx.lineWidth = 2;
+        ctx.strokeText(timeString, canvas.width - 20, 40);
+        
+        // 텍스트 채우기
+        ctx.fillText(timeString, canvas.width - 20, 40);
+        ctx.restore();
     }
 
     // 죽을때
@@ -446,12 +489,15 @@ class MainGame {
 
     // 클리어
     gameclear() {
-        user.havingItems.set(1, 20);  // 철
-        user.havingItems.set(0, 20);  // 원목
-        user.havingItems.set(4, 20);  // plank
-        user.havingItems.set(2, 20);  // gold
-        user.havingItems.set(3, 20);  // diamond
-        user.havingItems.set(5, 20);  // stick
+        // 게임 클리어 시 타이머 정지
+        this.gameStarted = false;
+        
+        // user.havingItems.set(1, 20);  // 철
+        // user.havingItems.set(0, 20);  // 원목
+        // user.havingItems.set(4, 20);  // plank
+        // user.havingItems.set(2, 20);  // gold
+        // user.havingItems.set(3, 20);  // diamond
+        // user.havingItems.set(5, 20);  // stick
 
         SOUND_EFFECT.clear.play();
         $('.clear').css('display', 'flex');
@@ -471,6 +517,12 @@ class MainGame {
         if (!this.gameStarted) return;
         if (this.isClear) {
             this.gameclear();
+            return;
+        }
+        
+        // 타이머 체크 - 시간 종료시 게임오버
+        if (this.remainingTime <= 0) {
+            this.gameover();
             return;
         }
         
@@ -495,6 +547,9 @@ class MainGame {
         this.brickManager.collisionDetection(ball, this.fallingItems);
         paddle.collisionDetection(ball);
         user.draw();
+        
+        // 타이머 그리기
+        this.drawTimer();
         
         // 패들 이동 및 기울기 처리
         paddle.updateRocation(canvas, leftPressed, rightPressed);
