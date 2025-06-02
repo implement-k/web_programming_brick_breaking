@@ -48,7 +48,7 @@ class MainGame {
         this.brickManager = new BrickManager(gameDifficulty);
         
         this.drawStartScreen();
-        //user = userCheckpoint.clone();
+        user = userCheckpoint.clone();
         this.fallingItems = [];
         this.gameStarted = false;
         this.isClear = false;

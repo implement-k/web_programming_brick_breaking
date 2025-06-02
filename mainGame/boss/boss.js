@@ -36,6 +36,13 @@ class BossGame {
         this.projectileManager.init(difficulty);
         user.init();
         this.isStarted = true;
+
+        let sword_name = user.equippedItems.get("sword");
+        if(sword_name == "wooden_sword") this.ball.image.src = 'mainGame/items/sword/wooden_sword.png';
+        else if(sword_name == "iron_sword") this.ball.image.src = 'mainGame/items/sword/iron_sword.png';
+        else if(sword_name == "golden_sword") this.ball.image.src = 'mainGame/items/sword/golden_sword.png';
+        else if(sword_name == "diamond_sword") this.ball.image.src = 'mainGame/items/sword/diamond_sword.png';
+
         requestAnimationFrame((time) => this.draw(time));
     }
 
@@ -102,6 +109,11 @@ class BossGame {
             this.ball.dy = -this.ball.dy;
         } else if(this.ball.y + this.ball.height > canvas.height) {
             this.ball = new Ball(WIDTH/2, HEIGHT-150, 2, -2);
+            let sword_name = user.equippedItems.get("sword");
+            if(sword_name == "wooden_sword") this.ball.image.src = 'mainGame/items/sword/wooden_sword.png';
+            else if(sword_name == "iron_sword") this.ball.image.src = 'mainGame/items/sword/iron_sword.png';
+            else if(sword_name == "golden_sword") this.ball.image.src = 'mainGame/items/sword/golden_sword.png';
+            else if(sword_name == "diamond_sword") this.ball.image.src = 'mainGame/items/sword/diamond_sword.png';
             user.hit(1, 1);
         }
 

@@ -474,7 +474,6 @@ class User {
     hitTime = null;
 
     constructor(health, defense) {
-        console.log("객체 생성");
         this.hotbar = new Hotbar(253, 595);
         // 레벨별 xpbar 구성
         for (let i = 1; i<4; i++) {
@@ -525,7 +524,6 @@ class User {
 
     addArmor(armor) {
         let setValue = this.armor.getDefense() + armor;
-        console.log(setValue);
         this.armor.setDefense(setValue);  
           
     }

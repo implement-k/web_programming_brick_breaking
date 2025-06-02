@@ -14,7 +14,7 @@ $(document).ready(function () {
     
     // manager 들 초기화
     user = new User(5, 9);      // 전역변수
-    //userCheckpoint = user.clone();
+    userCheckpoint = user.clone();
     bossGame = new BossGame(gameDifficulty);  // 난이도 설정 후 생성
 
     // 개발 시에만 if 문 사용, 완성시에는 초기에 mainGame.init만 사용하면 됨.
