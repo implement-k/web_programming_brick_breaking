@@ -1,6 +1,4 @@
 // 공
-const BALL_X_SPEED = 1;   // 공 x축으로 움직이는 속도
-const BALL_Y_SPEED = 1;   // 공 y축으로 움직이는 속도
 const BALL_STYLE = 0;   // 공 스타일 (0: wood, 1: stone, 2: iron, 3: gold, 4: diamond)
 const BALL_DIR = [
     'mainGame/ball/wood.png',
@@ -89,15 +87,15 @@ class Ball {
     };
 
     // 공 회전 업데이트
-    updateRotation() {
-        if(this.dx > 0) this.rotation -= 0.1 * Math.abs(this.dx); // 반시계 방향
-        else this.rotation += 0.1 * Math.abs(this.dx); // 시계 방향
+    updateRotation(deltaMultiplier = 1) {
+        if(this.dx > 0) this.rotation -= (0.1 * Math.abs(this.dx)) * deltaMultiplier; // 반시계 방향
+        else this.rotation += (0.1 * Math.abs(this.dx)) * deltaMultiplier; // 시계 방향
     };
 
     // 공 위치 업데이트
-    updateLocation() {
-        this.x += this.dx;
-        this.y += this.dy;
+    updateLocation(deltaMultiplier = 1) {
+        this.x += this.dx * deltaMultiplier;
+        this.y += this.dy * deltaMultiplier;
     }
 
     draw() {
@@ -144,18 +142,18 @@ class Paddle {
         this.speed = speed;
     }
 
-    updateRocation(canvas, leftPressed, rightPressed) {
+    updateRocation(canvas, leftPressed, rightPressed, deltaMultiplier = 1) {
         if(rightPressed) {
-            this.dx = this.speed;
-            this.tilt = Math.min(this.tilt + 0.1, this.maxTilt);
+            this.dx = this.speed * deltaMultiplier;
+            this.tilt = Math.min(this.tilt + (0.1 * deltaMultiplier), this.maxTilt);
         }
         else if(leftPressed) {
-            this.dx = -this.speed;
-            this.tilt = Math.max(this.tilt - 0.1, -this.maxTilt);
+            this.dx = -this.speed * deltaMultiplier;
+            this.tilt = Math.max(this.tilt - (0.1 * deltaMultiplier), -this.maxTilt);
         }
         else {
             this.dx = 0;
-            this.tilt *= 0.95; // 기울기 점차 감소
+            this.tilt *= Math.pow(0.95, deltaMultiplier); // 기울기 점차 감소
         }
 
         this.x = Math.max(0, Math.min(canvas.width - this.width, this.x + this.dx));
@@ -291,7 +289,7 @@ class BrickManager {
         }
     }
 
-    collisionDetection(ball) {
+    collisionDetection(ball, fallingItems) {
         for(let c = 0; c < this.brickColumnCount; c++) {
             for(let r = 0; r < this.brickRowCount; r++) {
                 const b = this.bricks[c][r];
