@@ -291,7 +291,7 @@ class BrickManager {
         }
     }
 
-    collisionDetection(ball) {
+    collisionDetection(ball, fallingItems) {
         for(let c = 0; c < this.brickColumnCount; c++) {
             for(let r = 0; r < this.brickRowCount; r++) {
                 const b = this.bricks[c][r];
