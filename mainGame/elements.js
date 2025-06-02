@@ -18,7 +18,29 @@ const itemPaths = [
     'mainGame/items/gold.png',
     'mainGame/items/diamond.png',
     'mainGame/items/stick.png',
-    'mainGame/items/plank.png'
+    'mainGame/items/plank.png',
+
+    'mainGame/items/sword/iron_sword.png',
+    'mainGame/items/sword/golden_sword.png',
+    'mainGame/items/sword/diamond_sword.png',
+    'mainGame/items/sword/wooden_sword.png',
+
+    'mainGame/items/boots/iron_boots.png',
+    'mainGame/items/boots/golden_boots.png',
+    'mainGame/items/boots/diamond_boots.png',
+
+    'mainGame/items/reggings/iron_reggings.png',
+    'mainGame/items/reggings/golden_reggings.png',
+    'mainGame/items/reggings/diamond_reggingss.png',
+
+    'mainGame/items/chestplate/iron_chestplate.png',
+    'mainGame/items/chestplate/gold_chestplate.png',
+    'mainGame/items/chestplate/diamond_chestplate.png',
+
+    'mainGame/items/helmet/iron_helmet.png',
+    'mainGame/items/helmet/golden_helmet.png',
+    'mainGame/items/helmet/diamond_helmet.png'
+
 ];
 const itemImages = [];
 const loadItemImages = () => {
@@ -32,6 +54,7 @@ const loadItemImages = () => {
     }));
 };
 loadItemImages();
+console.log(itemImages);
 
 // 공
 class Ball {
