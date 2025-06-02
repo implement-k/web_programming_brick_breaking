@@ -505,6 +505,32 @@ class MainGame {
         this.drawInventory();
     }
 
+    // 모든 블록에서 아이템 수집
+    collectAllItems() {
+        if (!this.brickManager) return;
+        
+        for(let c = 0; c < this.brickManager.brickColumnCount; c++) {
+            for(let r = 0; r < this.brickManager.brickRowCount; r++) {
+                const brick = this.brickManager.bricks[c][r];
+                if(brick.status >= 2 && brick.status <= 5) {
+                    // 충돌 감지 로직과 동일한 매핑: itemType = brick.status - 2
+                    // status 2 = wood (itemType 0), 3 = iron (itemType 1), 4 = gold (itemType 2), 5 = diamond (itemType 3)
+                    const itemType = brick.status - 2;
+                    
+                    // 사용자 인벤토리에 아이템 추가
+                    if (!user.havingItems.has(itemType)) {
+                        user.havingItems.set(itemType, 0);
+                    }
+                    user.havingItems.set(itemType, user.havingItems.get(itemType) + 1);
+                }
+            }
+        }
+        
+        // 인벤토리 UI 업데이트
+        $('.clear_item').remove();
+        this.drawInventory();
+    }
+
     startBoss() {
         if($('.clear').css('display') == 'flex') {
             $('.clear').css('display', 'none');

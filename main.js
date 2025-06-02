@@ -37,34 +37,9 @@ $(document).ready(function () {
         let btn1 = $('<button/>');
         btn1.text('블록 다 깨기');
         btn1.click(() => {
+            // 현재 블록에 있는 모든 광물들 수집
+            mainGame.collectAllItems();
             mainGame.isClear = true;
-    //         for(let i = fallingItems.length-1; i >= 0; i--) {
-    //             const item = fallingItems[i];
-
-	// 	// 슬라임 영역 안에 있을 때 아이템 먹기
-	// 	if (item.y + item.height > paddle.y &&
-	// 		item.y < paddle.y + paddle.height &&
-	// 		item.x + item.width > paddle.x &&
-	// 		item.x < paddle.x + paddle.width
-	// 	) {
-	// 		paddle.eatSound.play();
-	// 		deleteIdx.push(i);
-	// 		continue;
-	// 	}
-	// 	item.y += item.dy;
-		
-	// 	// 아이템 그리기
-	// 	ctx.drawImage(item.image, item.x, item.y, item.width, item.height);
-	// }
-	
-	// // fallingItem에서 아이템 제거 및 인벤토리에 추가
-	// for (let i = deleteIdx.length-1; i >= 0; i--) {
-	// 	const itemType = fallingItems[deleteIdx[i]].type;
-	// 	if (!user.havingItems.has(itemType)) user.havingItems.set(itemType, 0);
-	// 	user.havingItems.set(itemType, user.havingItems.get(itemType)+1);
-	// 	fallingItems.splice(deleteIdx[i], 1);
-	// }
-            // 블록 아이템 모두 유저걸로
         });
         $('#masterBtns').append(btn1);
         let btn2 = $('<button/>');
@@ -74,6 +49,18 @@ $(document).ready(function () {
             user.hit(1);
         });
         $('#masterBtns').append(btn2);
+        
+        let btn3 = $('<button/>');
+        btn3.text('보스 죽이기');
+        btn3.click(() => {
+            if (bossGame && bossGame.bossManager && bossGame.bossManager.curBoss) {
+                bossGame.bossManager.curBoss.health = 1;
+                bossGame.bossManager.curBoss.isDying = true;
+                bossGame.bossManager.curBoss.dropItem();
+                bossGame.bossManager.curBoss.deathSound.play();
+            }
+        });
+        $('#masterBtns').append(btn3);
     });
     // 시작 버튼 처리
     $('#startButton').click(function() {
@@ -86,8 +73,9 @@ $(document).ready(function () {
         let btn1 = $('<button/>');
         btn1.text('블록 다 깨기');
         btn1.click(() => {
+            // 현재 블록에 있는 모든 광물들 수집
+            mainGame.collectAllItems();
             mainGame.isClear = true;
-            // 블록 아이템 모두 유저걸로
         });
         $('#masterBtns').append(btn1);
         let btn2 = $('<button/>');
@@ -96,6 +84,18 @@ $(document).ready(function () {
             user.heart.health = 0;
         });
         $('#masterBtns').append(btn2);
+        
+        let btn3 = $('<button/>');
+        btn3.text('보스 죽이기');
+        btn3.click(() => {
+            if (bossGame && bossGame.bossManager && bossGame.bossManager.curBoss) {
+                bossGame.bossManager.curBoss.health = 1;
+                bossGame.bossManager.curBoss.isDying = true;
+                bossGame.bossManager.curBoss.dropItem();
+                bossGame.bossManager.curBoss.deathSound.play();
+            }
+        });
+        $('#masterBtns').append(btn3);
     });
     // 리스폰 버튼 처리
     $('#respawn').click(() => {
