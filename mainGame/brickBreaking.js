@@ -16,7 +16,7 @@ let fallingItems = [];
 
 // 게임 진행 전역 변수
 let gameStarted = false;
-let isClear = true;
+let isClear = false;
 
 // 블록 관리 클래스
 let brickManager;
@@ -470,7 +470,7 @@ function draw(currentTime) {
     
     // 공 회전 및 이동
     ball.updateRotation();
-    ball.updatePosition(normalizedDeltaTime);
+    ball.updateLocation();
     
     // 벽 충돌 처리
     if(ball.x + ball.width > canvas.width || ball.x < 0) {

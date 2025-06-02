@@ -24,8 +24,6 @@
     <!-- 7. mainjs -->
     <script src="main.js"></script>
     <!-- mainGame js 로딩 끝 -->
-    <link rel="stylesheet" href="game.css">
-    <script src="game.js"></script>
     <script src="mainGame/processGame.js"></script>
     
     <!-- minecraft 기본 폰트 -->
@@ -38,10 +36,12 @@
     <audio id="btn-sound" src="btn.mp3"></audio>
 
     <button id="tmp_boss_start">보스전 시작</button>
+    <button id="tmp_game_start">게임 시작</button>
     <!-- 시작 화면 -->
     <div id="title-screen">
         <button class="button" id="start-btn">START</button>
         <button class="button" id="setting-btn">SETTING</button>
+        <button class="button" id="score-btn">SCORE</button>
     </div>
 
     <!-- 설정 화면 -->
@@ -78,6 +78,19 @@
     </div>
 
     <!-- 스토리 화면 -->
+    <div id="score-scene" style="display: none;">
+        <div class="score-panel">
+            <h2>스코어</h2>
+            <ul id="score-list">
+                <li>플레이어1 - 12000점</li>
+                <li>플레이어2 - 9500점</li>
+                <li>플레이어3 - 8500점</li>
+                <!-- 여기에 점수 리스트 동적으로 추가 가능 -->
+            </ul>
+            <button class="button" id="score-back-btn">Back</button>
+        </div>
+    </div>
+
     <div id="story-scene" style="display: none;">
         <div class="story-wrapper">
             <img id="story-image" src="" alt="Story Image">
@@ -85,31 +98,28 @@
             <button class="button" id="next-dialogue-btn">다음</button>
         </div>
     </div>
-
-    <div class="main">
-        <img class="main_title" src="images/title.png">
-        <section>
-            <!-- 공 튀기기 -->
-            <canvas id="gameCanvas" width="900" height="650"></canvas>
-            <!-- 죽었습니다. -->
-            <div class="dead">
-                <div class="dead_alert">
-                    <div>죽었습니다!</div>
-                    <div>점수: 0</div>
-                    <button id="respawn">리스폰</button>
-                    <button id="go2title">타이틀 화면으로</button>
-                </div>
+    <section>
+        <!-- 공 튀기기 -->
+        <canvas id="gameCanvas" width="900" height="650"></canvas>
+        <!-- 죽었습니다. -->
+        <div class="dead">
+            <div class="dead_alert">
+                <div>죽었습니다!</div>
+                <div>점수: 0</div>
+                <button id="respawn">리스폰</button>
+                <button id="go2title">타이틀 화면으로</button>
             </div>
-            <!-- 클리어 화면 -->
-            <!-- 수정-->
-            <div class="clear">
-                <div>이제 보스전을 준비하세요.</div>
-                <div>무기와 방어구를 만드세요.</div>
-                <img id="craftingTable" src="mainGame/craftingTable/table.png">
-            </div>
-        </section>
-        <button id="startButton">게임 시작</button>
-    </div>
+        </div>
+        <!-- 클리어 화면 -->
+        <!-- 수정-->
+        <div class="clear">
+            <div>이제 보스전을 준비하세요.</div>
+            <div>무기와 방어구를 만드세요.</div>
+            <img id="craftingTable" src="mainGame/craftingTable/table.png">
+        </div>
+    </section>
+    <div id="masterBtns"></div>
+    <script src="game.js"></script>
 </body>
 
 </html>
