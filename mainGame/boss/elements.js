@@ -96,7 +96,7 @@ class ProjectileManager {
     }
 
     // 발사체와 패들의 충돌 검사
-    checkCollisions() {
+    checkCollisions(deltaMultiplier = 1) {
         console.log('현재 발사체 수:', this.projectiles.length);
         // 역순으로 루프를 돌면서 바로 제거
         for (let i = this.projectiles.length - 1; i >= 0; i--) {
@@ -123,9 +123,9 @@ class ProjectileManager {
                 continue;
             }
 
-            // 충돌하지 않은 발사체만 이동
-            projectile.x += projectile.dx;
-            projectile.y += projectile.dy;
+            // 충돌하지 않은 발사체만 이동 (프레임 독립적)
+            projectile.x += projectile.dx * deltaMultiplier;
+            projectile.y += projectile.dy * deltaMultiplier;
 
             // 발사체 그리기
             ctx.drawImage(
@@ -237,22 +237,22 @@ class Boss{
         }
     }
 
-    calculateNext() {
-        // x축 이동
-        this.x += this.dx;
+    calculateNext(deltaMultiplier = 1) {
+        // x축 이동 (프레임 독립적)
+        this.x += this.dx * deltaMultiplier;
         
         // 화면 경계에 닿으면 방향 전환
         if (this.x <= 0 || this.x + this.width >= canvas.width) {
             this.dx = -this.dx;
         }
         
-        // y축 상하 움직임 (사인파 움직임)
-        this.y = this.y + Math.sin(Date.now() / 300) * this.dy; // 300은 기준 y좌표, 50은 움직임 폭
+        // y축 상하 움직임 (사인파 움직임, 프레임 독립적)
+        this.y = this.defaultY + Math.sin(Date.now() / 300) * this.dy * deltaMultiplier;
 
-        // 무적 시간 관리
+        // 무적 시간 관리 (프레임 독립적)
         if (this.isInvulnerable) {
-            this.invulnerableTimer++;
-            if (this.invulnerableTimer > 30) { // 약 0.5초 (60fps 기준)
+            this.invulnerableTimer += deltaMultiplier;
+            if (this.invulnerableTimer > 30) { // 약 0.5초 (120fps 기준)
                 this.isInvulnerable = false;
                 this.invulnerableTimer = 0;
             }
@@ -530,12 +530,12 @@ class BossManager{
         return this.curBoss.isDying;
     }
 
-    draw() {
+    draw(deltaMultiplier = 1) {
         ctx.save();
 
         // 그리기
         this.curBoss.draw();
-        this.curBoss.calculateNext();
+        this.curBoss.calculateNext(deltaMultiplier);
 
         ctx.restore();
     }

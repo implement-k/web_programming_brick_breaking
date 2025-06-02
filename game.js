@@ -156,6 +156,9 @@ function startMainGame(round) {
     $('#gameCanvas').show();
     mainGame.start();
 
+    // 기존 마스터 버튼들 제거
+    $('#masterBtns').empty();
+
     // 마스터 버튼들
     let btn1 = $('<button/>');
     btn1.text('블록 다 깨기');

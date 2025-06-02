@@ -89,15 +89,15 @@ class Ball {
     };
 
     // 공 회전 업데이트
-    updateRotation() {
-        if(this.dx > 0) this.rotation -= 0.1 * Math.abs(this.dx); // 반시계 방향
-        else this.rotation += 0.1 * Math.abs(this.dx); // 시계 방향
+    updateRotation(deltaMultiplier = 1) {
+        if(this.dx > 0) this.rotation -= (0.1 * Math.abs(this.dx)) * deltaMultiplier; // 반시계 방향
+        else this.rotation += (0.1 * Math.abs(this.dx)) * deltaMultiplier; // 시계 방향
     };
 
     // 공 위치 업데이트
-    updateLocation() {
-        this.x += this.dx;
-        this.y += this.dy;
+    updateLocation(deltaMultiplier = 1) {
+        this.x += this.dx * deltaMultiplier;
+        this.y += this.dy * deltaMultiplier;
     }
 
     draw() {
@@ -144,18 +144,18 @@ class Paddle {
         this.speed = speed;
     }
 
-    updateRocation(canvas, leftPressed, rightPressed) {
+    updateRocation(canvas, leftPressed, rightPressed, deltaMultiplier = 1) {
         if(rightPressed) {
-            this.dx = this.speed;
-            this.tilt = Math.min(this.tilt + 0.1, this.maxTilt);
+            this.dx = this.speed * deltaMultiplier;
+            this.tilt = Math.min(this.tilt + (0.1 * deltaMultiplier), this.maxTilt);
         }
         else if(leftPressed) {
-            this.dx = -this.speed;
-            this.tilt = Math.max(this.tilt - 0.1, -this.maxTilt);
+            this.dx = -this.speed * deltaMultiplier;
+            this.tilt = Math.max(this.tilt - (0.1 * deltaMultiplier), -this.maxTilt);
         }
         else {
             this.dx = 0;
-            this.tilt *= 0.95; // 기울기 점차 감소
+            this.tilt *= Math.pow(0.95, deltaMultiplier); // 기울기 점차 감소
         }
 
         this.x = Math.max(0, Math.min(canvas.width - this.width, this.x + this.dx));

@@ -42,7 +42,7 @@ class MainGame {
 
     // 초기화 함수
     init() {
-        ball = new Ball(WIDTH/2, HEIGHT-150);
+        ball = new Ball(WIDTH/2, HEIGHT-150, 2, -2); // dx=2, dy=-2로 적절한 속도 설정
         paddle = new Paddle(WIDTH/2-50, HEIGHT-100);
         hotbar = new Hotbar(WIDTH/2-195, HEIGHT-60);
         this.brickManager = new BrickManager(gameDifficulty);
@@ -56,13 +56,17 @@ class MainGame {
         // 타이머 초기화
         this.gameStartTime = null;
         this.remainingTime = this.timeLimit;
+        
+        // 게임 자동 시작
+        // this.start();
     }
 
     // 게임 시작
     start() {
         this.gameStarted = true;
         this.gameStartTime = Date.now(); // 게임 시작 시간 기록
-        this.draw();
+		ball = new Ball(WIDTH/2, HEIGHT-150, 2, -2);
+        requestAnimationFrame((time) => this.draw(time));
     }
 
     // 초기 화면 그리기
@@ -77,7 +81,7 @@ class MainGame {
     }
 
     // 떨어지는 아이템 그리기
-    drawFallingItems() {
+    drawFallingItems(deltaMultiplier = 1) {
         let deleteIdx = [];
         for(let i = 0; i < this.fallingItems.length; i++) {
             const item = this.fallingItems[i];
@@ -91,7 +95,8 @@ class MainGame {
                 deleteIdx.push(i);
                 continue;
             }
-            item.y += item.dy;
+            // 프레임 독립적 아이템 떨어지는 속도
+            item.y += item.dy * deltaMultiplier;
             
             // 아이템 그리기
             ctx.drawImage(item.image, item.x, item.y, item.width, item.height);
@@ -534,6 +539,8 @@ class MainGame {
     startBoss() {
         if($('.clear').css('display') == 'flex') {
             $('.clear').css('display', 'none');
+            // 현재 난이도에 맞는 새로운 BossGame 인스턴스 생성
+            bossGame = new BossGame(gameDifficulty);
             bossGame.init(gameDifficulty);
         }
     }
@@ -546,18 +553,19 @@ class MainGame {
             return;
         }
         
-        // 타이머 체크 - 시간 종료시 게임오버
+        // 타이머 체크 - 시간 종료시 게임클리어
         if (this.remainingTime <= 0) {
-            this.gameover();
+            this.gameclear();
             return;
         }
         
-        // deltaTime 계산
+        // deltaTime 계산 (120fps 기준)
         const deltaTime = currentTime - (this.draw.lastTime || currentTime);
         this.draw.lastTime = currentTime;
 
-        const timeStep = 1000 / 60; // 목표 60fps
-        const normalizedDeltaTime = deltaTime / timeStep;
+        const TARGET_FPS = 120;
+        const timeStep = 1000 / TARGET_FPS; // 120fps 기준 시간 간격
+        const deltaMultiplier = deltaTime / timeStep; // 프레임 독립적 속도 보정값
         
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         
@@ -569,7 +577,7 @@ class MainGame {
         this.isClear = this.brickManager.draw(this.fallingItems.length);
         ball.draw();
         paddle.draw();
-        this.drawFallingItems();
+        this.drawFallingItems(deltaMultiplier);
         this.brickManager.collisionDetection(ball, this.fallingItems);
         paddle.collisionDetection(ball);
         user.draw();
@@ -577,12 +585,12 @@ class MainGame {
         // 타이머 그리기
         this.drawTimer();
         
-        // 패들 이동 및 기울기 처리
-        paddle.updateRocation(canvas, leftPressed, rightPressed);
+        // 패들 이동 및 기울기 처리 (프레임 독립적)
+        paddle.updateRocation(canvas, leftPressed, rightPressed, deltaMultiplier);
         
-        // 공 회전 및 이동
-        ball.updateRotation();
-        ball.updateLocation();
+        // 공 회전 및 이동 (프레임 독립적)
+        ball.updateRotation(deltaMultiplier);
+        ball.updateLocation(deltaMultiplier);
         
         // 벽 충돌 처리
         if(ball.x + ball.width > canvas.width || ball.x < 0) {

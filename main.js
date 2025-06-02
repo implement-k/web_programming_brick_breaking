@@ -33,6 +33,9 @@ $(document).ready(function () {
         $(this).hide();
         mainGame.draw();
 
+        // 기존 마스터 버튼들 제거
+        $('#masterBtns').empty();
+
         // 마스터 버튼들
         let btn1 = $('<button/>');
         btn1.text('블록 다 깨기');
@@ -68,6 +71,9 @@ $(document).ready(function () {
         mainGame.gameStarted = true;
         $(this).hide();
         mainGame.draw();
+
+        // 기존 마스터 버튼들 제거
+        $('#masterBtns').empty();
 
         // 마스터 버튼들
         let btn1 = $('<button/>');

@@ -36,10 +36,10 @@ class BossGame {
         this.projectileManager.init(difficulty);
         user.init();
         this.isStarted = true;
-        this.draw();
+        requestAnimationFrame((time) => this.draw(time));
     }
 
-    draw() {
+    draw(currentTime) {
         if (!this.isStarted) return;
         if (user.isDead()) {
             SOUND_EFFECT.death.play();
@@ -61,6 +61,14 @@ class BossGame {
             return;
         }
 
+        // deltaTime 계산 (120fps 기준)
+        const deltaTime = currentTime - (this.draw.lastTime || currentTime);
+        this.draw.lastTime = currentTime;
+
+        const TARGET_FPS = 120;
+        const timeStep = 1000 / TARGET_FPS;
+        const deltaMultiplier = deltaTime / timeStep; // 프레임 독립적 속도 보정값
+
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         if (this.background.complete) {
             ctx.drawImage(this.background, 0, 0, canvas.width, canvas.height);
@@ -69,22 +77,22 @@ class BossGame {
 
         this.bossManager.collisionDetection(this.ball); // 보스 - 공 충돌
         this.paddle.collisionDetection(this.ball);      // 공 - 패들 충돌
-        this.projectileManager.checkCollisions();   // 발사체 - 유저 충돌
+        this.projectileManager.checkCollisions(deltaMultiplier);   // 발사체 - 유저 충돌 (프레임 독립적)
         this.bossManager.attack(this.projectileManager);    // 보스 - 발사체 발사
 
         // 그리기
         this.ball.draw();
         this.paddle.draw();
-        this.bossManager.draw();
+        this.bossManager.draw(deltaMultiplier);
         // this.user.draw();
         user.draw();
 
-        // 패들 이동 및 기울기 처리
-        this.paddle.updateRocation(canvas, leftPressed, rightPressed);
+        // 패들 이동 및 기울기 처리 (프레임 독립적)
+        this.paddle.updateRocation(canvas, leftPressed, rightPressed, deltaMultiplier);
 
-        // 공 회전 및 이동
-        this.ball.updateRotation();
-        this.ball.updateLocation();
+        // 공 회전 및 이동 (프레임 독립적)
+        this.ball.updateRotation(deltaMultiplier);
+        this.ball.updateLocation(deltaMultiplier);
 
         // 벽 충돌 처리
         if(this.ball.x + this.ball.width > canvas.width || this.ball.x < 0) {
@@ -97,6 +105,6 @@ class BossGame {
             user.hit(1, 1);
         }
 
-        requestAnimationFrame(this.draw);
+        requestAnimationFrame((time) => this.draw(time));
     }
 }
