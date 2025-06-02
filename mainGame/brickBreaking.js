@@ -35,9 +35,9 @@ class MainGame {
             [0, 0, 0]
         ];
         this.craftingPos = [
-            {top: 235, left: 310}, {top: 230, left: 355}, {top: 230, left: 395},
-            {top: 275, left: 310}, {top: 275, left: 355}, {top: 275, left: 395},
-            {top: 320, left: 310}, {top: 320, left: 355}, {top: 320, left: 395}
+            {top: 235, left: 310}, {top: 235, left: 355}, {top: 235, left: 396},
+            {top: 277, left: 310}, {top: 277, left: 355}, {top: 277, left: 396},
+            {top: 321, left: 310}, {top: 321, left: 355}, {top: 321, left: 396}
         ];
         this.itemClicked = false;
         this.offsetX = 0;
@@ -258,7 +258,8 @@ class MainGame {
                 'position': 'absolute',
                 'cursor': 'move'
             });
-
+            
+            newDiv.addClass('result_item');
             const newImg = $('<img />').addClass('clear_item');
 
             newImg.attr('src', itemPaths[resultIndex]).css({'width': '32px', 'height': '32px'});
@@ -303,6 +304,7 @@ class MainGame {
         $(document).on('keydown', (e) => {
             if (e.code === 'Space') {
                 e.preventDefault();
+                $('.clear_item').remove();
                 this.startBoss();    
             }
         });
@@ -319,12 +321,14 @@ class MainGame {
 
                 if (this.itemClicked) {
                     // 드래그 시작
+                    $('.result_item').remove();
                     this.offsetX = e.clientX - pos.left;
                     this.offsetY = e.clientY - pos.top;
                     this.currentlyDraggingDiv = newDiv;
 
                     if (clickSection === 'crafting') {
                         newDiv.removeClass('item_in_craft');
+                        
                         let i;
                         for (i = 0; i < 9; i++) {
                             if (pos.left >= this.craftingPos[i].left && pos.left <= this.craftingPos[i].left + 40 &&
@@ -336,7 +340,7 @@ class MainGame {
                     }
                 } else {
                     this.currentlyDraggingDiv = null;
-                    $('#result_item').remove();
+                    
                     // 드래그 놓기
                     if (clickSection === 'crafting') {
 
@@ -348,10 +352,14 @@ class MainGame {
                         for (i = 0; i < 9; i++) {
                             if (centerX >= this.craftingPos[i].left && centerX <= this.craftingPos[i].left + 40 &&
                                 centerY >= this.craftingPos[i].top && centerY <= this.craftingPos[i].top + 40) {
+                                newDiv.css({
+                                    'left': this.craftingPos[i].left + 3,
+                                    'top': this.craftingPos[i].top + 3
+                                });
                                 break;
                             }
                         }
-
+                        
                         const itmSrc = newImg.attr('src').split('/').pop().replace('.png', '');
                         let indexX = parseInt(i / 3);
                         let indexY = parseInt(i % 3);
@@ -362,9 +370,9 @@ class MainGame {
                         else if (itmSrc === 'iron') this.craftingItems[indexX][indexY] = 2;
                         else if (itmSrc === 'gold') this.craftingItems[indexX][indexY] = 3;
                         else if (itmSrc === 'diamond') this.craftingItems[indexX][indexY] = 4;
-
-                        this.checkCraftResult();
                     }
+
+                    this.checkCraftResult();
                 }
             }
         }
@@ -372,60 +380,62 @@ class MainGame {
 
     // 아이템 우클릭 이벤트 처리
     handleRightClick(e, originalDiv, originalImg) {
-        const countSpan = originalDiv.find('span');
-        let count = parseInt(countSpan.text());
-        if (count < 2) return;
+        if(this.itemClicked == false) {
+            const countSpan = originalDiv.find('span');
+            let count = parseInt(countSpan.text());
+            if (count < 2) return;
 
-        const half1 = count - Math.floor(count / 2);
-        const half2 = count - half1;
+            const half1 = count - Math.floor(count / 2);
+            const half2 = count - half1;
 
-        countSpan.text(half1);
+            countSpan.text(half1);
 
-        const halfDiv = $('<div />').addClass('clear_item').css({
-            left: originalDiv.position().left,
-            top: originalDiv.position().top,
-            position: 'absolute',
-            cursor: 'move'
-        });
+            const halfDiv = $('<div />').addClass('clear_item').css({
+                left: originalDiv.position().left,
+                top: originalDiv.position().top,
+                position: 'absolute',
+                cursor: 'move'
+            });
 
-        this.offsetX = e.clientX - originalDiv.position().left;
-        this.offsetY = e.clientY - originalDiv.position().top;
+            this.offsetX = e.clientX - originalDiv.position().left;
+            this.offsetY = e.clientY - originalDiv.position().top;
 
-        const halfSrc = originalImg.attr('src');
-        const halfImg = $('<img />').addClass('clear_item').attr('src', halfSrc).css({
-            width: '32px',
-            height: '32px',
-            pointerEvents: 'none'
-        });
+            const halfSrc = originalImg.attr('src');
+            const halfImg = $('<img />').addClass('clear_item').attr('src', halfSrc).css({
+                width: '32px',
+                height: '32px',
+                pointerEvents: 'none'
+            });
 
-        const halfSpan = $('<span />').text(half2).css({
-            position: 'absolute',
-            bottom: '0',
-            right: '0',
-            fontFamily: 'Minecraftia',
-            fontSize: '14px',
-            color: '#FFFFFF',
-            textShadow: '1px 1px 0 #000000'
-        });
+            const halfSpan = $('<span />').text(half2).css({
+                position: 'absolute',
+                bottom: '0',
+                right: '0',
+                fontFamily: 'Minecraftia',
+                fontSize: '14px',
+                color: '#FFFFFF',
+                textShadow: '1px 1px 0 #000000'
+            });
 
-        halfSpan.on('contextmenu', function(e) {
-            e.preventDefault();
-        });
+            halfSpan.on('contextmenu', function(e) {
+                e.preventDefault();
+            });
 
-        halfDiv.append(halfImg).append(halfSpan);
-        $('.clear').append(halfDiv);
+            halfDiv.append(halfImg).append(halfSpan);
+            $('.clear').append(halfDiv);
 
-        this.currentlyDraggingDiv = halfDiv;
-        this.itemClicked = true;
+            this.currentlyDraggingDiv = halfDiv;
+            this.itemClicked = true;
 
-        // 새 div에도 이벤트 등록
-        halfDiv.on('mousedown', (ev) => {
-            this.handleLeftClick(ev, halfDiv, halfImg);
-        });
-        halfDiv.on('contextmenu', (ev) => {
-            ev.preventDefault();
-            this.handleRightClick(ev, halfDiv, halfImg);
-        });
+            // 새 div에도 이벤트 등록
+            halfDiv.on('mousedown', (ev) => {
+                this.handleLeftClick(ev, halfDiv, halfImg);
+            });
+            halfDiv.on('contextmenu', (ev) => {
+                ev.preventDefault();
+                this.handleRightClick(ev, halfDiv, halfImg);
+            });
+        }
     }
 
     // 조합창에 아이템을 그리는 함수

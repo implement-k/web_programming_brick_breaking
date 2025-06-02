@@ -498,6 +498,7 @@ class User {
     hitTime = null;
 
     constructor(health, defense) {
+        console.log("NEW");
         this.hotbar = new Hotbar(253, 595);
         // 레벨별 xpbar 구성
         for (let i = 1; i<4; i++) {
