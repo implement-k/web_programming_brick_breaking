@@ -10,11 +10,12 @@ $(document).ready(function () {
     $(document).keydown(keyDownHandler);
     $(document).keyup(keyUpHandler);
 
+    gameDifficulty = 2;  // 먼저 난이도 설정
+    
     // manager 들 초기화
     user = new User(5);      // 전역변수
     userCheckpoint = user.clone();
-    bossGame = new BossGame(gameDifficulty);
-    gameDifficulty = 1;
+    bossGame = new BossGame(gameDifficulty);  // 난이도 설정 후 생성
 
     // 개발 시에만 if 문 사용, 완성시에는 초기에 brick_breaking_init만 사용하면 됨.
     if (CUR_GAME_STATE == GAME_STATE.BRICK_BREAKING) {

@@ -6,7 +6,7 @@ class Projectile {
     image = new Image();
     damage;
     
-    constructor(width, height, damage, imageDir=null, x=0, y=0, dx=0, dy=0, image=null) {
+    constructor(width, height, damage, imageDir=null, x=0, y=0, dx=0, dy=0) {
         this.x = x;
         this.y = y;
         this.width = width;
@@ -14,12 +14,11 @@ class Projectile {
         this.damage = damage;
         this.dx = dx;
         this.dy = dy;
-        if (imageDir != null) this.image.src = imageDir;
-        if (image != null) this.image = image;
+        this.image.src = imageDir;
     }
 
     create(x, y, dx, dy) {
-        return new Projectile(this.width, this.height, this.damage, null, x, y, dx, dy, this.image);
+        return new Projectile(this.width, this.height, this.damage, this.image.src, x, y, dx, dy);
     }
 }
 
@@ -36,8 +35,8 @@ class ProjectileManager {
     delay;              // ms단위, delay +- 2초에서 랜덤으로 공격 
     projectileSize = [[40, 40], [40, 40], [40, 40]];
     delaies = [4000, 3000, 2500];   // 공격 간격
-    damages = [1, 2, 3];            // 발사체 데미지
-    speeds = [1.4, 1.7, 2];
+    damages = [1, 2, 1];            // 발사체 데미지
+    speeds = [1.2, 1.3, 1.4];
     projectile;
     difficulty;
     
@@ -97,58 +96,38 @@ class ProjectileManager {
     }
 
     // 발사체와 패들의 충돌 검사
-    checkCollisions(paddle) {
-        for(let i = this.projectiles.length - 1; i >= 0; i--) {
+    checkCollisions() {
+        console.log('현재 발사체 수:', this.projectiles.length);
+        // 역순으로 루프를 돌면서 바로 제거
+        for (let i = this.projectiles.length - 1; i >= 0; i--) {
             const projectile = this.projectiles[i];
 
-            // 이동
+            // 먼저 화면 안에 있는지 체크 (이동 전에)
+            if (projectile.x + projectile.width < 0 || 
+                projectile.x > canvas.width || 
+                projectile.y + projectile.height < 0 || 
+                projectile.y > canvas.height) {
+                this.projectiles.splice(i, 1);
+                continue;
+            }
 
-            const prevX = projectile.x;
-            const prevY = projectile.y;
+            // 화면 안에 있는 발사체만 충돌 체크
+            if (projectile.x < paddle.x + paddle.width &&
+                projectile.x + projectile.width > paddle.x &&
+                projectile.y < paddle.y + paddle.height &&
+                projectile.y + projectile.height > paddle.y) {
+                
+                // 충돌 시 처리
+                user.hit(this.difficulty, projectile.damage);
+                this.projectiles.splice(i, 1);
+                continue;
+            }
 
+            // 충돌하지 않은 발사체만 이동
             projectile.x += projectile.dx;
             projectile.y += projectile.dy;
 
-            // 먼저 충돌 체크
-            if (this.checkProjectilePaddleCollision(projectile, paddle, prevX, prevY)) { 
-                console.log(projectile, 'hit');
-                user.hit(projectile.damage);
-                this.projectiles.splice(i, 1);
-                continue;
-            }
-        
-            if (projectile.y + projectile.height > canvas.height) {
-                this.projectiles.splice(i, 1);
-                continue;
-            }
-            if (projectile.x <= 0 || projectile.x + projectile.width >= canvas.width) {
-                projectile.dx = -projectile.dx;
-            }
-        }
-    }
-
-    checkProjectilePaddleCollision(projectile, paddle, prevX, prevY) {
-        // 현재 위치에서의 충돌
-        const currentCollision = (
-            projectile.x + projectile.width >= paddle.x &&
-            projectile.x <= paddle.x + paddle.width &&
-            projectile.y + projectile.height >= paddle.y &&
-            projectile.y <= paddle.y + paddle.height
-        );
-        
-        // 이전 위치에서의 충돌 (터널링 방지)
-        const prevCollision = (
-            prevX + projectile.width >= paddle.x &&
-            prevX <= paddle.x + paddle.width &&
-            prevY + projectile.height >= paddle.y &&
-            prevY <= paddle.y + paddle.height
-        );
-        
-        return currentCollision || prevCollision;
-    }
-
-    draw() {
-        for (const projectile of this.projectiles) {
+            // 발사체 그리기
             ctx.drawImage(
                 projectile.image,
                 projectile.x,
@@ -157,11 +136,12 @@ class ProjectileManager {
                 projectile.height
             );
         }
+        user.releaseHit(this.difficulty);
     }
 }
 
 // bossManager에서 사용하는 클래스
-// 각 객체는 boss의 정보를 가지고 있음.
+// 각 객체는 boss의 정보를 가지고 있음. (1단계 완성2)
 class Boss{
     health;                     // 보스 피 (health번 만큼 맞으면 죽음)
     x; y;                       // 보스 위치
@@ -176,6 +156,7 @@ class Boss{
     spawnSound;                 // 스폰시 소리
     hitSound;                   // 공에 맞았을때 소리
     deathSound;                 // 죽었을때 소리 
+    attackSound;
     isSpawning = false;       
     isDying = false;
     deathAnimation = 0;
@@ -191,7 +172,7 @@ class Boss{
     
     constructor(
         health, x, y, defaultY ,dx, dy, width, height, bossImageDir, imageSpawnDir, imageAngryDir, 
-        imageHitDir, spawnSoundDir, hitSoundDir, deathSound
+        imageHitDir, spawnSoundDir, hitSoundDir, deathSoundDir, attackSoundDir
     ) {
         this.health = health;
         this.x = x;
@@ -209,7 +190,8 @@ class Boss{
         this.imageHit.src = imageHitDir;
         this.spawnSound = new Audio(spawnSoundDir);
         this.hitSound = new Audio(hitSoundDir);
-        this.deathSound = new Audio(deathSound);
+        this.deathSound = new Audio(deathSoundDir);
+        this.attackSound = new Audio(attackSoundDir);
         this.imageSpawn.src = imageSpawnDir;
 
         // 처음 스폰 
@@ -221,6 +203,7 @@ class Boss{
         this.spawnSound.play();
     }
 
+    // 미완성
     dropItem() {
         this.droppedItem = {
             x: this.x + this.width / 2,
@@ -233,6 +216,7 @@ class Boss{
         this.droppedItem.image.src = 'mainGame/items/diamond.png';
     }
 
+    // 맞을때
     hit(currentTime) {
         this.hitSound.currentTime = 0; 
         this.hitSound.play();
@@ -243,6 +227,7 @@ class Boss{
         this.hitStopTime = currentTime;  // hitStopTime 사용
     }
 
+    // 맞고나서 프리즈 상태 해제
     releaseHit(currentTime) {
         if (this.hitStopTime && currentTime - this.hitStopTime >= 1000) {
             this.dx = this.defaultDx;
@@ -279,7 +264,7 @@ class Boss{
         const boss = new Boss(
             this.health, this.x, this.y, this.defaultY, this.dx, this.dy, 
             this.width, this.height, this.originalImage.src, this.imageSpawn.src, this.imageAngry.src,
-            this.imageHit.src, this.spawnSound.src, this.hitSound.src, this.deathSound.src
+            this.imageHit.src, this.spawnSound.src, this.hitSound.src, this.deathSound.src, this.attackSound.src
         );
         
         // 스폰 관련 속성 초기화
@@ -360,22 +345,32 @@ class BossManager{
     bossImageDirs = [
         ['mainGame/boss/wither/wither.png'],    // 500, 440
         ['mainGame/boss/ghast/ghast.png', 'mainGame/boss/ghast/ghast_angry.png'],   // 220, 277
-        ['mainGame/goss/ender_dragon.webp']     // 400, 408
+        ['mainGame/boss/ender_dragon/ender_dragon.webp']     // 400, 408
     ];
     bossHitImageDirs = [
-        'mainGame/boss/wither/wither_hit.png'
+        'mainGame/boss/wither/wither_hit.png',
+        'mainGame/boss/ghast/ghast_hit.png',
+        'mainGame/boss/ender_dragon/ender_dragon_hit.png'
     ];
     bossSpawnImageDirs = [
-        'mainGame/boss/wither/wither_spawn.png'
+        'mainGame/boss/wither/wither_spawn.png',
+        'mainGame/boss/ghast/ghast_angry.png',
+        'mainGame/boss/ender_dragon/ender_dragon.webp'
     ];
     bossSpawnSoundDirs = [
         'mainGame/boss/wither/spawn.mp3',
+        'mainGame/boss/ghast/spawn.mp3',
+        'mainGame/boss/ghast/spawn.mp3',
     ];
     bossHitSoundDirs = [
         'mainGame/boss/wither/hit.mp3',
+        'mainGame/boss/ghast/hit.mp3',
+        'mainGame/boss/ghast/spawn.mp3',
     ];
     bossDeathSoundDirs = [
         'mainGame/boss/wither/death.mp3',
+        'mainGame/boss/ghast/death.mp3',
+        'mainGame/boss/ghast/spawn.mp3',
     ];
     bosses = [];
     curBoss;
@@ -399,11 +394,12 @@ class BossManager{
             this.bossHitImageDirs[0],
             this.bossSpawnSoundDirs[0], // 보스 스폰 sound
             this.bossHitSoundDirs[0],   // 보스 맞는 sound
-            this.bossDeathSoundDirs[0]  // 보스 죽는 sound
+            this.bossDeathSoundDirs[0], // 보스 죽는 sound
+            'mainGame/boss/wither/attack.mp3'
         ));
         // 가스트
         this.bosses.push(new Boss(
-            12,  // health
+            5,  // health
             canvas.width/2 - this.size[1][0]/2,  // x
             this.y,  // y
             this.y, // defaultY
@@ -417,7 +413,8 @@ class BossManager{
             this.bossHitImageDirs[1],
             this.bossSpawnSoundDirs[1], // 보스 스폰 sound
             this.bossHitSoundDirs[1],   // 보스 맞는 sound
-            this.bossDeathSoundDirs[1]  // 보스 죽는 sound
+            this.bossDeathSoundDirs[1], // 보스 죽는 sound
+            ''
         ));
         // 엔더드래곤
         this.bosses.push(new Boss(
@@ -435,7 +432,8 @@ class BossManager{
             this.bossHitImageDirs[2],
             this.bossSpawnSoundDirs[2], // 보스 스폰 sound
             this.bossHitSoundDirs[2],   // 보스 맞는 sound
-            this.bossDeathSoundDirs[2]  // 보스 죽는 sound
+            this.bossDeathSoundDirs[2], // 보스 죽는 sound
+            ''
         ));
         // 현재 보스 갱신
         this.curBoss = this.bosses[difficulty-1].clone();
@@ -446,12 +444,13 @@ class BossManager{
         this.curBoss = this.bosses[difficulty-1].clone();
     }
 
-    manageProjectile(projectileManager) {
+    attack(projectileManager) {
         const currentTime = Date.now();
         
         // 발사 시간이 되었는지 체크
         if (!this.isDying() && currentTime - projectileManager.lastFireTime >= projectileManager.nextFireDelay) {
             // 보스가 멈춘 상태에서 발사체 생성
+            this.curBoss.attackSound.play();
             this.curBoss.image.src = this.curBoss.imageAngry.src;
             this.curBoss.dx = this.curBoss.dx * 0.1;  // 보스 정지
             this.curBoss.attackStopTime = currentTime;  // attackStopTime 사용
@@ -469,9 +468,6 @@ class BossManager{
                 this.curBoss.attackStopTime = null;  // attackStopTime 초기화
             }
         }
-        
-        // 발사체 충돌 체크 및 이동
-        projectileManager.checkCollisions(paddle, canvas);
     }
 
     collisionDetection(ball) {

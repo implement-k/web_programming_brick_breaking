@@ -28,6 +28,7 @@ class BossGame {
         // 화면 초기화
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 
+        this.background.src = this.backgroundDir[difficulty-1];
         this.ball = new Ball(WIDTH/2, HEIGHT-150, 2, -2);
         this.paddle = new Paddle(WIDTH/2-50, HEIGHT-100);
         this.hotbar = new Hotbar(WIDTH/2-195, HEIGHT-60);
@@ -54,8 +55,8 @@ class BossGame {
 
         this.bossManager.collisionDetection(this.ball); // 보스 - 공 충돌
         this.paddle.collisionDetection(this.ball);      // 공 - 패들 충돌
-        this.bossManager.manageProjectile(this.projectileManager);// 발사체 0-유저 충돌
-        this.projectileManager.draw();
+        this.projectileManager.checkCollisions();   // 발사체 - 유저 충돌
+        this.bossManager.attack(this.projectileManager);    // 보스 - 발사체 발사
 
         // 그리기
         this.ball.draw();

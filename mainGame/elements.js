@@ -18,7 +18,29 @@ const itemPaths = [
     'mainGame/items/gold.png',
     'mainGame/items/diamond.png',
     'mainGame/items/stick.png',
-    'mainGame/items/plank.png'
+    'mainGame/items/plank.png',
+
+    'mainGame/items/sword/iron_sword.png',
+    'mainGame/items/sword/golden_sword.png',
+    'mainGame/items/sword/diamond_sword.png',
+    'mainGame/items/sword/wooden_sword.png',
+
+    'mainGame/items/boots/iron_boots.png',
+    'mainGame/items/boots/golden_boots.png',
+    'mainGame/items/boots/diamond_boots.png',
+
+    'mainGame/items/reggings/iron_reggings.png',
+    'mainGame/items/reggings/golden_reggings.png',
+    'mainGame/items/reggings/diamond_reggingss.png',
+
+    'mainGame/items/chestplate/iron_chestplate.png',
+    'mainGame/items/chestplate/gold_chestplate.png',
+    'mainGame/items/chestplate/diamond_chestplate.png',
+
+    'mainGame/items/helmet/iron_helmet.png',
+    'mainGame/items/helmet/golden_helmet.png',
+    'mainGame/items/helmet/diamond_helmet.png'
+
 ];
 const itemImages = [];
 const loadItemImages = () => {
@@ -32,6 +54,7 @@ const loadItemImages = () => {
     }));
 };
 loadItemImages();
+console.log(itemImages);
 
 // 공
 class Ball {
@@ -413,6 +436,8 @@ class User {
     heart;
     armor;
     hitSound = new Audio('mainGame/user/hit.mp3');
+    hitImage = new Image();
+    hitTime = null;
 
     constructor(health) {
         this.hotbar = new Hotbar(253, 595);
@@ -426,6 +451,8 @@ class User {
         // 체력바 구성
         this.heart = new Heart(256, 560, health);
 
+        this.hitImage.src = 'mainGame/boss/ghast/user_hit.png';
+        this.hitTime = null;
         // 보호구 바 구성
         // this.
     }
@@ -434,9 +461,20 @@ class User {
         this.heart.health = 5;
     }
 
-    hit(damage) {
+    hit(difficulty, damage) {
+        if (difficulty === 2) {
+            this.hitTime = Date.now();
+        }
         this.heart.health -= damage;
         this.hitSound.play();
+    }
+
+    releaseHit(difficulty) {
+        const curTime = Date.now();
+        // 보호구에 맞춰 초 수정
+        if (difficulty === 2 && this.hitTime && curTime - this.hitTime > 1000) {
+            this.hitTime = null;
+        }
     }
 
     isDead() {
@@ -463,6 +501,10 @@ class User {
         this.hotbar.draw(this.havingItems);
         this.heart.draw();
         ctx.drawImage(this.xpbars[gameDifficulty-1], 256, 570, 387, 23);
+        if (gameDifficulty == 2 && this.hitTime) {
+            console.log(this.hitTime);
+            ctx.drawImage(this.hitImage, 0, 0, 900, 650);
+        }
         ctx.restore();
     }
 }
