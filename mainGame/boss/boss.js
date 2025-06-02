@@ -47,6 +47,20 @@ class BossGame {
             return
         }
 
+        // 보스가 죽었는지 확인하고 다음 스토리로 진행
+        if (this.bossManager.isDying()) {
+            this.isStarted = false;
+            // 보스 죽음 후 잠시 대기 (1.5초)
+            setTimeout(() => {
+                if (gameDifficulty < 3) {
+                    startStory(gameDifficulty + 1);
+                } else {
+                    startStory(4); // 3라운드 끝나면 종료 스토리(4라운드) 시작
+                }
+            }, 1500);
+            return;
+        }
+
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         if (this.background.complete) {
             ctx.drawImage(this.background, 0, 0, canvas.width, canvas.height);
@@ -80,7 +94,7 @@ class BossGame {
             this.ball.dy = -this.ball.dy;
         } else if(this.ball.y + this.ball.height > canvas.height) {
             this.ball = new Ball(WIDTH/2, HEIGHT-150, 2, -2);
-            user.hit(1);
+            user.hit(1, 1);
         }
 
         requestAnimationFrame(this.draw);

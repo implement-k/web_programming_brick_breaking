@@ -110,8 +110,8 @@ function startStory(round = 1) {
     const range = storyRanges[gameDifficulty];
     currentSceneIndex = range.start;
     currentLineIndex = 0;
+     $('#gameCanvas').hide();
     showScene('story-scene');
-    hideScene('main-game');
     updateStory();
 }
 
@@ -160,8 +160,8 @@ function startMainGame(round) {
     let btn1 = $('<button/>');
     btn1.text('블록 다 깨기');
     btn1.click(() => {
+        mainGame.collectAllItems();
         mainGame.isClear = true;
-        // 블록 아이템 모두 유저걸로
     });
     $('#masterBtns').append(btn1);
     
@@ -172,6 +172,18 @@ function startMainGame(round) {
         user.hit(1);
     });
     $('#masterBtns').append(btn2);
+    
+    let btn3 = $('<button/>');
+    btn3.text('보스 죽이기');
+    btn3.click(() => {
+        if (bossGame && bossGame.bossManager && bossGame.bossManager.curBoss) {
+            bossGame.bossManager.curBoss.health = 1;
+            bossGame.bossManager.curBoss.isDying = true;
+            bossGame.bossManager.curBoss.dropItem();
+            bossGame.bossManager.curBoss.deathSound.play();
+        }
+    });
+    $('#masterBtns').append(btn3);
 }
 
 document.getElementById('instant-win-btn').addEventListener('click', () => {
