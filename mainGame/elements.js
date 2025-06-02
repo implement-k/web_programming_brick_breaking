@@ -436,6 +436,8 @@ class User {
     armor;
     hitSound = new Audio('mainGame/user/hit.mp3');
     equippedItems = new Map();
+    hitImage = new Image();
+    hitTime = null;
 
     constructor(health) {
         this.hotbar = new Hotbar(253, 595);
@@ -449,6 +451,8 @@ class User {
         // 체력바 구성
         this.heart = new Heart(256, 560, health);
 
+        this.hitImage.src = 'mainGame/boss/ghast/user_hit.png';
+        this.hitTime = null;
         // 보호구 바 구성
         // this.
     }
@@ -457,9 +461,20 @@ class User {
         this.heart.health = 5;
     }
 
-    hit(damage) {
+    hit(difficulty, damage) {
+        if (difficulty === 2) {
+            this.hitTime = Date.now();
+        }
         this.heart.health -= damage;
         this.hitSound.play();
+    }
+
+    releaseHit(difficulty) {
+        const curTime = Date.now();
+        // 보호구에 맞춰 초 수정
+        if (difficulty === 2 && this.hitTime && curTime - this.hitTime > 1000) {
+            this.hitTime = null;
+        }
     }
 
     isDead() {
@@ -486,6 +501,10 @@ class User {
         this.hotbar.draw(this.havingItems);
         this.heart.draw();
         ctx.drawImage(this.xpbars[gameDifficulty-1], 256, 570, 387, 23);
+        if (gameDifficulty == 2 && this.hitTime) {
+            console.log(this.hitTime);
+            ctx.drawImage(this.hitImage, 0, 0, 900, 650);
+        }
         ctx.restore();
     }
 

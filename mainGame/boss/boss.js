@@ -55,8 +55,8 @@ class BossGame {
 
         this.bossManager.collisionDetection(this.ball); // 보스 - 공 충돌
         this.paddle.collisionDetection(this.ball);      // 공 - 패들 충돌
-        this.bossManager.manageProjectile(this.projectileManager);// 발사체 0-유저 충돌
-        this.projectileManager.draw();
+        this.projectileManager.checkCollisions();   // 발사체 - 유저 충돌
+        this.bossManager.attack(this.projectileManager);    // 보스 - 발사체 발사
 
         // 그리기
         this.ball.draw();
