@@ -513,9 +513,9 @@ class MainGame {
                             $(tmpEquipped[i]).removeClass('equipped-highlight');
                         }
                     }
-					user.addArmor(itemArmor.get(itmSrc));
                     newDiv.addClass('equipped-highlight');
                 }
+                if(itemInfo[1] == 'chestplate' || itemInfo[1] == 'helmet' || itemInfo[1] == 'reggings') user.addArmor(itemArmor.get(itmSrc));
             });
 
             $('.clear').append(newDiv);

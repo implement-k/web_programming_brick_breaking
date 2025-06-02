@@ -515,6 +515,8 @@ class User {
         // 보호구 바 구성
         this.armor = new Armor(469, 560, defense);
         // this.
+
+        this.equippedItems.set('sword', 'wooden_sword');
     }
 
     init() {
@@ -525,7 +527,7 @@ class User {
         if (difficulty === 2) {
             this.hitTime = Date.now();
         }
-        if(this.armor.getDefense() > damage) this.armor.setDefense(this.armor.getDefense() - damage);
+        if(this.armor.getDefense() >= damage) this.armor.setDefense(this.armor.getDefense() - damage);
         else if(this.armor.getDefense() > 0 && this.armor.getDefense() < damage) { 
             damage -= this.armor.getDefense()
             this.armor.setDefense(0);
