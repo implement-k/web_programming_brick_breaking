@@ -1,6 +1,4 @@
 // 공
-const BALL_X_SPEED = 1;   // 공 x축으로 움직이는 속도
-const BALL_Y_SPEED = 1;   // 공 y축으로 움직이는 속도
 const BALL_STYLE = 0;   // 공 스타일 (0: wood, 1: stone, 2: iron, 3: gold, 4: diamond)
 const BALL_DIR = [
     'mainGame/ball/wood.png',

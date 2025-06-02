@@ -95,7 +95,7 @@ class ProjectileManager {
         }
     }
 
-    // 발사체와 패들의 충돌 검사
+    // 엄격한 충돌 감지 시스템
     checkCollisions(deltaMultiplier = 1) {
         console.log('현재 발사체 수:', this.projectiles.length);
         // 역순으로 루프를 돌면서 바로 제거
@@ -111,21 +111,67 @@ class ProjectileManager {
                 continue;
             }
 
-            // 화면 안에 있는 발사체만 충돌 체크
-            if (projectile.x < paddle.x + paddle.width &&
-                projectile.x + projectile.width > paddle.x &&
-                projectile.y < paddle.y + paddle.height &&
-                projectile.y + projectile.height > paddle.y) {
-                
+            // 이동 전 위치 저장
+            const prevX = projectile.x;
+            const prevY = projectile.y;
+            
+            // 새로운 위치 계산
+            const newX = projectile.x + projectile.dx * deltaMultiplier;
+            const newY = projectile.y + projectile.dy * deltaMultiplier;
+
+            // 정확한 충돌 감지: 패들의 회전을 고려한 충돌 체크
+            let collisionDetected = false;
+            
+            // 현재 위치에서의 충돌 체크
+            if (this.isCollidingWithPaddle(projectile)) {
+                collisionDetected = true;
+            }
+            
+            // 이동 후 위치에서의 충돌 체크
+            if (!collisionDetected) {
+                const tempProjectile = {
+                    x: newX,
+                    y: newY,
+                    width: projectile.width,
+                    height: projectile.height
+                };
+                if (this.isCollidingWithPaddle(tempProjectile)) {
+                    collisionDetected = true;
+                }
+            }
+            
+            // 빠른 발사체를 위한 제한적인 중간 지점 체크
+            if (!collisionDetected && deltaMultiplier > 2) {
+                const steps = 3; // 고정된 작은 수의 체크 포인트
+                for (let step = 1; step < steps; step++) {
+                    const ratio = step / steps;
+                    const checkX = prevX + (newX - prevX) * ratio;
+                    const checkY = prevY + (newY - prevY) * ratio;
+                    
+                    const tempProjectile = {
+                        x: checkX,
+                        y: checkY,
+                        width: projectile.width,
+                        height: projectile.height
+                    };
+                    
+                    if (this.isCollidingWithPaddle(tempProjectile)) {
+                        collisionDetected = true;
+                        break;
+                    }
+                }
+            }
+
+            if (collisionDetected) {
                 // 충돌 시 처리
                 user.hit(this.difficulty, projectile.damage);
                 this.projectiles.splice(i, 1);
                 continue;
             }
 
-            // 충돌하지 않은 발사체만 이동 (프레임 독립적)
-            projectile.x += projectile.dx * deltaMultiplier;
-            projectile.y += projectile.dy * deltaMultiplier;
+            // 충돌하지 않은 발사체만 이동
+            projectile.x = newX;
+            projectile.y = newY;
 
             // 발사체 그리기
             ctx.drawImage(
@@ -137,6 +183,62 @@ class ProjectileManager {
             );
         }
         user.releaseHit(this.difficulty);
+    }
+
+    // 패들의 회전을 고려한 정확한 충돌 감지 (여백 최소화)
+    isCollidingWithPaddle(projectile) {
+        // 패들의 회전각 가져오기
+        const paddleRotation = paddle.rotation || paddle.tilt || 0;
+        
+        // 회전이 거의 없는 경우 단순 AABB 충돌 감지 사용 (여백 없음)
+        if (Math.abs(paddleRotation) < 0.05) {
+            return this.isColliding(
+                projectile.x, projectile.y, projectile.width, projectile.height,
+                paddle.x, paddle.y, paddle.width, paddle.height
+            );
+        }
+        
+        // 회전이 있는 경우 정밀한 회전 기반 충돌 감지
+        const paddleCenterX = paddle.x + paddle.width / 2;
+        const paddleCenterY = paddle.y + paddle.height / 2;
+        
+        // 발사체의 네 모서리 점들을 체크
+        const corners = [
+            [projectile.x, projectile.y],
+            [projectile.x + projectile.width, projectile.y],
+            [projectile.x + projectile.width, projectile.y + projectile.height],
+            [projectile.x, projectile.y + projectile.height]
+        ];
+        
+        // 각 모서리가 회전된 패들 안에 있는지 확인
+        for (const [x, y] of corners) {
+            // 패들 중심을 기준으로 한 상대 좌표
+            const relativeX = x - paddleCenterX;
+            const relativeY = y - paddleCenterY;
+            
+            // 역회전 적용 (패들의 회전을 상쇄하여 원래 사각형 형태로 변환)
+            const cos = Math.cos(-paddleRotation);
+            const sin = Math.sin(-paddleRotation);
+            
+            const rotatedX = relativeX * cos - relativeY * sin;
+            const rotatedY = relativeX * sin + relativeY * cos;
+            
+            // 회전된 좌표가 패들의 경계 안에 있는지 확인 (여백 최소화)
+            if (Math.abs(rotatedX) <= paddle.width / 2 && 
+                Math.abs(rotatedY) <= paddle.height / 2) {
+                return true;
+            }
+        }
+        
+        return false;
+    }
+
+    // 기본 AABB 충돌 감지 (여백 없는 정확한 충돌)
+    isColliding(x1, y1, w1, h1, x2, y2, w2, h2) {
+        return x1 < x2 + w2 &&
+               x1 + w1 > x2 &&
+               y1 < y2 + h2 &&
+               y1 + h1 > y2;
     }
 }
 
@@ -360,17 +462,17 @@ class BossManager{
     bossSpawnSoundDirs = [
         'mainGame/boss/wither/spawn.mp3',
         'mainGame/boss/ghast/spawn.mp3',
-        'mainGame/boss/ghast/spawn.mp3',
+        'mainGame/boss/ender_dragon/spawn.mp3',
     ];
     bossHitSoundDirs = [
         'mainGame/boss/wither/hit.mp3',
         'mainGame/boss/ghast/hit.mp3',
-        'mainGame/boss/ghast/spawn.mp3',
+        'mainGame/boss/ender_dragon/spawn.mp3',
     ];
     bossDeathSoundDirs = [
         'mainGame/boss/wither/death.mp3',
         'mainGame/boss/ghast/death.mp3',
-        'mainGame/boss/ghast/spawn.mp3',
+        'mainGame/boss/ender_dragon/death.mp3',
     ];
     bosses = [];
     curBoss;

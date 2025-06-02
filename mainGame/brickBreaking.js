@@ -42,7 +42,7 @@ class MainGame {
 
     // 초기화 함수
     init() {
-        ball = new Ball(WIDTH/2, HEIGHT-150, 2, -2); // dx=2, dy=-2로 적절한 속도 설정
+        ball = new Ball(WIDTH/2, HEIGHT-150); // dx=2, dy=-2로 적절한 속도 설정
         paddle = new Paddle(WIDTH/2-50, HEIGHT-100);
         hotbar = new Hotbar(WIDTH/2-195, HEIGHT-60);
         this.brickManager = new BrickManager(gameDifficulty);
@@ -65,7 +65,7 @@ class MainGame {
     start() {
         this.gameStarted = true;
         this.gameStartTime = Date.now(); // 게임 시작 시간 기록
-		ball = new Ball(WIDTH/2, HEIGHT-150, 2, -2);
+		ball = new Ball(WIDTH/2, HEIGHT-150);
         requestAnimationFrame((time) => this.draw(time));
     }
 
