@@ -420,9 +420,11 @@ class Heart {
 
 // 갑바 바 (구현 예정)
 class Armor {
-    x; y;
+    x; 
+    y;
     image = [new Image(), new Image()];
-    defense; maxDefense;
+    defense;
+    maxDefense;
 
     constructor(x, y, defense) {
         this.x = x;
@@ -433,8 +435,15 @@ class Armor {
         this.image[1].src = 'mainGame/user/armor_fill.png';
     }
 
+    setDefense(value) {
+        this.defense = value;
+    }
+
+    getDefense() {
+        return this.defense;
+    }
+
     draw() {
-        console.log(this.defense);
         ctx.save()
         // 채워진 갑옷 그리기
         for(let i = 0; i < this.defense; i++) {
@@ -486,14 +495,19 @@ class User {
 
     init() {
         this.heart.health = 5;
-        this.armor.defense = 0;
     }
 
     hit(difficulty, damage) {
         if (difficulty === 2) {
             this.hitTime = Date.now();
         }
-        this.heart.health -= damage;
+        if(this.armor.getDefense() > damage) this.armor.setDefense(this.armor.getDefense() - damage);
+        else if(this.armor.getDefense() > 0 && this.armor.getDefense() < damage) { 
+            damage -= this.armor.getDefense()
+            this.armor.setDefense(0);
+        } else {
+            this.heart.health -= damage;
+        }
         this.hitSound.play();
     }
 
@@ -509,9 +523,11 @@ class User {
         return this.heart.health <= 0;
     }
 
-    setArmor(armor) {
-        if(this.armor) console.log('armor')
-        this.armor.defense = armor;
+    addArmor(armor) {
+        let setValue = this.armor.getDefense() + armor;
+        console.log(setValue);
+        this.armor.setDefense(setValue);  
+          
     }
 
     clone() {

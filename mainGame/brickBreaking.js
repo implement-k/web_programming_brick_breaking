@@ -48,7 +48,7 @@ class MainGame {
         this.brickManager = new BrickManager(gameDifficulty);
         
         this.drawStartScreen();
-        user = userCheckpoint.clone();
+        //user = userCheckpoint.clone();
         this.fallingItems = [];
         this.gameStarted = false;
         this.isClear = false;
@@ -470,19 +470,33 @@ class MainGame {
 
             // 더블클릭 이벤트 추가 - 아이템 장착
             newDiv.on('dblclick', (e) => {
+                let itemArmor = new Map([
+                    ['iron_reggings', 1],
+                    ['golden_reggings', 2],
+                    ['diamond_reggings', 3],
+                    ['iron_chestplate', 2],
+                    ['golden_chestplate', 3],
+                    ['diamond_chestplate', 4],
+                    ['iron_helmet', 1],
+                    ['golden_helmet', 1],
+                    ['diamond_helmet', 2]
+                ]);
+
+
                 const itmSrc = newImg.attr('src').split('/').pop().replace('.png', '');
                 const itemInfo = itmSrc.split('_');
-                if(itemInfo[1] == 'boots' || itemInfo[1] == 'chestplate' || itemInfo[1] == 'helmet' || itemInfo[1] == 'leggings' || itemInfo[1] == 'sword') {
+                if(itemInfo[1] == 'boots' || itemInfo[1] == 'chestplate' || itemInfo[1] == 'helmet' || itemInfo[1] == 'reggings' || itemInfo[1] == 'sword') {
                     user.equippedItems.set(itemInfo[1], itmSrc);
                     user.currentItems();
                     let tmpEquipped = $('.equipped-highlight');
                     for(let i = 0; i < tmpEquipped.length; i++) {
                         let tmpImg = $(tmpEquipped[i]).find('img').attr('src');
-                        let tmpSrc = tmpImg.split('/').pop().replace('.png', '').split('_');
-                        if(itemInfo[1] === tmpSrc[1]) {
+                        let tmpSrc = tmpImg.split('/').pop().replace('.png', '');
+                        if(itemInfo[1] === tmpSrc.split('_')[1]) {
                             $(tmpEquipped[i]).removeClass('equipped-highlight');
                         }
                     }
+					user.addArmor(itemArmor.get(itmSrc));
                     newDiv.addClass('equipped-highlight');
                 }
             });
@@ -532,8 +546,8 @@ class MainGame {
         }
         
         // 인벤토리 UI 업데이트
-        $('.clear_item').remove();
-        this.drawInventory();
+        //$('.clear_item').remove();
+        //this.drawInventory();
     }
 
     startBoss() {
