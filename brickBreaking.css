@@ -339,3 +339,12 @@ section{
 #craftingTable {
     pointer-events: none;
 }
+
+.equipped-highlight {
+    outline: 2px solid gold;
+}
+
+#start_method {
+    position: absolute;
+    bottom: 20px;
+}

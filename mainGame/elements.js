@@ -17,8 +17,8 @@ const itemPaths = [
     'mainGame/items/iron.png',
     'mainGame/items/gold.png',
     'mainGame/items/diamond.png',
-    'mainGame/items/stick.png',
     'mainGame/items/plank.png',
+    'mainGame/items/stick.png',
 
     'mainGame/items/sword/iron_sword.png',
     'mainGame/items/sword/golden_sword.png',
@@ -31,7 +31,7 @@ const itemPaths = [
 
     'mainGame/items/reggings/iron_reggings.png',
     'mainGame/items/reggings/golden_reggings.png',
-    'mainGame/items/reggings/diamond_reggingss.png',
+    'mainGame/items/reggings/diamond_reggings.png',
 
     'mainGame/items/chestplate/iron_chestplate.png',
     'mainGame/items/chestplate/gold_chestplate.png',
@@ -54,7 +54,6 @@ const loadItemImages = () => {
     }));
 };
 loadItemImages();
-console.log(itemImages);
 
 // 공
 class Ball {
@@ -436,6 +435,7 @@ class User {
     heart;
     armor;
     hitSound = new Audio('mainGame/user/hit.mp3');
+    equippedItems = new Map();
     hitImage = new Image();
     hitTime = null;
 
@@ -506,5 +506,12 @@ class User {
             ctx.drawImage(this.hitImage, 0, 0, 900, 650);
         }
         ctx.restore();
+    }
+
+    currentItems() {
+        console.log("장착중인 아이템 목록:");
+        for(const [key, value] of this.equippedItems) {
+            console.log(` - ${key}: ${value}`);
+        }
     }
 }
