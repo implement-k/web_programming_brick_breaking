@@ -104,11 +104,10 @@ const storyRanges = { 1: { start: 0, end: 3 }, 2: { start: 4, end: 5 }, 3: { sta
 
 let currentSceneIndex = 0;
 let currentLineIndex = 0;
-let currentRound = 1;
 
 function startStory(round = 1) {
-    currentRound = round;
-    const range = storyRanges[currentRound];
+    gameDifficulty = round;
+    const range = storyRanges[gameDifficulty];
     currentSceneIndex = range.start;
     currentLineIndex = 0;
     showScene('story-scene');
@@ -123,7 +122,7 @@ function updateStory() {
 }
 
 nextDialogueBtn.addEventListener('click', () => {
-    const range = storyRanges[currentRound];
+    const range = storyRanges[gameDifficulty];
     const scene = story[currentSceneIndex];
 
     if (currentLineIndex < scene.lines.length - 1) {
@@ -134,11 +133,11 @@ nextDialogueBtn.addEventListener('click', () => {
         currentLineIndex = 0;
         updateStory();
     } else {
-        if (currentRound < 3) {
-            startMainGame(currentRound);
-        } else if (currentRound === 3) {
-            startMainGame(currentRound); // 3라운드 메인게임 후 종료 스토리로 연결
-        } else if (currentRound === 4) {
+        if (gameDifficulty < 3) {
+            startMainGame(gameDifficulty);
+        } else if (gameDifficulty === 3) {
+            startMainGame(gameDifficulty); // 3라운드 메인게임 후 종료 스토리로 연결
+        } else if (gameDifficulty === 4) {
             showScene('title-screen');
             hideScene('main-game');
         }
@@ -146,25 +145,38 @@ nextDialogueBtn.addEventListener('click', () => {
 });
 
 function startMainGame(round) {
-    currentRound = round;
-    showScene('main-game');
+    gameDifficulty = round;
     hideScene('story-scene');
-    initMainGame(round);
     startMiniGameTimer();
-}
+    
+    // 기존 게임 코드 실행
+    $('#gameCanvas').show();
+    gameStarted = true;
+    draw();
 
-function initMainGame(round) {
-    const ctx = gameCanvas.getContext('2d');
-    ctx.fillStyle = 'green';
-    ctx.fillRect(0, 0, gameCanvas.width, gameCanvas.height);
-    document.getElementById('instant-win-btn').style.display = 'block';
+    // 마스터 버튼들
+    let btn1 = $('<button/>');
+    btn1.text('블록 다 깨기');
+    btn1.click(() => {
+        isClear = true;
+        // 블록 아이템 모두 유저걸로
+    });
+    $('#masterBtns').append(btn1);
+    
+    let btn2 = $('<button/>');
+    btn2.text('죽기');
+    btn2.click(() => {
+        user.heart.health = 0;
+        user.hit(1);
+    });
+    $('#masterBtns').append(btn2);
 }
 
 document.getElementById('instant-win-btn').addEventListener('click', () => {
     playClickSound();
     document.getElementById('instant-win-btn').style.display = 'none';
-    if (currentRound < 3) {
-        startStory(currentRound + 1);
+    if (gameDifficulty < 3) {
+        startStory(gameDifficulty + 1);
     } else {
         startStory(4); // 3라운드 끝나면 종료 스토리(4라운드) 시작
     }
