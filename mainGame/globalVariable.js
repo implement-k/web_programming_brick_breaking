@@ -11,7 +11,7 @@ let rightPressed = false;
 let leftPressed = false;
 let curHotbarIdx = 1;
 
-let ball, paddle, hotbar, hud;
+let paddle, hotbar;
 
 const SOUND_EFFECT = {
     death: new Audio('mainGame/etc_sound/death.mp3'),

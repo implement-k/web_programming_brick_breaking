@@ -35,7 +35,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 function showScene(id) {
     ['title-screen', 'setting-scene', 'create-scene', 'story-scene', 'score-scene', 'main-game'].forEach(sceneId => {
-        document.getElementById(sceneId).style.display = (sceneId === id) ? 'flex' : 'none';
+        if(document.getElementById(sceneId)) document.getElementById(sceneId).style.display = (sceneId === id) ? 'flex' : 'none';
     });
     if (id === 'main-game') {
         document.getElementById('main-game').style.display = 'block';
@@ -44,7 +44,7 @@ function showScene(id) {
 }
 
 function hideScene(id) {
-    document.getElementById(id).style.display = 'none';
+    if(document.getElementById(id)) document.getElementById(id).style.display = 'none';
 }
 
 startBtn.addEventListener('click', () => {
@@ -110,7 +110,10 @@ createBtn.addEventListener('click', () => {
         alert('이름을 입력하세요!');
         return;
     }
-    startStory();
+    let diff = $('#difficulty').val();
+    if(diff == "easy") startStory(1);
+    else if(diff == "normal") startStory(2);
+    else if(diff == "hard") startStory(3);
 });
 
 const story = [
@@ -136,9 +139,16 @@ function startStory(round = 1) {
     const range = storyRanges[gameDifficulty];
     currentSceneIndex = range.start;
     currentLineIndex = 0;
+     $('#gameCanvas').hide();
     showScene('story-scene');
-    hideScene('main-game');
     updateStory();
+}
+
+// 사용자 상태를 보존하면서 스토리 시작하는 함수
+function startStoryWithUserState(round, userState) {
+    // 전역 변수에 사용자 상태 저장
+    window.preservedUserState = userState;
+    startStory(round);
 }
 
 function updateStory() {
@@ -176,26 +186,58 @@ function startMainGame(round) {
     startMiniGameTimer();
 
     // 기존 게임 코드 실행
+    
+    // 캔버스를 먼저 보여줌으로써 canvas.width가 올바르게 설정되도록 함
     $('#gameCanvas').show();
-    gameStarted = true;
-    draw();
+    
+    startMiniGameTimer();
+    
+    // 보존된 사용자 상태가 있으면 사용, 없으면 기본 초기화
+    const preserveUser = window.preservedUserState ? true : false;
+    if (window.preservedUserState) {
+        // 보존된 사용자 상태를 현재 user로 설정
+        user = window.preservedUserState.clone();
+        window.preservedUserState = null; // 사용 후 정리
+    }
+    
+    // 메인 게임 초기화 (사용자 상태 보존 여부 전달)
+    mainGame.init(preserveUser);
+    
+    // 게임 시작
+    mainGame.start();
+
+    // 기존 마스터 버튼들 제거
+    $('#masterBtns').empty();
 
     // 마스터 버튼들
     let btn1 = $('<button/>');
     btn1.text('블록 다 깨기');
     btn1.click(() => {
-        isClear = true;
-        // 블록 아이템 모두 유저걸로
+        mainGame.collectAllItems();
+        mainGame.isClear = true;
     });
     $('#masterBtns').append(btn1);
 
     let btn2 = $('<button/>');
     btn2.text('죽기');
     btn2.click(() => {
-        user.heart.health = 0;
+        // 안전한 방식으로 체력을 0으로 설정
+        if (user && user.heart) user.heart.health = 0;
         user.hit(1);
     });
     $('#masterBtns').append(btn2);
+    
+    let btn3 = $('<button/>');
+    btn3.text('보스 죽이기');
+    btn3.click(() => {
+        if (bossGame && bossGame.bossManager && bossGame.bossManager.curBoss) {
+            bossGame.bossManager.curBoss.health = 1;
+            bossGame.bossManager.curBoss.isDying = true;
+            bossGame.bossManager.curBoss.dropItem();
+            bossGame.bossManager.curBoss.deathSound.play();
+        }
+    });
+    $('#masterBtns').append(btn3);
 }
 
 document.getElementById('instant-win-btn').addEventListener('click', () => {

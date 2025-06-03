@@ -1,6 +1,5 @@
 // 메인 게임 클래스
 class MainGame {
-    ball;
     constructor() {
         this.overworld = new Image();
         this.overworld.src = 'mainGame/background/overworld.png';
@@ -8,37 +7,25 @@ class MainGame {
             if (ctx) this.drawStartScreen();
         };
 
-        this.netherworld = new Image();
-        this.netherworld.src = 'mainGame/background/nether.png';
-
-        this.enderworld = new Image();
-        this.enderworld.src = 'mainGame/background/ender.png';
-
-
         this.BACKGROUND_IMAGES = [
             this.overworld,
-            this.netherworld,
-            this.enderworld,
+            this.overworld,
+            this.overworld,
         ];
 
         this.fallingItems = [];
         this.gameStarted = false;
         this.isClear = false;
         this.brickManager = null;
-        
-        // 타이머 관련 속성들
-        this.gameStartTime = null;
-        this.timeLimit = 60; // 60초 제한시간
-        this.remainingTime = this.timeLimit;
         this.craftingItems = [
             [0, 0, 0],
             [0, 0, 0],
             [0, 0, 0]
         ];
         this.craftingPos = [
-            {top: 235, left: 310}, {top: 235, left: 355}, {top: 235, left: 396},
-            {top: 277, left: 310}, {top: 277, left: 355}, {top: 277, left: 396},
-            {top: 321, left: 310}, {top: 321, left: 355}, {top: 321, left: 396}
+            {top: 235, left: 310}, {top: 230, left: 355}, {top: 230, left: 395},
+            {top: 275, left: 310}, {top: 275, left: 355}, {top: 275, left: 395},
+            {top: 320, left: 310}, {top: 320, left: 355}, {top: 320, left: 395}
         ];
         this.itemClicked = false;
         this.offsetX = 0;
@@ -49,41 +36,23 @@ class MainGame {
     }
 
     // 초기화 함수
-    init(preserveUser = false) {
-        // 캔버스가 올바르게 초기화되었는지 확인
-        const ballX = canvas && canvas.width > 0 ? canvas.width/2 - 10 : WIDTH/2 - 10;
-        this.ball = new Ball(ballX, canvas.height-150); // 볼의 중심이 화면 중앙에 오도록 (볼의 width는 20)
+    init() {
+        ball = new Ball(WIDTH/2, HEIGHT-150);
         paddle = new Paddle(WIDTH/2-50, HEIGHT-100);
         hotbar = new Hotbar(WIDTH/2-195, HEIGHT-60);
         this.brickManager = new BrickManager(gameDifficulty);
         
         this.drawStartScreen();
-        
-        // 사용자 상태 처리: preserveUser가 true면 현재 user 상태 유지, 아니면 체크포인트에서 복원
-        if (!preserveUser) {
-            user = userCheckpoint.clone();
-        }
-        // preserveUser가 true면 현재 user 상태를 그대로 유지
-        
+        user = userCheckpoint.clone();
         this.fallingItems = [];
         this.gameStarted = false;
         this.isClear = false;
-        
-        // 타이머 초기화
-        this.gameStartTime = null;
-        this.remainingTime = this.timeLimit;
-        
-        // 게임 자동 시작
-        // this.start();
     }
 
     // 게임 시작
     start() {
-        console.log("[DEBUG] 게임 시작");
         this.gameStarted = true;
-        this.gameStartTime = Date.now(); // 게임 시작 시간 기록
-        // 공은 이미 init()에서 생성되었으므로 다시 생성하지 않음
-        requestAnimationFrame((time) => this.draw(time));
+        this.draw();
     }
 
     // 초기 화면 그리기
@@ -98,7 +67,7 @@ class MainGame {
     }
 
     // 떨어지는 아이템 그리기
-    drawFallingItems(deltaMultiplier = 1) {
+    drawFallingItems() {
         let deleteIdx = [];
         for(let i = 0; i < this.fallingItems.length; i++) {
             const item = this.fallingItems[i];
@@ -112,8 +81,7 @@ class MainGame {
                 deleteIdx.push(i);
                 continue;
             }
-            // 프레임 독립적 아이템 떨어지는 속도
-            item.y += item.dy * deltaMultiplier;
+            item.y += item.dy;
             
             // 아이템 그리기
             ctx.drawImage(item.image, item.x, item.y, item.width, item.height);
@@ -126,39 +94,6 @@ class MainGame {
             user.havingItems.set(itemType, user.havingItems.get(itemType)+1);
             this.fallingItems.splice(deleteIdx[i], 1);
         }
-    }
-
-    // 타이머 그리기
-    drawTimer() {
-        if (!this.gameStartTime) return;
-        
-        const currentTime = Date.now();
-        const elapsedTime = (currentTime - this.gameStartTime) / 1000; // 초 단위
-        this.remainingTime = Math.max(0, this.timeLimit - elapsedTime);
-        
-        const minutes = Math.floor(this.remainingTime / 60);
-        const seconds = Math.floor(this.remainingTime % 60);
-        const timeString = `${minutes}:${seconds.toString().padStart(2, '0')}`;
-        
-        ctx.save();
-        ctx.font = "24px Minecraftia";
-        ctx.textAlign = "right";
-        
-        // 시간이 30초 이하일 때 빨간색, 그렇지 않으면 흰색
-        if (this.remainingTime <= 30) {
-            ctx.fillStyle = "#FF0000";
-        } else {
-            ctx.fillStyle = "#FFFFFF";
-        }
-        
-        // 텍스트 외곽선
-        ctx.strokeStyle = "#000000";
-        ctx.lineWidth = 2;
-        ctx.strokeText(timeString, canvas.width - 20, 40);
-        
-        // 텍스트 채우기
-        ctx.fillText(timeString, canvas.width - 20, 40);
-        ctx.restore();
     }
 
     // 죽을때
@@ -268,8 +203,7 @@ class MainGame {
                 'position': 'absolute',
                 'cursor': 'move'
             });
-            
-            newDiv.addClass('result_item');
+
             const newImg = $('<img />').addClass('clear_item');
 
             newImg.attr('src', itemPaths[resultIndex]).css({'width': '32px', 'height': '32px'});
@@ -314,7 +248,6 @@ class MainGame {
         $(document).on('keydown', (e) => {
             if (e.code === 'Space') {
                 e.preventDefault();
-                $('.clear_item').remove();
                 this.startBoss();    
             }
         });
@@ -331,14 +264,12 @@ class MainGame {
 
                 if (this.itemClicked) {
                     // 드래그 시작
-                    $('.result_item').remove();
                     this.offsetX = e.clientX - pos.left;
                     this.offsetY = e.clientY - pos.top;
                     this.currentlyDraggingDiv = newDiv;
 
                     if (clickSection === 'crafting') {
                         newDiv.removeClass('item_in_craft');
-                        
                         let i;
                         for (i = 0; i < 9; i++) {
                             if (pos.left >= this.craftingPos[i].left && pos.left <= this.craftingPos[i].left + 40 &&
@@ -350,7 +281,7 @@ class MainGame {
                     }
                 } else {
                     this.currentlyDraggingDiv = null;
-                    
+                    $('#result_item').remove();
                     // 드래그 놓기
                     if (clickSection === 'crafting') {
 
@@ -362,14 +293,10 @@ class MainGame {
                         for (i = 0; i < 9; i++) {
                             if (centerX >= this.craftingPos[i].left && centerX <= this.craftingPos[i].left + 40 &&
                                 centerY >= this.craftingPos[i].top && centerY <= this.craftingPos[i].top + 40) {
-                                newDiv.css({
-                                    'left': this.craftingPos[i].left + 3,
-                                    'top': this.craftingPos[i].top + 3
-                                });
                                 break;
                             }
                         }
-                        
+
                         const itmSrc = newImg.attr('src').split('/').pop().replace('.png', '');
                         let indexX = parseInt(i / 3);
                         let indexY = parseInt(i % 3);
@@ -380,9 +307,9 @@ class MainGame {
                         else if (itmSrc === 'iron') this.craftingItems[indexX][indexY] = 2;
                         else if (itmSrc === 'gold') this.craftingItems[indexX][indexY] = 3;
                         else if (itmSrc === 'diamond') this.craftingItems[indexX][indexY] = 4;
-                    }
 
-                    this.checkCraftResult();
+                        this.checkCraftResult();
+                    }
                 }
             }
         }
@@ -390,62 +317,60 @@ class MainGame {
 
     // 아이템 우클릭 이벤트 처리
     handleRightClick(e, originalDiv, originalImg) {
-        if(this.itemClicked == false) {
-            const countSpan = originalDiv.find('span');
-            let count = parseInt(countSpan.text());
-            if (count < 2) return;
+        const countSpan = originalDiv.find('span');
+        let count = parseInt(countSpan.text());
+        if (count < 2) return;
 
-            const half1 = count - Math.floor(count / 2);
-            const half2 = count - half1;
+        const half1 = count - Math.floor(count / 2);
+        const half2 = count - half1;
 
-            countSpan.text(half1);
+        countSpan.text(half1);
 
-            const halfDiv = $('<div />').addClass('clear_item').css({
-                left: originalDiv.position().left,
-                top: originalDiv.position().top,
-                position: 'absolute',
-                cursor: 'move'
-            });
+        const halfDiv = $('<div />').addClass('clear_item').css({
+            left: originalDiv.position().left,
+            top: originalDiv.position().top,
+            position: 'absolute',
+            cursor: 'move'
+        });
 
-            this.offsetX = e.clientX - originalDiv.position().left;
-            this.offsetY = e.clientY - originalDiv.position().top;
+        this.offsetX = e.clientX - originalDiv.position().left;
+        this.offsetY = e.clientY - originalDiv.position().top;
 
-            const halfSrc = originalImg.attr('src');
-            const halfImg = $('<img />').addClass('clear_item').attr('src', halfSrc).css({
-                width: '32px',
-                height: '32px',
-                pointerEvents: 'none'
-            });
+        const halfSrc = originalImg.attr('src');
+        const halfImg = $('<img />').addClass('clear_item').attr('src', halfSrc).css({
+            width: '32px',
+            height: '32px',
+            pointerEvents: 'none'
+        });
 
-            const halfSpan = $('<span />').text(half2).css({
-                position: 'absolute',
-                bottom: '0',
-                right: '0',
-                fontFamily: 'Minecraftia',
-                fontSize: '14px',
-                color: '#FFFFFF',
-                textShadow: '1px 1px 0 #000000'
-            });
+        const halfSpan = $('<span />').text(half2).css({
+            position: 'absolute',
+            bottom: '0',
+            right: '0',
+            fontFamily: 'Minecraftia',
+            fontSize: '14px',
+            color: '#FFFFFF',
+            textShadow: '1px 1px 0 #000000'
+        });
 
-            halfSpan.on('contextmenu', function(e) {
-                e.preventDefault();
-            });
+        halfSpan.on('contextmenu', function(e) {
+            e.preventDefault();
+        });
 
-            halfDiv.append(halfImg).append(halfSpan);
-            $('.clear').append(halfDiv);
+        halfDiv.append(halfImg).append(halfSpan);
+        $('.clear').append(halfDiv);
 
-            this.currentlyDraggingDiv = halfDiv;
-            this.itemClicked = true;
+        this.currentlyDraggingDiv = halfDiv;
+        this.itemClicked = true;
 
-            // 새 div에도 이벤트 등록
-            halfDiv.on('mousedown', (ev) => {
-                this.handleLeftClick(ev, halfDiv, halfImg);
-            });
-            halfDiv.on('contextmenu', (ev) => {
-                ev.preventDefault();
-                this.handleRightClick(ev, halfDiv, halfImg);
-            });
-        }
+        // 새 div에도 이벤트 등록
+        halfDiv.on('mousedown', (ev) => {
+            this.handleLeftClick(ev, halfDiv, halfImg);
+        });
+        halfDiv.on('contextmenu', (ev) => {
+            ev.preventDefault();
+            this.handleRightClick(ev, halfDiv, halfImg);
+        });
     }
 
     // 조합창에 아이템을 그리는 함수
@@ -497,38 +422,21 @@ class MainGame {
 
             // 더블클릭 이벤트 추가 - 아이템 장착
             newDiv.on('dblclick', (e) => {
-                let itemArmor = new Map([
-                    ['iron_reggings', 1],
-                    ['golden_reggings', 2],
-                    ['diamond_reggings', 3],
-                    ['iron_chestplate', 2],
-                    ['golden_chestplate', 3],
-                    ['diamond_chestplate', 4],
-                    ['iron_helmet', 1],
-                    ['golden_helmet', 1],
-                    ['diamond_helmet', 2]
-                ]);
-
-
                 const itmSrc = newImg.attr('src').split('/').pop().replace('.png', '');
                 const itemInfo = itmSrc.split('_');
-                if(itemInfo[1] == 'boots' || itemInfo[1] == 'chestplate' || itemInfo[1] == 'helmet' || itemInfo[1] == 'reggings' || itemInfo[1] == 'sword') {
+                if(itemInfo[1] == 'boots' || itemInfo[1] == 'chestplate' || itemInfo[1] == 'helmet' || itemInfo[1] == 'leggings' || itemInfo[1] == 'sword') {
                     user.equippedItems.set(itemInfo[1], itmSrc);
-                    if (itemInfo[1] == 'boots') {
-                        user.boot = itmSrc;
-                    }
                     user.currentItems();
                     let tmpEquipped = $('.equipped-highlight');
                     for(let i = 0; i < tmpEquipped.length; i++) {
                         let tmpImg = $(tmpEquipped[i]).find('img').attr('src');
-                        let tmpSrc = tmpImg.split('/').pop().replace('.png', '');
-                        if(itemInfo[1] === tmpSrc.split('_')[1]) {
+                        let tmpSrc = tmpImg.split('/').pop().replace('.png', '').split('_');
+                        if(itemInfo[1] === tmpSrc[1]) {
                             $(tmpEquipped[i]).removeClass('equipped-highlight');
                         }
                     }
                     newDiv.addClass('equipped-highlight');
                 }
-                if(itemInfo[1] == 'chestplate' || itemInfo[1] == 'helmet' || itemInfo[1] == 'reggings') user.addArmor(itemArmor.get(itmSrc));
             });
 
             $('.clear').append(newDiv);
@@ -538,15 +446,12 @@ class MainGame {
 
     // 클리어
     gameclear() {
-        // 게임 클리어 시 타이머 정지
-        this.gameStarted = false;
-        
-        // user.havingItems.set(1, 20);  // 철
-        // user.havingItems.set(0, 20);  // 원목
-        // user.havingItems.set(4, 20);  // plank
-        // user.havingItems.set(2, 20);  // gold
-        // user.havingItems.set(3, 20);  // diamond
-        // user.havingItems.set(5, 20);  // stick
+        user.havingItems.set(1, 20);  // 철
+        user.havingItems.set(0, 20);  // 원목
+        user.havingItems.set(4, 20);  // plank
+        user.havingItems.set(2, 20);  // gold
+        user.havingItems.set(3, 20);  // diamond
+        user.havingItems.set(5, 20);  // stick
 
         SOUND_EFFECT.clear.play();
         $('.clear').css('display', 'flex');
@@ -554,37 +459,9 @@ class MainGame {
         this.drawInventory();
     }
 
-    // 모든 블록에서 아이템 수집
-    collectAllItems() {
-        if (!this.brickManager) return;
-        
-        for(let c = 0; c < this.brickManager.brickColumnCount; c++) {
-            for(let r = 0; r < this.brickManager.brickRowCount; r++) {
-                const brick = this.brickManager.bricks[c][r];
-                if(brick.status >= 2 && brick.status <= 5) {
-                    // 충돌 감지 로직과 동일한 매핑: itemType = brick.status - 2
-                    // status 2 = wood (itemType 0), 3 = iron (itemType 1), 4 = gold (itemType 2), 5 = diamond (itemType 3)
-                    const itemType = brick.status - 2;
-                    
-                    // 사용자 인벤토리에 아이템 추가
-                    if (!user.havingItems.has(itemType)) {
-                        user.havingItems.set(itemType, 0);
-                    }
-                    user.havingItems.set(itemType, user.havingItems.get(itemType) + 1);
-                }
-            }
-        }
-        
-        // 인벤토리 UI 업데이트
-        //$('.clear_item').remove();
-        //this.drawInventory();
-    }
-
     startBoss() {
         if($('.clear').css('display') == 'flex') {
             $('.clear').css('display', 'none');
-            // 현재 난이도에 맞는 새로운 BossGame 인스턴스 생성
-            bossGame = new BossGame(gameDifficulty);
             bossGame.init(gameDifficulty);
         }
     }
@@ -597,20 +474,12 @@ class MainGame {
             return;
         }
         
-        // 타이머 체크 - 시간 종료시 게임클리어
-        if (this.remainingTime <= 0) {
-            this.gameclear();
-            return;
-        }
-        
-        // deltaTime 계산 (120fps 기준)
+        // deltaTime 계산
         const deltaTime = currentTime - (this.draw.lastTime || currentTime);
         this.draw.lastTime = currentTime;
 
-        const TARGET_FPS = 120;
-        const timeStep = 1000 / TARGET_FPS; // 120fps 기준 시간 간격
-        // deltaMultiplier에 상한선 설정 (최대 3배까지만 허용)
-        const deltaMultiplier = Math.min(deltaTime / timeStep, 3); // 프레임 독립적 속도 보정값
+        const timeStep = 1000 / 60; // 목표 60fps
+        const normalizedDeltaTime = deltaTime / timeStep;
         
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         
@@ -620,51 +489,33 @@ class MainGame {
         }
         
         this.isClear = this.brickManager.draw(this.fallingItems.length);
-        this.ball.draw();
+        ball.draw();
         paddle.draw();
-        this.drawFallingItems(deltaMultiplier);
-        this.brickManager.collisionDetection(this.ball, this.fallingItems);
-        paddle.collisionDetection(this.ball);
+        this.drawFallingItems();
+        this.brickManager.collisionDetection(ball);
+        paddle.collisionDetection(ball);
         user.draw();
         
-        // 타이머 그리기
-        this.drawTimer();
+        // 패들 이동 및 기울기 처리
+        paddle.updateRocation(canvas, leftPressed, rightPressed);
         
-        // 패들 이동 및 기울기 처리 (프레임 독립적)
-        paddle.updateRocation(canvas, leftPressed, rightPressed, deltaMultiplier);
-        
-        // 공 회전 및 이동 (프레임 독립적)
-        this.ball.updateRotation(deltaMultiplier);
-        this.ball.updateLocation(deltaMultiplier);
+        // 공 회전 및 이동
+        ball.updateRotation();
+        ball.updateLocation();
         
         // 벽 충돌 처리
-        if(this.ball.x + this.ball.width > canvas.width || this.ball.x < 0) {
-            this.ball.dx = -this.ball.dx;
-            // 벽에 부딪힐 때 위치 보정 - 공이 벽을 관통하지 않도록
-            if(this.ball.x < 0) {
-                this.ball.x = 0;
-            }
-            if(this.ball.x + this.ball.width > canvas.width) {
-                this.ball.x = canvas.width - this.ball.width;
-            }
+        if(ball.x + ball.width > canvas.width || ball.x < 0) {
+            ball.dx = -ball.dx;
+            // 벽에 부딪힐 때 위치 보정
+            if(ball.x < 0) ball.x = 0;
+            if(ball.x + ball.width > canvas.width) ball.x = canvas.width - ball.width;
         }
-        if(this.ball.y < 0) {
-            this.ball.dy = -this.ball.dy;
-            this.ball.y = 0; // 천장에 부딪힐 때 위치 보정
+        if(ball.y < 0) {
+            ball.dy = -ball.dy;
+            ball.y = 0; // 천장에 부딪힐 때 위치 보정
         }
-        else if(this.ball.y + this.ball.height > canvas.height) {
-            user.hit(1, 1);
-            
-            // 공을 초기 중앙 위치로 재설정 (볼의 중심이 화면 중앙에 오도록)
-            this.ball.x = canvas.width/2 - this.ball.width/2;
-            this.ball.y = canvas.height-150;
-            this.ball.dx = Math.random() > 0.5 ? 1 : -1;
-            this.ball.dy = -1;
-        }
-
-        if(user.isDead()) {
+        else if(ball.y + ball.height > canvas.height) {
             this.gameover();
-            return;
         }
         
         requestAnimationFrame((time) => this.draw(time));
@@ -673,3 +524,52 @@ class MainGame {
 
 // 메인 게임 인스턴스 생성
 const mainGame = new MainGame();
+
+// 기존 함수들을 호환성을 위해 유지
+function brick_breaking_init() {
+    mainGame.init();
+}
+
+function drawStartScreen() {
+    mainGame.drawStartScreen();
+}
+
+function drawFallingItems() {
+    mainGame.drawFallingItems();
+}
+
+function gameover() {
+    mainGame.gameover();
+}
+
+function getClickSection(pos) {
+    return mainGame.getClickSection(pos);
+}
+
+function checkCraftResult() {
+    mainGame.checkCraftResult();
+}
+
+function handleLeftClick(e, newDiv, newImg) {
+    mainGame.handleLeftClick(e, newDiv, newImg);
+}
+
+function handleRightClick(e, originalDiv, originalImg) {
+    mainGame.handleRightClick(e, originalDiv, originalImg);
+}
+
+function drawInventory() {
+    mainGame.drawInventory();
+}
+
+function gameclear() {
+    mainGame.gameclear();
+}
+
+function startBoss() {
+    mainGame.startBoss();
+}
+
+function draw(currentTime) {
+    mainGame.draw(currentTime);
+}

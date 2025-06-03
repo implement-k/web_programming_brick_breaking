@@ -1,6 +1,4 @@
 // 공
-const BALL_X_SPEED = 1;   // 공 x축으로 움직이는 속도
-const BALL_Y_SPEED = 1;   // 공 y축으로 움직이는 속도
 const BALL_STYLE = 0;   // 공 스타일 (0: wood, 1: stone, 2: iron, 3: gold, 4: diamond)
 const BALL_DIR = [
     'mainGame/ball/wood.png',
@@ -55,6 +53,23 @@ const loadItemImages = () => {
 };
 loadItemImages();
 
+const crackPaths = [
+    'mainGame/cracks/crack_1.png',
+    'mainGame/cracks/crack_2.png'
+];
+const crackImages = [];
+const loadCrackImages = () => {
+    return Promise.all(crackPaths.map(path => {
+        return new Promise((resolve) => {
+            const img = new Image();
+            img.onload = () => resolve(img);
+            img.src = path;
+            crackImages.push(img);
+        });
+    }));
+};
+loadCrackImages();
+
 // 공
 class Ball {
     x; y;
@@ -65,7 +80,7 @@ class Ball {
     speed = 0;
     image = new Image();
 
-    constructor(x, y, dx = 1, dy = 1, width = 20, height = 25) {
+    constructor(x, y, dx = 0.8, dy = -0.8, width = 20, height = 25) {
         this.x = x;
         this.y = y;
         this.width = width;
@@ -89,15 +104,15 @@ class Ball {
     };
 
     // 공 회전 업데이트
-    updateRotation() {
-        if(this.dx > 0) this.rotation -= 0.1 * Math.abs(this.dx); // 반시계 방향
-        else this.rotation += 0.1 * Math.abs(this.dx); // 시계 방향
+    updateRotation(deltaMultiplier = 1) {
+        if(this.dx > 0) this.rotation -= (0.1 * Math.abs(this.dx)) * deltaMultiplier; // 반시계 방향
+        else this.rotation += (0.1 * Math.abs(this.dx)) * deltaMultiplier; // 시계 방향
     };
 
     // 공 위치 업데이트
-    updateLocation() {
-        this.x += this.dx;
-        this.y += this.dy;
+    updateLocation(deltaMultiplier = 1) {
+        this.x += this.dx * deltaMultiplier;
+        this.y += this.dy * deltaMultiplier;
     }
 
     draw() {
@@ -129,7 +144,7 @@ class Paddle {
     tilt = 0;
     maxTilt = Math.PI / 10;
     image = new Image();
-    speed = 7;
+    speed = 3;
     collisionSound = new Audio('mainGame/paddle/slime.ogg');
     eatSound = new Audio('mainGame/paddle/pop.mp3');
 
@@ -144,18 +159,18 @@ class Paddle {
         this.speed = speed;
     }
 
-    updateRocation(canvas, leftPressed, rightPressed) {
+    updateRocation(canvas, leftPressed, rightPressed, deltaMultiplier = 1) {
         if(rightPressed) {
-            this.dx = this.speed;
-            this.tilt = Math.min(this.tilt + 0.1, this.maxTilt);
+            this.dx = this.speed * deltaMultiplier;
+            this.tilt = Math.min(this.tilt + (0.1 * deltaMultiplier), this.maxTilt);
         }
         else if(leftPressed) {
-            this.dx = -this.speed;
-            this.tilt = Math.max(this.tilt - 0.1, -this.maxTilt);
+            this.dx = -this.speed * deltaMultiplier;
+            this.tilt = Math.max(this.tilt - (0.1 * deltaMultiplier), -this.maxTilt);
         }
         else {
             this.dx = 0;
-            this.tilt *= 0.95; // 기울기 점차 감소
+            this.tilt *= Math.pow(0.95, deltaMultiplier); // 기울기 점차 감소
         }
 
         this.x = Math.max(0, Math.min(canvas.width - this.width, this.x + this.dx));
@@ -172,17 +187,19 @@ class Paddle {
             // 패들의 기울기를 반사 각도에 추가
             const angle = baseAngle + this.tilt;
             
-            // 기울기에 따른 속도 증가 (최대 50% 증가)
-            const tiltSpeedBonus = 1 + Math.abs(this.tilt / this.maxTilt) * 0.5;
+            // 기울기에 따른 속도 증가 (최대 25% 증가로 감소)
+            const tiltSpeedBonus = 1 + Math.abs(this.tilt / this.maxTilt) * 0.25;
             const baseSpeed = Math.sqrt(ball.defaultDx * ball.defaultDx + ball.defaultDy * ball.defaultDy);
             const speed = baseSpeed * tiltSpeedBonus;
             
-            // 새로운 속도와 방향만 계산 (기본 속도 유지)
+            // 새로운 속도와 방향 계산
             const newDx = speed * Math.sin(angle);
             const newDy = -speed * Math.cos(angle);
             
-            // 위치가 겹치지 않도록 약간 위로 이동
-            ball.y = this.y - ball.height;
+            // 공이 패들 위로 올라가도록 위치 보정 (더 안전하게)
+            if (ball.dy > 0) { // 공이 아래쪽으로 움직이고 있을 때만 위치 보정
+                ball.y = this.y - ball.height - 1; // 1픽셀 여유 공간
+            }
             ball.dx = newDx;
             ball.dy = newDy;
         }
@@ -220,7 +237,7 @@ class Item {
 
 class Brick {
     x; y;
-    status; life;
+    status; life; maxlife;
     brickSize = 50;
     image;
 
@@ -229,6 +246,7 @@ class Brick {
         this.y = y;
         this.status = status;
         this.life = life;
+        this.maxlife = life;
         if (status != 0) this.image = image;
     }
 }
@@ -291,7 +309,7 @@ class BrickManager {
         }
     }
 
-    collisionDetection(ball) {
+    collisionDetection(ball, fallingItems) {
         for(let c = 0; c < this.brickColumnCount; c++) {
             for(let r = 0; r < this.brickRowCount; r++) {
                 const b = this.bricks[c][r];
@@ -305,7 +323,6 @@ class BrickManager {
                             // TODO
                             if(tmp >= 2 && tmp <= 5) {
                                 const itemType = tmp - 2;
-                                console.log(itemType);
                                 fallingItems.push(new Item(b.x, b.y, itemImages[itemType], itemType));
                             }
                         } else {
@@ -329,6 +346,13 @@ class BrickManager {
                     this.bricks[c][r].y = brickY;
 
                     ctx.drawImage(this.bricks[c][r].image, brickX, brickY, this.brickSize, this.brickSize);
+                    let b = this.bricks[c][r];
+                    if(b.maxlife == 3) {
+                        if(b.life == 2) ctx.drawImage(crackImages[1], brickX, brickY, this.brickSize, this.brickSize);
+                        else if(b.life == 1) ctx.drawImage(crackImages[0], brickX, brickY, this.brickSize, this.brickSize);
+                    } else if(b.maxlife == 2) {
+                        if(b.life == 1) ctx.drawImage(crackImages[0], brickX, brickY, this.brickSize, this.brickSize);
+                    }
                 }
             }
         }
@@ -393,20 +417,35 @@ class Hotbar {
 class Heart {
     x; y;
     image = [new Image(), new Image()];
-    health; maxHealth;
+    _health; maxHealth;
 
     constructor(x, y, maxHealth) {
         this.x = x;
         this.y = y;
-        this.health = maxHealth;
-        this.maxHealth = maxHealth;
+        // health와 maxHealth가 유효한 숫자인지 확인
+        this._health = typeof maxHealth === 'number' && !isNaN(maxHealth) ? maxHealth : 5;
+        this.maxHealth = typeof maxHealth === 'number' && !isNaN(maxHealth) ? maxHealth : 5;
         this.image[0].src = 'mainGame/user/heart_empty.png';
         this.image[1].src = 'mainGame/user/heart_fill.png';
+    }
+    
+    // health getter - NaN이나 undefined 방지
+    get health() {
+        return typeof this._health === 'number' && !isNaN(this._health) ? this._health : 0;
+    }
+    
+    // health setter - NaN이나 undefined 방지
+    set health(value) {
+        if (typeof value === 'number' && !isNaN(value)) {
+            this._health = Math.max(0, Math.min(value, this.maxHealth));
+        } else {
+            console.warn('Invalid health value attempted:', value, 'Setting to 0');
+            this._health = 0;
+        }
     }
 
     draw() {
         ctx.save();
-    
         // 채워진 하트 그리기
         for (let i = 0; i<this.health; i++) {
             if (this.image[1].complete) ctx.drawImage(this.image[1], this.x + i*19, this.y, 19, 19);
@@ -421,9 +460,45 @@ class Heart {
     }
 }
 
-// 갑바 바 (구현 예정)
+// 갑바 바 (완성)
 class Armor {
+    x; 
+    y;
+    image = [new Image(), new Image()];
+    defense;
+    maxDefense;
 
+    constructor(x, y, defense) {
+        this.x = x;
+        this.y = y;
+        this.defense = 0;
+        this.maxDefense = defense;
+        this.image[0].src = 'mainGame/user/armor_empty.png';
+        this.image[1].src = 'mainGame/user/armor_fill.png';
+    }
+
+    setDefense(value) {
+        this.defense = value;
+    }
+
+    getDefense() {
+        return this.defense;
+    }
+
+    draw() {
+        ctx.save()
+        // 채워진 갑옷 그리기
+        for(let i = 0; i < this.defense; i++) {
+            if(this.image[1].complete) ctx.drawImage(this.image[1], this.x + i*19, this.y, 19, 19);
+        }
+
+        // 빈 갑옷 그리기
+        for(let i = this.defense; i < this.maxDefense; i++) {
+            if(this.image[0].complete) ctx.drawImage(this.image[0], this.x + i*19, this.y, 19, 19);
+        }
+
+        ctx.restore();
+    }
 }
 
 // 게임 화면에 유저를 위한 정보 (hotbar, timer, gameDifficulty, 체력, 갑바)
@@ -434,12 +509,15 @@ class User {
     xpbars = [];
     heart;
     armor;
+    defense;
     hitSound = new Audio('mainGame/user/hit.mp3');
     equippedItems = new Map();
     hitImage = new Image();
     hitTime = null;
+    boot = null;
+    bootTime = {iron_boots: 1, golden_boots: 0.5, diamond_boots: 0.3};  // 신발 별 불 붙는 시간
 
-    constructor(health) {
+    constructor(health, defense) {
         this.hotbar = new Hotbar(253, 595);
         // 레벨별 xpbar 구성
         for (let i = 1; i<4; i++) {
@@ -454,10 +532,14 @@ class User {
         this.hitImage.src = 'mainGame/boss/ghast/user_hit.png';
         this.hitTime = null;
         // 보호구 바 구성
+        this.armor = new Armor(469, 560, defense);
         // this.
+
+        this.equippedItems.set('sword', 'wooden_sword');
     }
 
     init() {
+        // 안전한 health 초기화
         this.heart.health = 5;
     }
 
@@ -465,14 +547,23 @@ class User {
         if (difficulty === 2) {
             this.hitTime = Date.now();
         }
-        this.heart.health -= damage;
+        if(this.armor.getDefense() >= damage) this.armor.setDefense(this.armor.getDefense() - damage);
+        else if(this.armor.getDefense() > 0 && this.armor.getDefense() < damage) { 
+            damage -= this.armor.getDefense()
+            this.armor.setDefense(0);
+        } else {
+            // 안전한 damage 처리
+            const safeDamage = typeof damage === 'number' && !isNaN(damage) ? damage : 1;
+            this.heart.health -= safeDamage;
+        }
         this.hitSound.play();
     }
 
     releaseHit(difficulty) {
         const curTime = Date.now();
+        const fireTime = this.boot == null ? 1.3 : this.bootTime[this.boot];
         // 보호구에 맞춰 초 수정
-        if (difficulty === 2 && this.hitTime && curTime - this.hitTime > 1000) {
+        if (difficulty === 2 && this.hitTime && curTime - this.hitTime > fireTime * 1000) {
             this.hitTime = null;
         }
     }
@@ -481,11 +572,20 @@ class User {
         return this.heart.health <= 0;
     }
 
+    addArmor(armor) {
+        let setValue = this.armor.getDefense() + armor;
+        this.armor.setDefense(setValue);  
+        console.log('addArmor', armor);
+    }
+
     clone() {
-        const clonedUser = new User(this.heart.maxHealth);
+        const clonedUser = new User(this.heart.maxHealth, 9);
         
         // 현재 체력 상태 복사
         clonedUser.heart.health = this.heart.health;
+
+        // 현재 방어력 상태 복사
+        clonedUser.armor.defense = this.armor.defense;
         
         // havingItems Map 복사 (깊은 복사)
         clonedUser.havingItems = new Map(this.havingItems);
@@ -500,6 +600,7 @@ class User {
         ctx.save();
         this.hotbar.draw(this.havingItems);
         this.heart.draw();
+        this.armor.draw();
         ctx.drawImage(this.xpbars[gameDifficulty-1], 256, 570, 387, 23);
         if (gameDifficulty == 2 && this.hitTime) {
             console.log(this.hitTime);
@@ -514,4 +615,5 @@ class User {
             console.log(` - ${key}: ${value}`);
         }
     }
+
 }
