@@ -50,7 +50,9 @@ class MainGame {
 
     // 초기화 함수
     init(preserveUser = false) {
-        this.ball = new Ball(canvas.width/2 - 10, canvas.height-150); // 볼의 중심이 화면 중앙에 오도록 (볼의 width는 20)
+        // 캔버스가 올바르게 초기화되었는지 확인
+        const ballX = canvas && canvas.width > 0 ? canvas.width/2 - 10 : WIDTH/2 - 10;
+        this.ball = new Ball(ballX, canvas.height-150); // 볼의 중심이 화면 중앙에 오도록 (볼의 width는 20)
         paddle = new Paddle(WIDTH/2-50, HEIGHT-100);
         hotbar = new Hotbar(WIDTH/2-195, HEIGHT-60);
         this.brickManager = new BrickManager(gameDifficulty);
@@ -77,6 +79,7 @@ class MainGame {
 
     // 게임 시작
     start() {
+        console.log("게임 시작");
         this.gameStarted = true;
         this.gameStartTime = Date.now(); // 게임 시작 시간 기록
         // 공은 이미 init()에서 생성되었으므로 다시 생성하지 않음
@@ -511,6 +514,9 @@ class MainGame {
                 const itemInfo = itmSrc.split('_');
                 if(itemInfo[1] == 'boots' || itemInfo[1] == 'chestplate' || itemInfo[1] == 'helmet' || itemInfo[1] == 'reggings' || itemInfo[1] == 'sword') {
                     user.equippedItems.set(itemInfo[1], itmSrc);
+                    if (itemInfo[1] == 'boots') {
+                        user.boot = itmSrc;
+                    }
                     user.currentItems();
                     let tmpEquipped = $('.equipped-highlight');
                     for(let i = 0; i < tmpEquipped.length; i++) {
@@ -603,7 +609,8 @@ class MainGame {
 
         const TARGET_FPS = 120;
         const timeStep = 1000 / TARGET_FPS; // 120fps 기준 시간 간격
-        const deltaMultiplier = deltaTime / timeStep; // 프레임 독립적 속도 보정값
+        // deltaMultiplier에 상한선 설정 (최대 3배까지만 허용)
+        const deltaMultiplier = Math.min(deltaTime / timeStep, 3); // 프레임 독립적 속도 보정값
         
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         
@@ -633,9 +640,13 @@ class MainGame {
         // 벽 충돌 처리
         if(this.ball.x + this.ball.width > canvas.width || this.ball.x < 0) {
             this.ball.dx = -this.ball.dx;
-            // 벽에 부딪힐 때 위치 보정
-            if(this.ball.x < 0) this.ball.x = 0;
-            if(this.ball.x + this.ball.width > canvas.width) this.ball.x = canvas.width - this.ball.width;
+            // 벽에 부딪힐 때 위치 보정 - 공이 벽을 관통하지 않도록
+            if(this.ball.x < 0) {
+                this.ball.x = 0;
+            }
+            if(this.ball.x + this.ball.width > canvas.width) {
+                this.ball.x = canvas.width - this.ball.width;
+            }
         }
         if(this.ball.y < 0) {
             this.ball.dy = -this.ball.dy;
