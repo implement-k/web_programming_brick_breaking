@@ -53,6 +53,23 @@ const loadItemImages = () => {
 };
 loadItemImages();
 
+const crackPaths = [
+    'mainGame/cracks/crack_1.png',
+    'mainGame/cracks/crack_2.png'
+];
+const crackImages = [];
+const loadCrackImages = () => {
+    return Promise.all(crackPaths.map(path => {
+        return new Promise((resolve) => {
+            const img = new Image();
+            img.onload = () => resolve(img);
+            img.src = path;
+            crackImages.push(img);
+        });
+    }));
+};
+loadCrackImages();
+
 // 공
 class Ball {
     x; y;
@@ -218,7 +235,7 @@ class Item {
 
 class Brick {
     x; y;
-    status; life;
+    status; life; maxlife;
     brickSize = 50;
     image;
 
@@ -227,6 +244,7 @@ class Brick {
         this.y = y;
         this.status = status;
         this.life = life;
+        this.maxlife = life;
         if (status != 0) this.image = image;
     }
 }
@@ -303,7 +321,6 @@ class BrickManager {
                             // TODO
                             if(tmp >= 2 && tmp <= 5) {
                                 const itemType = tmp - 2;
-                                console.log(itemType);
                                 fallingItems.push(new Item(b.x, b.y, itemImages[itemType], itemType));
                             }
                         } else {
@@ -327,6 +344,13 @@ class BrickManager {
                     this.bricks[c][r].y = brickY;
 
                     ctx.drawImage(this.bricks[c][r].image, brickX, brickY, this.brickSize, this.brickSize);
+                    let b = this.bricks[c][r];
+                    if(b.maxlife == 3) {
+                        if(b.life == 2) ctx.drawImage(crackImages[1], brickX, brickY, this.brickSize, this.brickSize);
+                        else if(b.life == 1) ctx.drawImage(crackImages[0], brickX, brickY, this.brickSize, this.brickSize);
+                    } else if(b.maxlife == 2) {
+                        if(b.life == 1) ctx.drawImage(crackImages[0], brickX, brickY, this.brickSize, this.brickSize);
+                    }
                 }
             }
         }
@@ -420,7 +444,6 @@ class Heart {
 
     draw() {
         ctx.save();
-    
         // 채워진 하트 그리기
         for (let i = 0; i<this.health; i++) {
             if (this.image[1].complete) ctx.drawImage(this.image[1], this.x + i*19, this.y, 19, 19);
@@ -435,9 +458,45 @@ class Heart {
     }
 }
 
-// 갑바 바 (구현 예정)
+// 갑바 바 (완성)
 class Armor {
+    x; 
+    y;
+    image = [new Image(), new Image()];
+    defense;
+    maxDefense;
 
+    constructor(x, y, defense) {
+        this.x = x;
+        this.y = y;
+        this.defense = 0;
+        this.maxDefense = defense;
+        this.image[0].src = 'mainGame/user/armor_empty.png';
+        this.image[1].src = 'mainGame/user/armor_fill.png';
+    }
+
+    setDefense(value) {
+        this.defense = value;
+    }
+
+    getDefense() {
+        return this.defense;
+    }
+
+    draw() {
+        ctx.save()
+        // 채워진 갑옷 그리기
+        for(let i = 0; i < this.defense; i++) {
+            if(this.image[1].complete) ctx.drawImage(this.image[1], this.x + i*19, this.y, 19, 19);
+        }
+
+        // 빈 갑옷 그리기
+        for(let i = this.defense; i < this.maxDefense; i++) {
+            if(this.image[0].complete) ctx.drawImage(this.image[0], this.x + i*19, this.y, 19, 19);
+        }
+
+        ctx.restore();
+    }
 }
 
 // 게임 화면에 유저를 위한 정보 (hotbar, timer, gameDifficulty, 체력, 갑바)
@@ -448,12 +507,14 @@ class User {
     xpbars = [];
     heart;
     armor;
+    defense;
     hitSound = new Audio('mainGame/user/hit.mp3');
     equippedItems = new Map();
     hitImage = new Image();
     hitTime = null;
 
-    constructor(health) {
+    constructor(health, defense) {
+        console.log("NEW");
         this.hotbar = new Hotbar(253, 595);
         // 레벨별 xpbar 구성
         for (let i = 1; i<4; i++) {
@@ -468,7 +529,10 @@ class User {
         this.hitImage.src = 'mainGame/boss/ghast/user_hit.png';
         this.hitTime = null;
         // 보호구 바 구성
+        this.armor = new Armor(469, 560, defense);
         // this.
+
+        this.equippedItems.set('sword', 'wooden_sword');
     }
 
     init() {
@@ -480,9 +544,15 @@ class User {
         if (difficulty === 2) {
             this.hitTime = Date.now();
         }
-        // 안전한 damage 처리
-        const safeDamage = typeof damage === 'number' && !isNaN(damage) ? damage : 1;
-        this.heart.health -= safeDamage;
+        if(this.armor.getDefense() >= damage) this.armor.setDefense(this.armor.getDefense() - damage);
+        else if(this.armor.getDefense() > 0 && this.armor.getDefense() < damage) { 
+            damage -= this.armor.getDefense()
+            this.armor.setDefense(0);
+        } else {
+            // 안전한 damage 처리
+            const safeDamage = typeof damage === 'number' && !isNaN(damage) ? damage : 1;
+            this.heart.health -= safeDamage;
+        }
         this.hitSound.play();
     }
 
@@ -498,11 +568,20 @@ class User {
         return this.heart.health <= 0;
     }
 
+    addArmor(armor) {
+        let setValue = this.armor.getDefense() + armor;
+        this.armor.setDefense(setValue);  
+          
+    }
+
     clone() {
-        const clonedUser = new User(this.heart.maxHealth);
+        const clonedUser = new User(this.heart.maxHealth, 9);
         
         // 현재 체력 상태 복사
         clonedUser.heart.health = this.heart.health;
+
+        // 현재 방어력 상태 복사
+        clonedUser.armor.defense = this.armor.defense;
         
         // havingItems Map 복사 (깊은 복사)
         clonedUser.havingItems = new Map(this.havingItems);
@@ -517,6 +596,7 @@ class User {
         ctx.save();
         this.hotbar.draw(this.havingItems);
         this.heart.draw();
+        this.armor.draw();
         ctx.drawImage(this.xpbars[gameDifficulty-1], 256, 570, 387, 23);
         if (gameDifficulty == 2 && this.hitTime) {
             console.log(this.hitTime);
@@ -531,4 +611,5 @@ class User {
             console.log(` - ${key}: ${value}`);
         }
     }
+
 }

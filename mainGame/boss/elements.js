@@ -461,7 +461,7 @@ class BossManager{
     constructor(difficulty) {
         // 위더
         this.bosses.push(new Boss(
-            7,  // health
+            70,  // health
             canvas.width/2 - this.size[0][0]/2,  // x
             this.y,  // y
             this.y, // defaultY
@@ -480,7 +480,7 @@ class BossManager{
         ));
         // 가스트
         this.bosses.push(new Boss(
-            5,  // health
+            50,  // health
             canvas.width/2 - this.size[1][0]/2,  // x
             this.y,  // y
             this.y, // defaultY
@@ -499,7 +499,7 @@ class BossManager{
         ));
         // 엔더드래곤
         this.bosses.push(new Boss(
-            15,  // health
+            150,  // health
             canvas.width/2 - this.size[2][0]/2,  // x
             this.y,  // y
             this.y,  // defaultY
@@ -602,7 +602,11 @@ class BossManager{
                 this.curBoss.dropItem();
                 this.curBoss.deathSound.play();
             } else {
-                this.curBoss.health--;
+                let sword_name = user.equippedItems.get("sword");
+                if(sword_name == "wooden_sword") this.curBoss.health -= 7;
+                else if(sword_name == "iron_sword") this.curBoss.health -= 10;
+                else if(sword_name == "golden_sword") this.curBoss.health -= 15;
+                else if(sword_name == "diamond_sword") this.curBoss.health -= 20;
             }       
         } 
 

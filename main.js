@@ -9,9 +9,11 @@ $(document).ready(function () {
     ctx = canvas.getContext('2d');
     $(document).keydown(keyDownHandler);
     $(document).keyup(keyUpHandler);
+
+    gameDifficulty = 1;  // 먼저 난이도 설정
     
     // manager 들 초기화
-    user = new User(5);      // 전역변수
+    user = new User(5, 9);      // 전역변수
     userCheckpoint = user.clone();
     bossGame = new BossGame(gameDifficulty);  // 난이도 설정 후 생성
 
@@ -28,10 +30,20 @@ $(document).ready(function () {
     });
     // 임시: 게임 시작
     $('#tmp_game_start').click(() => {
+        if (gameDifficulty < 3) {
+            startMainGame(gameDifficulty);
+        } else if (gameDifficulty === 3) {
+            startMainGame(gameDifficulty);
+        } else if (gameDifficulty === 4) {
+            showScene('title-screen');
+            hideScene('main-game');
+        }
+        /*
         $('#gameCanvas').show();
         mainGame.gameStarted = true;
         $(this).hide();
         mainGame.draw();
+        */
 
         // 기존 마스터 버튼들 제거
         $('#masterBtns').empty();

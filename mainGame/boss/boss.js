@@ -41,6 +41,13 @@ class BossGame {
         // user.init(); // 이 줄을 제거하여 현재 사용자 상태 유지
         
         this.isStarted = true;
+
+        let sword_name = user.equippedItems.get("sword");
+        if(sword_name == "wooden_sword") this.ball.image.src = 'mainGame/items/sword/wooden_sword.png';
+        else if(sword_name == "iron_sword") this.ball.image.src = 'mainGame/items/sword/iron_sword.png';
+        else if(sword_name == "golden_sword") this.ball.image.src = 'mainGame/items/sword/golden_sword.png';
+        else if(sword_name == "diamond_sword") this.ball.image.src = 'mainGame/items/sword/diamond_sword.png';
+
         requestAnimationFrame((time) => this.draw(time));
     }
 
@@ -111,7 +118,12 @@ class BossGame {
         if(this.ball.y < 0) {
             this.ball.dy = -this.ball.dy;
         } else if(this.ball.y + this.ball.height > canvas.height) {
-            this.ball = new Ball(WIDTH/2, HEIGHT-150, 1.2, -1.2);
+            this.ball = new Ball(WIDTH/2, HEIGHT-150, 2, -2);
+            let sword_name = user.equippedItems.get("sword");
+            if(sword_name == "wooden_sword") this.ball.image.src = 'mainGame/items/sword/wooden_sword.png';
+            else if(sword_name == "iron_sword") this.ball.image.src = 'mainGame/items/sword/iron_sword.png';
+            else if(sword_name == "golden_sword") this.ball.image.src = 'mainGame/items/sword/golden_sword.png';
+            else if(sword_name == "diamond_sword") this.ball.image.src = 'mainGame/items/sword/diamond_sword.png';
             user.hit(1, 1);
         }
 

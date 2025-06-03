@@ -153,6 +153,7 @@ nextDialogueBtn.addEventListener('click', () => {
 
 function startMainGame(round) {
     gameDifficulty = round;
+    console.log("Starting a game with difficulty", gameDifficulty);
     hideScene('story-scene');
     startMiniGameTimer();
     
