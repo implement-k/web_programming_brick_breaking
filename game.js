@@ -115,6 +115,13 @@ function startStory(round = 1) {
     updateStory();
 }
 
+// 사용자 상태를 보존하면서 스토리 시작하는 함수
+function startStoryWithUserState(round, userState) {
+    // 전역 변수에 사용자 상태 저장
+    window.preservedUserState = userState;
+    startStory(round);
+}
+
 function updateStory() {
     const scene = story[currentSceneIndex];
     storyImage.src = scene.image;
@@ -146,15 +153,27 @@ nextDialogueBtn.addEventListener('click', () => {
 
 function startMainGame(round) {
     gameDifficulty = round;
+    console.log("Starting a game with difficulty", gameDifficulty);
     hideScene('story-scene');
     startMiniGameTimer();
     
-    // 메인 게임 초기화
-    mainGame.init();
+    // 보존된 사용자 상태가 있으면 사용, 없으면 기본 초기화
+    const preserveUser = window.preservedUserState ? true : false;
+    if (window.preservedUserState) {
+        // 보존된 사용자 상태를 현재 user로 설정
+        user = window.preservedUserState.clone();
+        window.preservedUserState = null; // 사용 후 정리
+    }
+    
+    // 메인 게임 초기화 (사용자 상태 보존 여부 전달)
+    mainGame.init(preserveUser);
     
     // 기존 게임 코드 실행
     $('#gameCanvas').show();
     mainGame.start();
+
+    // 기존 마스터 버튼들 제거
+    $('#masterBtns').empty();
 
     // 마스터 버튼들
     let btn1 = $('<button/>');
@@ -168,7 +187,8 @@ function startMainGame(round) {
     let btn2 = $('<button/>');
     btn2.text('죽기');
     btn2.click(() => {
-        user.heart.health = 0;
+        // 안전한 방식으로 체력을 0으로 설정
+        if (user && user.heart) user.heart.health = 0;
         user.hit(1);
     });
     $('#masterBtns').append(btn2);

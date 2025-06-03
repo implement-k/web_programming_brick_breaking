@@ -9,9 +9,11 @@ $(document).ready(function () {
     ctx = canvas.getContext('2d');
     $(document).keydown(keyDownHandler);
     $(document).keyup(keyUpHandler);
+
+    gameDifficulty = 1;  // 먼저 난이도 설정
     
     // manager 들 초기화
-    user = new User(5);      // 전역변수
+    user = new User(5, 9);      // 전역변수
     userCheckpoint = user.clone();
     bossGame = new BossGame(gameDifficulty);  // 난이도 설정 후 생성
 
@@ -28,10 +30,23 @@ $(document).ready(function () {
     });
     // 임시: 게임 시작
     $('#tmp_game_start').click(() => {
+        if (gameDifficulty < 3) {
+            startMainGame(gameDifficulty);
+        } else if (gameDifficulty === 3) {
+            startMainGame(gameDifficulty);
+        } else if (gameDifficulty === 4) {
+            showScene('title-screen');
+            hideScene('main-game');
+        }
+        /*
         $('#gameCanvas').show();
         mainGame.gameStarted = true;
         $(this).hide();
         mainGame.draw();
+        */
+
+        // 기존 마스터 버튼들 제거
+        $('#masterBtns').empty();
 
         // 마스터 버튼들
         let btn1 = $('<button/>');
@@ -45,8 +60,11 @@ $(document).ready(function () {
         let btn2 = $('<button/>');
         btn2.text('죽기');
         btn2.click(() => {
-            user.heart.health = 0;
-            user.hit(1);
+            // 안전한 방식으로 체력을 0으로 설정
+            if (user && user.heart) {
+                user.heart.health = 0;
+                user.hit(1);
+            }
         });
         $('#masterBtns').append(btn2);
         
@@ -69,6 +87,9 @@ $(document).ready(function () {
         $(this).hide();
         mainGame.draw();
 
+        // 기존 마스터 버튼들 제거
+        $('#masterBtns').empty();
+
         // 마스터 버튼들
         let btn1 = $('<button/>');
         btn1.text('블록 다 깨기');
@@ -81,7 +102,10 @@ $(document).ready(function () {
         let btn2 = $('<button/>');
         btn2.text('죽기');
         btn2.click(() => {
-            user.heart.health = 0;
+            // 안전한 방식으로 체력을 0으로 설정
+            if (user && user.heart) 
+                user.heart.health = 0;
+            
         });
         $('#masterBtns').append(btn2);
         
@@ -99,10 +123,19 @@ $(document).ready(function () {
     });
     // 리스폰 버튼 처리
     $('#respawn').click(() => {
-        mainGame.init();
+        let preserveUser = false;
+        
+        // 보스 게임에서 온 경우 원래 상태로 복원
+        if (bossGame && bossGame.originUser) {
+            user = bossGame.originUser.clone();
+            bossGame.originUser = null; // 백업 정리
+            preserveUser = true; // 복원된 user 상태 유지
+        }
+        
+        mainGame.init(preserveUser);
         $('.dead').hide();
-        mainGame.gameStarted = true;
-        mainGame.draw();
+        // gameStarted 설정과 draw() 호출 대신 start() 메서드 사용
+        mainGame.start();
     });
     
 })

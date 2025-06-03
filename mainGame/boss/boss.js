@@ -29,18 +29,31 @@ class BossGame {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 
         this.background.src = this.backgroundDir[difficulty-1];
-        this.ball = new Ball(WIDTH/2, HEIGHT-150, 2, -2);
+        this.ball = new Ball(WIDTH/2, HEIGHT-150, 1, 1);
         this.paddle = new Paddle(WIDTH/2-50, HEIGHT-100);
         this.hotbar = new Hotbar(WIDTH/2-195, HEIGHT-60);
         this.bossManager.init(difficulty);
         this.projectileManager.init(difficulty);
-        user.init();
+        
+        // 보스 게임 진입 전 사용자 상태 백업 (복원용)
+        this.originUser = user.clone();
+        // 사용자 상태를 초기화하지 않고 현재 상태 유지
+        // user.init(); // 이 줄을 제거하여 현재 사용자 상태 유지
+        
         this.isStarted = true;
-        this.draw();
+
+        let sword_name = user.equippedItems.get("sword");
+        if(sword_name == "wooden_sword") this.ball.image.src = 'mainGame/items/sword/wooden_sword.png';
+        else if(sword_name == "iron_sword") this.ball.image.src = 'mainGame/items/sword/iron_sword.png';
+        else if(sword_name == "golden_sword") this.ball.image.src = 'mainGame/items/sword/golden_sword.png';
+        else if(sword_name == "diamond_sword") this.ball.image.src = 'mainGame/items/sword/diamond_sword.png';
+
+        requestAnimationFrame((time) => this.draw(time));
     }
 
-    draw() {
+    draw(currentTime) {
         if (!this.isStarted) return;
+        console.log('유저 죽음 상태: ', user.isDead(), user.heart.health);
         if (user.isDead()) {
             SOUND_EFFECT.death.play();
 	        $('.dead').css('display', 'flex');
@@ -52,14 +65,26 @@ class BossGame {
             this.isStarted = false;
             // 보스 죽음 후 잠시 대기 (1.5초)
             setTimeout(() => {
+                // 현재 사용자 상태를 보존하여 다음 단계로 전달
+                const currentUserState = user.clone();
+                
                 if (gameDifficulty < 3) {
-                    startStory(gameDifficulty + 1);
+                    // 다음 보스 게임으로 진행하면서 사용자 상태 보존
+                    startStoryWithUserState(gameDifficulty + 1, currentUserState);
                 } else {
                     startStory(4); // 3라운드 끝나면 종료 스토리(4라운드) 시작
                 }
             }, 1500);
             return;
         }
+
+        // deltaTime 계산 (120fps 기준)
+        const deltaTime = currentTime - (this.draw.lastTime || currentTime);
+        this.draw.lastTime = currentTime;
+
+        const TARGET_FPS = 120;
+        const timeStep = 1000 / TARGET_FPS;
+        const deltaMultiplier = deltaTime / timeStep; // 프레임 독립적 속도 보정값
 
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         if (this.background.complete) {
@@ -69,22 +94,22 @@ class BossGame {
 
         this.bossManager.collisionDetection(this.ball); // 보스 - 공 충돌
         this.paddle.collisionDetection(this.ball);      // 공 - 패들 충돌
-        this.projectileManager.checkCollisions();   // 발사체 - 유저 충돌
+        this.projectileManager.checkCollisions(deltaMultiplier, this.paddle);   // 발사체 - 유저 충돌 (프레임 독립적)
         this.bossManager.attack(this.projectileManager);    // 보스 - 발사체 발사
 
         // 그리기
         this.ball.draw();
         this.paddle.draw();
-        this.bossManager.draw();
+        this.bossManager.draw(deltaMultiplier);
         // this.user.draw();
         user.draw();
 
-        // 패들 이동 및 기울기 처리
-        this.paddle.updateRocation(canvas, leftPressed, rightPressed);
+        // 패들 이동 및 기울기 처리 (프레임 독립적)
+        this.paddle.updateRocation(canvas, leftPressed, rightPressed, deltaMultiplier);
 
-        // 공 회전 및 이동
-        this.ball.updateRotation();
-        this.ball.updateLocation();
+        // 공 회전 및 이동 (프레임 독립적)
+        this.ball.updateRotation(deltaMultiplier);
+        this.ball.updateLocation(deltaMultiplier);
 
         // 벽 충돌 처리
         if(this.ball.x + this.ball.width > canvas.width || this.ball.x < 0) {
@@ -94,9 +119,14 @@ class BossGame {
             this.ball.dy = -this.ball.dy;
         } else if(this.ball.y + this.ball.height > canvas.height) {
             this.ball = new Ball(WIDTH/2, HEIGHT-150, 2, -2);
+            let sword_name = user.equippedItems.get("sword");
+            if(sword_name == "wooden_sword") this.ball.image.src = 'mainGame/items/sword/wooden_sword.png';
+            else if(sword_name == "iron_sword") this.ball.image.src = 'mainGame/items/sword/iron_sword.png';
+            else if(sword_name == "golden_sword") this.ball.image.src = 'mainGame/items/sword/golden_sword.png';
+            else if(sword_name == "diamond_sword") this.ball.image.src = 'mainGame/items/sword/diamond_sword.png';
             user.hit(1, 1);
         }
 
-        requestAnimationFrame(this.draw);
+        requestAnimationFrame((time) => this.draw(time));
     }
 }
