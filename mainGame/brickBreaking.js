@@ -517,7 +517,6 @@ class MainGame {
                     if (itemInfo[1] == 'boots') {
                         user.boot = itmSrc;
                     }
-                    user.currentItems();
                     let tmpEquipped = $('.equipped-highlight');
                     for(let i = 0; i < tmpEquipped.length; i++) {
                         let tmpImg = $(tmpEquipped[i]).find('img').attr('src');

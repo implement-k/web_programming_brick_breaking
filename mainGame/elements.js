@@ -268,9 +268,9 @@ class BrickManager {
         ], [
             'mainGame/bricks/ender/end_stone.png',
             'mainGame/bricks/ender/end_bricks.png',
-            'mainGame/bricks/ender/amethyst.png',
+            'mainGame/bricks/ender/calcite.png',
             'mainGame/bricks/ender/raw_gold.png',
-            'mainGame/bricks/ender/obsidian.png'
+            'mainGame/bricks/ender/amethyst.png'
     ]];
     images = [];
     brickRowCount = 8;
@@ -280,7 +280,7 @@ class BrickManager {
     bricks = [];
     
     constructor(difficulty) {
-        for (let i = 0; i<this.dir[difficulty-1].length; i++) {
+        for (let i = 0; i < this.dir[difficulty-1].length; i++) {
             const img = new Image();
             img.src = this.dir[difficulty-1][i];
             this.images.push(img);
