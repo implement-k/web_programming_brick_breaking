@@ -35,7 +35,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 function showScene(id) {
     ['title-screen', 'setting-scene', 'create-scene', 'story-scene', 'score-scene', 'main-game'].forEach(sceneId => {
-        document.getElementById(sceneId).style.display = (sceneId === id) ? 'flex' : 'none';
+        if(document.getElementById(sceneId)) document.getElementById(sceneId).style.display = (sceneId === id) ? 'flex' : 'none';
     });
     if (id === 'main-game') {
         document.getElementById('main-game').style.display = 'block';
@@ -44,7 +44,7 @@ function showScene(id) {
 }
 
 function hideScene(id) {
-    document.getElementById(id).style.display = 'none';
+    if(document.getElementById(id)) document.getElementById(id).style.display = 'none';
 }
 
 startBtn.addEventListener('click', () => {
@@ -55,6 +55,32 @@ startBtn.addEventListener('click', () => {
 settingBtn.addEventListener('click', () => {
     playClickSound();
     showScene('setting-scene');
+});
+
+const bgmSelect = document.getElementById('bgm-select');
+
+bgmSelect.addEventListener('change', function () {
+    if (bgmSelect.value === 'none') {
+        bgm.pause();
+        bgm.currentTime = 0;
+    } else {
+        const prevSrc = bgm.src;
+        const newSrc = bgmSelect.value;
+        // src가 다를 때만 변경
+        if (!prevSrc.endsWith(newSrc)) {
+            bgm.src = newSrc;
+            bgm.load();
+            bgm.play();
+        } else {
+            // 이미 재생 중인 경우 다시 play만
+            bgm.play();
+        }
+    }
+});
+
+// 초기화 (페이지 로드시 select와 bgm 싱크)
+window.addEventListener('DOMContentLoaded', () => {
+    bgmSelect.value = "title_bgm.mp3";
 });
 
 scoreBtn.addEventListener('click', () => {
@@ -84,7 +110,10 @@ createBtn.addEventListener('click', () => {
         alert('이름을 입력하세요!');
         return;
     }
-    startStory();
+    let diff = $('#difficulty').val();
+    if(diff == "easy") startStory(1);
+    else if(diff == "normal") startStory(2);
+    else if(diff == "hard") startStory(3);
 });
 
 const story = [
@@ -153,8 +182,10 @@ nextDialogueBtn.addEventListener('click', () => {
 
 function startMainGame(round) {
     gameDifficulty = round;
-    console.log("Starting a game with difficulty", gameDifficulty);
     hideScene('story-scene');
+    startMiniGameTimer();
+
+    // 기존 게임 코드 실행
     
     // 캔버스를 먼저 보여줌으로써 canvas.width가 올바르게 설정되도록 함
     $('#gameCanvas').show();
@@ -186,7 +217,7 @@ function startMainGame(round) {
         mainGame.isClear = true;
     });
     $('#masterBtns').append(btn1);
-    
+
     let btn2 = $('<button/>');
     btn2.text('죽기');
     btn2.click(() => {

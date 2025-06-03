@@ -79,7 +79,7 @@ class MainGame {
 
     // 게임 시작
     start() {
-        console.log("게임 시작");
+        console.log("[DEBUG] 게임 시작");
         this.gameStarted = true;
         this.gameStartTime = Date.now(); // 게임 시작 시간 기록
         // 공은 이미 init()에서 생성되었으므로 다시 생성하지 않음
@@ -141,7 +141,7 @@ class MainGame {
         const timeString = `${minutes}:${seconds.toString().padStart(2, '0')}`;
         
         ctx.save();
-        ctx.font = "24px Arial";
+        ctx.font = "24px Minecraftia";
         ctx.textAlign = "right";
         
         // 시간이 30초 이하일 때 빨간색, 그렇지 않으면 흰색
