@@ -608,9 +608,8 @@ class MainGame {
         this.draw.lastTime = currentTime;
 
         const TARGET_FPS = 120;
-        const timeStep = 1000 / TARGET_FPS; // 120fps 기준 시간 간격
-        // deltaMultiplier에 상한선 설정 (최대 3배까지만 허용)
-        const deltaMultiplier = Math.min(deltaTime / timeStep, 3); // 프레임 독립적 속도 보정값
+        const timeStep = 1000 / TARGET_FPS; 
+        const deltaMultiplier = Math.min(deltaTime / timeStep, 3); 
         
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         
