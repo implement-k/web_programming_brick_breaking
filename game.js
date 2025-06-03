@@ -30,12 +30,12 @@ function playClickSound() {
 document.addEventListener('DOMContentLoaded', () => {
     showScene('title-screen');
     hideScene('main-game');
-    miniCanvas.style.display = 'none';
+    miniGameCanvas.style.display = 'none';
 });
 
 function showScene(id) {
     ['title-screen', 'setting-scene', 'create-scene', 'story-scene', 'score-scene', 'main-game'].forEach(sceneId => {
-        if(document.getElementById(sceneId)) document.getElementById(sceneId).style.display = (sceneId === id) ? 'flex' : 'none';
+        if (document.getElementById(sceneId)) document.getElementById(sceneId).style.display = (sceneId === id) ? 'flex' : 'none';
     });
     if (id === 'main-game') {
         document.getElementById('main-game').style.display = 'block';
@@ -44,7 +44,7 @@ function showScene(id) {
 }
 
 function hideScene(id) {
-    if(document.getElementById(id)) document.getElementById(id).style.display = 'none';
+    if (document.getElementById(id)) document.getElementById(id).style.display = 'none';
 }
 
 startBtn.addEventListener('click', () => {
@@ -111,9 +111,9 @@ createBtn.addEventListener('click', () => {
         return;
     }
     let diff = $('#difficulty').val();
-    if(diff == "easy") startStory(1);
-    else if(diff == "normal") startStory(2);
-    else if(diff == "hard") startStory(3);
+    if (diff == "easy") startStory(1);
+    else if (diff == "normal") startStory(2);
+    else if (diff == "hard") startStory(3);
 });
 
 const story = [
@@ -139,7 +139,7 @@ function startStory(round = 1) {
     const range = storyRanges[gameDifficulty];
     currentSceneIndex = range.start;
     currentLineIndex = 0;
-     $('#gameCanvas').hide();
+    $('#gameCanvas').hide();
     showScene('story-scene');
     updateStory();
 }
@@ -186,12 +186,12 @@ function startMainGame(round) {
     startMiniGameTimer();
 
     // 기존 게임 코드 실행
-    
+
     // 캔버스를 먼저 보여줌으로써 canvas.width가 올바르게 설정되도록 함
     $('#gameCanvas').show();
-    
+
     startMiniGameTimer();
-    
+
     // 보존된 사용자 상태가 있으면 사용, 없으면 기본 초기화
     const preserveUser = window.preservedUserState ? true : false;
     if (window.preservedUserState) {
@@ -199,10 +199,10 @@ function startMainGame(round) {
         user = window.preservedUserState.clone();
         window.preservedUserState = null; // 사용 후 정리
     }
-    
+
     // 메인 게임 초기화 (사용자 상태 보존 여부 전달)
     mainGame.init(preserveUser);
-    
+
     // 게임 시작
     mainGame.start();
 
@@ -226,7 +226,7 @@ function startMainGame(round) {
         user.hit(1);
     });
     $('#masterBtns').append(btn2);
-    
+
     let btn3 = $('<button/>');
     btn3.text('보스 죽이기');
     btn3.click(() => {
