@@ -63,7 +63,7 @@ class Ball {
     speed = 0;
     image = new Image();
 
-    constructor(x, y, dx = 1, dy = 1, width = 20, height = 25) {
+    constructor(x, y, dx = 0.8, dy = -0.8, width = 20, height = 25) {
         this.x = x;
         this.y = y;
         this.width = width;
@@ -127,7 +127,7 @@ class Paddle {
     tilt = 0;
     maxTilt = Math.PI / 10;
     image = new Image();
-    speed = 7;
+    speed = 3;
     collisionSound = new Audio('mainGame/paddle/slime.ogg');
     eatSound = new Audio('mainGame/paddle/pop.mp3');
 
@@ -391,15 +391,31 @@ class Hotbar {
 class Heart {
     x; y;
     image = [new Image(), new Image()];
-    health; maxHealth;
+    _health; maxHealth;
 
     constructor(x, y, maxHealth) {
         this.x = x;
         this.y = y;
-        this.health = maxHealth;
-        this.maxHealth = maxHealth;
+        // health와 maxHealth가 유효한 숫자인지 확인
+        this._health = typeof maxHealth === 'number' && !isNaN(maxHealth) ? maxHealth : 5;
+        this.maxHealth = typeof maxHealth === 'number' && !isNaN(maxHealth) ? maxHealth : 5;
         this.image[0].src = 'mainGame/user/heart_empty.png';
         this.image[1].src = 'mainGame/user/heart_fill.png';
+    }
+    
+    // health getter - NaN이나 undefined 방지
+    get health() {
+        return typeof this._health === 'number' && !isNaN(this._health) ? this._health : 0;
+    }
+    
+    // health setter - NaN이나 undefined 방지
+    set health(value) {
+        if (typeof value === 'number' && !isNaN(value)) {
+            this._health = Math.max(0, Math.min(value, this.maxHealth));
+        } else {
+            console.warn('Invalid health value attempted:', value, 'Setting to 0');
+            this._health = 0;
+        }
     }
 
     draw() {
@@ -456,6 +472,7 @@ class User {
     }
 
     init() {
+        // 안전한 health 초기화
         this.heart.health = 5;
     }
 
@@ -463,7 +480,9 @@ class User {
         if (difficulty === 2) {
             this.hitTime = Date.now();
         }
-        this.heart.health -= damage;
+        // 안전한 damage 처리
+        const safeDamage = typeof damage === 'number' && !isNaN(damage) ? damage : 1;
+        this.heart.health -= safeDamage;
         this.hitSound.play();
     }
 

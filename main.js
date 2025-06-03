@@ -48,8 +48,11 @@ $(document).ready(function () {
         let btn2 = $('<button/>');
         btn2.text('죽기');
         btn2.click(() => {
-            user.heart.health = 0;
-            user.hit(1);
+            // 안전한 방식으로 체력을 0으로 설정
+            if (user && user.heart) {
+                user.heart.health = 0;
+                user.hit(1);
+            }
         });
         $('#masterBtns').append(btn2);
         
@@ -87,7 +90,10 @@ $(document).ready(function () {
         let btn2 = $('<button/>');
         btn2.text('죽기');
         btn2.click(() => {
-            user.heart.health = 0;
+            // 안전한 방식으로 체력을 0으로 설정
+            if (user && user.heart) 
+                user.heart.health = 0;
+            
         });
         $('#masterBtns').append(btn2);
         
@@ -105,10 +111,19 @@ $(document).ready(function () {
     });
     // 리스폰 버튼 처리
     $('#respawn').click(() => {
-        mainGame.init();
+        let preserveUser = false;
+        
+        // 보스 게임에서 온 경우 원래 상태로 복원
+        if (bossGame && bossGame.originUser) {
+            user = bossGame.originUser.clone();
+            bossGame.originUser = null; // 백업 정리
+            preserveUser = true; // 복원된 user 상태 유지
+        }
+        
+        mainGame.init(preserveUser);
         $('.dead').hide();
-        mainGame.gameStarted = true;
-        mainGame.draw();
+        // gameStarted 설정과 draw() 호출 대신 start() 메서드 사용
+        mainGame.start();
     });
     
 })

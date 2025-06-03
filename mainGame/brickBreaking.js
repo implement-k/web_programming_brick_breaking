@@ -1,5 +1,6 @@
 // 메인 게임 클래스
 class MainGame {
+    ball;
     constructor() {
         this.overworld = new Image();
         this.overworld.src = 'mainGame/background/overworld.png';
@@ -41,14 +42,20 @@ class MainGame {
     }
 
     // 초기화 함수
-    init() {
-        ball = new Ball(WIDTH/2, HEIGHT-150); // dx=2, dy=-2로 적절한 속도 설정
+    init(preserveUser = false) {
+        this.ball = new Ball(canvas.width/2 - 10, canvas.height-150); // 볼의 중심이 화면 중앙에 오도록 (볼의 width는 20)
         paddle = new Paddle(WIDTH/2-50, HEIGHT-100);
         hotbar = new Hotbar(WIDTH/2-195, HEIGHT-60);
         this.brickManager = new BrickManager(gameDifficulty);
         
         this.drawStartScreen();
-        user = userCheckpoint.clone();
+        
+        // 사용자 상태 처리: preserveUser가 true면 현재 user 상태 유지, 아니면 체크포인트에서 복원
+        if (!preserveUser) {
+            user = userCheckpoint.clone();
+        }
+        // preserveUser가 true면 현재 user 상태를 그대로 유지
+        
         this.fallingItems = [];
         this.gameStarted = false;
         this.isClear = false;
@@ -65,7 +72,7 @@ class MainGame {
     start() {
         this.gameStarted = true;
         this.gameStartTime = Date.now(); // 게임 시작 시간 기록
-		ball = new Ball(WIDTH/2, HEIGHT-150);
+        // 공은 이미 init()에서 생성되었으므로 다시 생성하지 않음
         requestAnimationFrame((time) => this.draw(time));
     }
 
@@ -575,11 +582,11 @@ class MainGame {
         }
         
         this.isClear = this.brickManager.draw(this.fallingItems.length);
-        ball.draw();
+        this.ball.draw();
         paddle.draw();
         this.drawFallingItems(deltaMultiplier);
-        this.brickManager.collisionDetection(ball, this.fallingItems);
-        paddle.collisionDetection(ball);
+        this.brickManager.collisionDetection(this.ball, this.fallingItems);
+        paddle.collisionDetection(this.ball);
         user.draw();
         
         // 타이머 그리기
@@ -589,35 +596,33 @@ class MainGame {
         paddle.updateRocation(canvas, leftPressed, rightPressed, deltaMultiplier);
         
         // 공 회전 및 이동 (프레임 독립적)
-        ball.updateRotation(deltaMultiplier);
-        ball.updateLocation(deltaMultiplier);
+        this.ball.updateRotation(deltaMultiplier);
+        this.ball.updateLocation(deltaMultiplier);
         
         // 벽 충돌 처리
-        if(ball.x + ball.width > canvas.width || ball.x < 0) {
-            ball.dx = -ball.dx;
+        if(this.ball.x + this.ball.width > canvas.width || this.ball.x < 0) {
+            this.ball.dx = -this.ball.dx;
             // 벽에 부딪힐 때 위치 보정
-            if(ball.x < 0) ball.x = 0;
-            if(ball.x + ball.width > canvas.width) ball.x = canvas.width - ball.width;
+            if(this.ball.x < 0) this.ball.x = 0;
+            if(this.ball.x + this.ball.width > canvas.width) this.ball.x = canvas.width - this.ball.width;
         }
-        if(ball.y < 0) {
-            ball.dy = -ball.dy;
-            ball.y = 0; // 천장에 부딪힐 때 위치 보정
+        if(this.ball.y < 0) {
+            this.ball.dy = -this.ball.dy;
+            this.ball.y = 0; // 천장에 부딪힐 때 위치 보정
         }
-        else if(ball.y + ball.height > canvas.height) {
-            // Use proper user.hit() function with difficulty=1, damage=1
+        else if(this.ball.y + this.ball.height > canvas.height) {
             user.hit(1, 1);
             
-            // Check if user is dead using proper method
-            if(user.isDead()) {
-                this.gameover();
-                return;
-            }
-            
-            // Reset ball if user still alive
-            ball.x = WIDTH/2;
-            ball.y = HEIGHT-150;
-            ball.dx = Math.random() > 0.5 ? 2 : -2;
-            ball.dy = -2;
+            // 공을 초기 중앙 위치로 재설정 (볼의 중심이 화면 중앙에 오도록)
+            this.ball.x = canvas.width/2 - this.ball.width/2;
+            this.ball.y = canvas.height-150;
+            this.ball.dx = Math.random() > 0.5 ? 1 : -1;
+            this.ball.dy = -1;
+        }
+
+        if(user.isDead()) {
+            this.gameover();
+            return;
         }
         
         requestAnimationFrame((time) => this.draw(time));
