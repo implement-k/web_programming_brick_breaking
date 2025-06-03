@@ -57,6 +57,32 @@ settingBtn.addEventListener('click', () => {
     showScene('setting-scene');
 });
 
+const bgmSelect = document.getElementById('bgm-select');
+
+bgmSelect.addEventListener('change', function () {
+    if (bgmSelect.value === 'none') {
+        bgm.pause();
+        bgm.currentTime = 0;
+    } else {
+        const prevSrc = bgm.src;
+        const newSrc = bgmSelect.value;
+        // src가 다를 때만 변경
+        if (!prevSrc.endsWith(newSrc)) {
+            bgm.src = newSrc;
+            bgm.load();
+            bgm.play();
+        } else {
+            // 이미 재생 중인 경우 다시 play만
+            bgm.play();
+        }
+    }
+});
+
+// 초기화 (페이지 로드시 select와 bgm 싱크)
+window.addEventListener('DOMContentLoaded', () => {
+    bgmSelect.value = "title_bgm.mp3";
+});
+
 scoreBtn.addEventListener('click', () => {
     playClickSound();
     showScene('score-scene');
@@ -157,6 +183,9 @@ nextDialogueBtn.addEventListener('click', () => {
 function startMainGame(round) {
     gameDifficulty = round;
     hideScene('story-scene');
+    startMiniGameTimer();
+
+    // 기존 게임 코드 실행
     
     // 캔버스를 먼저 보여줌으로써 canvas.width가 올바르게 설정되도록 함
     $('#gameCanvas').show();
@@ -188,7 +217,7 @@ function startMainGame(round) {
         mainGame.isClear = true;
     });
     $('#masterBtns').append(btn1);
-    
+
     let btn2 = $('<button/>');
     btn2.text('죽기');
     btn2.click(() => {
