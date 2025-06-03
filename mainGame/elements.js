@@ -518,7 +518,6 @@ class User {
     bootTime = {iron_boots: 1, golden_boots: 0.5, diamond_boots: 0.3};  // 신발 별 불 붙는 시간
 
     constructor(health, defense) {
-        console.log("NEW");
         this.hotbar = new Hotbar(253, 595);
         // 레벨별 xpbar 구성
         for (let i = 1; i<4; i++) {

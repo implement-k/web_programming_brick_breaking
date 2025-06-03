@@ -35,7 +35,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 function showScene(id) {
     ['title-screen', 'setting-scene', 'create-scene', 'story-scene', 'score-scene', 'main-game'].forEach(sceneId => {
-        document.getElementById(sceneId).style.display = (sceneId === id) ? 'flex' : 'none';
+        if(document.getElementById(sceneId)) document.getElementById(sceneId).style.display = (sceneId === id) ? 'flex' : 'none';
     });
     if (id === 'main-game') {
         document.getElementById('main-game').style.display = 'block';
@@ -44,7 +44,7 @@ function showScene(id) {
 }
 
 function hideScene(id) {
-    document.getElementById(id).style.display = 'none';
+    if(document.getElementById(id)) document.getElementById(id).style.display = 'none';
 }
 
 startBtn.addEventListener('click', () => {
@@ -156,7 +156,6 @@ nextDialogueBtn.addEventListener('click', () => {
 
 function startMainGame(round) {
     gameDifficulty = round;
-    console.log("Starting a game with difficulty", gameDifficulty);
     hideScene('story-scene');
     
     // 캔버스를 먼저 보여줌으로써 canvas.width가 올바르게 설정되도록 함

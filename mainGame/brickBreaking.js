@@ -79,7 +79,7 @@ class MainGame {
 
     // 게임 시작
     start() {
-        console.log("게임 시작");
+        console.log("[DEBUG] 게임 시작");
         this.gameStarted = true;
         this.gameStartTime = Date.now(); // 게임 시작 시간 기록
         // 공은 이미 init()에서 생성되었으므로 다시 생성하지 않음
