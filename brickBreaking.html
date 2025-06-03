@@ -32,8 +32,8 @@
 </head>
 
 <body>
-    <audio id="bgm" src="title_bgm.mp3" autoplay loop></audio>
-    <audio id="btn-sound" src="btn.mp3"></audio>
+    <audio id="bgm" src="main/title_bgm.mp3" autoplay loop></audio>
+    <audio id="btn-sound" src="main/btn.mp3"></audio>
 
     <button id="tmp_boss_start">보스전 시작</button>
     <button id="tmp_game_start">게임 시작</button>
@@ -49,15 +49,26 @@
         <div class="setting-panel">
             <h2>설정</h2>
             <div class="setting-group">
-                <label for="bgm-toggle">배경음악:</label>
-                <button id="bgm-toggle">음악 끄기</button>
+                <label for="bgm-select">배경음악</label>
+                <select id="bgm-select">
+                    <option value="main/title_bgm.mp3">piano 3</option>
+                    <option value="main/title_bgm2.mp3">moog city</option>
+                    <option value="none">음악 끄기</option>
+                </select>
             </div>
             <div class="setting-group">
-                <label>난이도:</label>
+                <label>난이도</label>
                 <select id="difficulty">
                     <option value="easy">Easy</option>
                     <option value="normal" selected>Normal</option>
                     <option value="hard">Hard</option>
+                </select>
+            </div>
+            <div class="setting-group">
+                <label>공 디자인</label>
+                <select id="ball-skin">
+                    <option value="pick" selected>곡괭이</option>
+                    <option value="sword">칼</option>
                 </select>
             </div>
             <button class="button" id="back-btn">← 뒤로가기</button>
