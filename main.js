@@ -11,7 +11,7 @@ $(document).ready(function () {
     $(document).keyup(keyUpHandler);
 
     gameDifficulty = 1;  // 먼저 난이도 설정
-    
+
     // manager 들 초기화
     user = new User(5, 9);      // 전역변수
     userCheckpoint = user.clone();
@@ -20,23 +20,23 @@ $(document).ready(function () {
     // 개발 시에만 if 문 사용, 완성시에는 초기에 mainGame.init만 사용하면 됨.
     if (CUR_GAME_STATE == GAME_STATE.BRICK_BREAKING) {
         mainGame.init();
-    } 
-    
+    }
+
     $('#miniGameBtn').click(() => {
         miniGameStart();
     });
-   
+
     // 리스폰 버튼 처리
     $('#respawn').click(() => {
         let preserveUser = false;
-        
+
         // 보스 게임에서 온 경우 원래 상태로 복원
         if (bossGame && bossGame.originUser) {
             user = bossGame.originUser.clone();
             bossGame.originUser = null; // 백업 정리
             preserveUser = true; // 복원된 user 상태 유지
         }
-        
+
         mainGame.init(preserveUser);
         $('.dead').hide();
         // gameStarted 설정과 draw() 호출 대신 start() 메서드 사용
@@ -48,7 +48,7 @@ $(document).ready(function () {
         $('#gameCanvas').hide();
         $('.dead').hide();
         showScene('title-screen');
-        
+
         // 게임 상태 초기화
         gameDifficulty = 1;  // 난이도 초기화
         user = new User(5, 9);  // 사용자 상태 초기화
@@ -58,5 +58,17 @@ $(document).ready(function () {
 
 function miniGameStart() {
     console.log('미니 게임 시작');
-    
+
+    // 다른 캔버스 숨기기
+    $('#gameCanvas').hide();
+
+    // 미니게임 캔버스 표시
+    $('#miniGameCanvas').show();
+
+    // jump.js의 init 함수 호출
+    if (typeof initJumpGame === 'function') {
+        initJumpGame();
+    } else {
+        console.error('jump.js가 제대로 로드되지 않았습니다.');
+    }
 }

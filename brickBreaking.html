@@ -26,6 +26,10 @@
     <!-- mainGame js 로딩 끝 -->
     <script src="mainGame/processGame.js"></script>
 
+    <!-- 미니게임 관련 스크립트 -->
+    <link rel="stylesheet" href="miniGame/jump.css">
+    <script src="miniGame/jump.js"></script>
+
     <!-- minecraft 기본 폰트 -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/galmuri/dist/galmuri.css" />
     <link href="https://fonts.cdnfonts.com/css/minecraftia" rel="stylesheet">
@@ -110,6 +114,7 @@
     <section>
         <!-- 공 튀기기 -->
         <canvas id="gameCanvas" width="900" height="650"></canvas>
+        <canvas id="miniGameCanvas" width="900" height="650" style="display: none;"></canvas>
         <!-- 죽었습니다. -->
         <div class="dead">
             <div class="dead_alert">
