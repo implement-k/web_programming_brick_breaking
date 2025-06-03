@@ -141,7 +141,7 @@ class MainGame {
         const timeString = `${minutes}:${seconds.toString().padStart(2, '0')}`;
         
         ctx.save();
-        ctx.font = "24px Arial";
+        ctx.font = "24px Minecraftia";
         ctx.textAlign = "right";
         
         // 시간이 30초 이하일 때 빨간색, 그렇지 않으면 흰색

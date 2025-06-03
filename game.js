@@ -84,7 +84,10 @@ createBtn.addEventListener('click', () => {
         alert('이름을 입력하세요!');
         return;
     }
-    startStory();
+    let diff = $('#difficulty').val();
+    if(diff == "easy") startStory(1);
+    else if(diff == "normal") startStory(2);
+    else if(diff == "hard") startStory(3);
 });
 
 const story = [
