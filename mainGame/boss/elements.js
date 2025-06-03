@@ -139,44 +139,43 @@ class ProjectileManager {
         user.releaseHit(this.difficulty);
     }
 
-    // 패들의 회전을 고려한 충돌 감지
+    // 패들 회전 고려한 패들 - 발사체 충돌
     isCollidingWithPaddle(projectile, paddle) {
-        // 패들이 존재하지 않으면 충돌하지 않음
+        // 패들 존재 x
         if (!paddle) {
             console.log('패들이 존재하지 않음');
             return false;
         }
         
-        // 패들의 회전각 가져오기
+        // 패들 회전각
         const paddleRotation = paddle.rotation || paddle.tilt || 0;
         
-        // 기본 거리 체크로 멀리 떨어진 경우만 제외
+        // 중심점
         const paddleCenterX = paddle.x + paddle.width / 2;
         const paddleCenterY = paddle.y + paddle.height / 2;
         const projectileCenterX = projectile.x + projectile.width / 2;
         const projectileCenterY = projectile.y + projectile.height / 2;
         
-        // 중심점 간 거리 체크 - 패들 크기의 2배 이상 멀면 충돌 불가능
+        // 패들 중심점 - 발사체 중심점간 거리가 패들 대각선 길이보다 크면 맞을 수 없음.
         const distance = Math.sqrt(
             Math.pow(projectileCenterX - paddleCenterX, 2) + 
             Math.pow(projectileCenterY - paddleCenterY, 2)
         );
         
-        // 패들 대각선 길이보다 훨씬 멀면 충돌 불가능
         const paddleDiagonal = Math.sqrt(paddle.width * paddle.width + paddle.height * paddle.height);
         if (distance > paddleDiagonal) {
             return false;
         }
         
-        // 회전이 거의 없는 경우 기본 AABB 충돌 감지 사용
+        // 패들 회전 없는 경우
         if (Math.abs(paddleRotation) < 0.1) {
-            return this.isCollidingStrict(
+            return this.defaultCollisionDetection(
                 projectile.x, projectile.y, projectile.width, projectile.height,
                 paddle.x, paddle.y, paddle.width, paddle.height
             );
         }
         
-        // 회전이 있는 경우 발사체와 패들의 교집합 영역 확인
+        // 회전 있는 경우
         // 발사체의 네 모서리 중 하나라도 패들 안에 있으면 충돌
         const corners = [
             [projectile.x, projectile.y],
@@ -189,7 +188,6 @@ class ProjectileManager {
             const relativeX = x - paddleCenterX;
             const relativeY = y - paddleCenterY;
             
-            // 역회전 적용
             const cos = Math.cos(-paddleRotation);
             const sin = Math.sin(-paddleRotation);
             
@@ -206,8 +204,8 @@ class ProjectileManager {
         return false;
     }
 
-    // 더 엄격한 AABB 충돌 감지 (여백 없는 정확한 충돌)
-    isCollidingStrict(x1, y1, w1, h1, x2, y2, w2, h2) {
+    // 기본 충돌 감지
+    defaultCollisionDetection(x1, y1, w1, h1, x2, y2, w2, h2) {
         return x1 < x2 + w2 &&
                x1 + w1 > x2 &&
                y1 < y2 + h2 &&

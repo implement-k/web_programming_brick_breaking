@@ -238,6 +238,13 @@ function startMainGame(round) {
         }
     });
     $('#masterBtns').append(btn3);
+
+    let btn4 = $('<button/>');
+    btn4.text('미니 게임 시작');
+    btn4.click(() => {
+        miniGameStart();
+    });
+    $('#masterBtns').append(btn4);
 }
 
 document.getElementById('instant-win-btn').addEventListener('click', () => {
