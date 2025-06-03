@@ -15,6 +15,10 @@ class BossGame {
     isStarted = false;
     ball; paddle; hotbar;
 
+    bossStartTime = null;
+    bossEndTime = null;
+
+
     constructor(difficulty) {
         this.background.src = this.backgroundDir[difficulty-1];
         this.bossManager = new BossManager(difficulty);
@@ -41,6 +45,7 @@ class BossGame {
         // user.init(); // 이 줄을 제거하여 현재 사용자 상태 유지
         
         this.isStarted = true;
+        this.bossStartTime = Date.now();
 
         let sword_name = user.equippedItems.get("sword");
         if(sword_name == "wooden_sword") this.ball.image.src = 'mainGame/items/sword/wooden_sword.png';
@@ -62,6 +67,9 @@ class BossGame {
 
         // 보스가 죽었는지 확인하고 다음 스토리로 진행
         if (this.bossManager.isDying()) {
+            this.bossEndTime = Date.now();
+            user.score += (this.difficulty * 10000) - (Math.floor((this.bossEndTime - this.bossStartTime) / 1000) * 50);
+
             this.isStarted = false;
             // 보스 죽음 후 잠시 대기 (1.5초)
             setTimeout(() => {
@@ -72,6 +80,11 @@ class BossGame {
                     // 다음 보스 게임으로 진행하면서 사용자 상태 보존
                     startStoryWithUserState(gameDifficulty + 1, currentUserState);
                 } else {
+
+                    let li = $("<li />");
+                    li.text(`${userName} - ${user.score}`);
+                    $('#score-list').append(li);
+
                     startStory(4); // 3라운드 끝나면 종료 스토리(4라운드) 시작
                 }
             }, 1500);

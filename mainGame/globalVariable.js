@@ -18,4 +18,4 @@ const SOUND_EFFECT = {
     clear: new Audio('mainGame/etc_sound/levelup.mp3')
 };
 
-let user, userCheckpoint;
+let user, userCheckpoint, userName;

@@ -48,6 +48,11 @@ $(document).ready(function () {
         $('#gameCanvas').hide();
         $('.dead').hide();
         showScene('title-screen');
+        if(user.score > 0) {
+            let li = $("<li />");
+            li.text(`${userName} - ${user.score}`);
+            $('#score-list').append(li);
+        }
 
         // 게임 상태 초기화
         gameDifficulty = 1;  // 난이도 초기화

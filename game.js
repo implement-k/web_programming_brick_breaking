@@ -105,8 +105,8 @@ scoreBackBtn.addEventListener('click', () => {
 
 createBtn.addEventListener('click', () => {
     playClickSound();
-    const name = playerNameInput.value.trim();
-    if (name === '') {
+    userName = playerNameInput.value.trim();
+    if (userName === '') {
         alert('이름을 입력하세요!');
         return;
     }
