@@ -68,7 +68,7 @@ class ProjectileManager {
         this.difficulty = difficulty;
     }
 
-    // 3~5초 사이의 랜덤한 발사 딜레이를 반환
+    // 3~5초 딜레이를 반환
     getRandomDelay() {
         return Math.random() * 2000 + this.delay; // 3000~5000ms
     }
@@ -87,7 +87,7 @@ class ProjectileManager {
 
         for (let i = 0; i < maxProjectiles; i++) {
             this.projectiles.push(this.projectile.create(
-                boss.x + boss.width/2,  // 보스 중앙에서 발사
+                boss.x + boss.width/2,  
                 boss.y + boss.height,
                 angles[i][0],
                 angles[i][1]
@@ -95,14 +95,12 @@ class ProjectileManager {
         }
     }
 
-    // 엄격한 충돌 감지 시스템 - 단순화하여 정확성 향상
+    // 발사체 충돌 체크 및 그리기
     checkCollisions(deltaMultiplier = 1, paddle) {
-        console.log('현재 발사체 수:', this.projectiles.length);
-        // 역순으로 루프를 돌면서 바로 제거
         for (let i = this.projectiles.length - 1; i >= 0; i--) {
             const projectile = this.projectiles[i];
 
-            // 먼저 화면 안에 있는지 체크 (이동 전에)
+            // 먼저 화면 안에 있는지 체크 
             if (projectile.x + projectile.width < 0 || 
                 projectile.x > canvas.width || 
                 projectile.y + projectile.height < 0 || 
@@ -111,10 +109,8 @@ class ProjectileManager {
                 continue;
             }
 
-            // 이동 전 충돌 체크 (현재 위치)
+            // 이동 전 충돌 체크 
             if (this.isCollidingWithPaddle(projectile, paddle)) {
-                console.log('충돌 감지! 발사체 위치:', projectile.x, projectile.y, '패들 위치:', paddle.x, paddle.y);
-                // 충돌 시 처리
                 user.hit(this.difficulty, projectile.damage);
                 this.projectiles.splice(i, 1);
                 continue;
@@ -124,10 +120,8 @@ class ProjectileManager {
             projectile.x += projectile.dx * deltaMultiplier;
             projectile.y += projectile.dy * deltaMultiplier;
 
-            // 이동 후 충돌 체크 (새로운 위치)
+            // 이동 후 충돌 체크 
             if (this.isCollidingWithPaddle(projectile, paddle)) {
-                console.log('이동 후 충돌 감지! 발사체 위치:', projectile.x, projectile.y, '패들 위치:', paddle.x, paddle.y);
-                // 충돌 시 처리
                 user.hit(this.difficulty, projectile.damage);
                 this.projectiles.splice(i, 1);
                 continue;
@@ -145,7 +139,7 @@ class ProjectileManager {
         user.releaseHit(this.difficulty);
     }
 
-    // 패들의 회전을 고려한 충돌 감지 (적절한 균형)
+    // 패들의 회전을 고려한 충돌 감지
     isCollidingWithPaddle(projectile, paddle) {
         // 패들이 존재하지 않으면 충돌하지 않음
         if (!paddle) {
@@ -156,7 +150,7 @@ class ProjectileManager {
         // 패들의 회전각 가져오기
         const paddleRotation = paddle.rotation || paddle.tilt || 0;
         
-        // 기본 거리 체크로 명백히 멀리 떨어진 경우만 제외
+        // 기본 거리 체크로 멀리 떨어진 경우만 제외
         const paddleCenterX = paddle.x + paddle.width / 2;
         const paddleCenterY = paddle.y + paddle.height / 2;
         const projectileCenterX = projectile.x + projectile.width / 2;
@@ -256,6 +250,7 @@ class Boss{
         imageHitDir, spawnSoundDir, hitSoundDir, deathSoundDir, attackSoundDir
     ) {
         this.health = health;
+        this.maxHealth = health; // 최대 체력 저장
         this.x = x;
         this.y = y;
         this.defaultY = defaultY;
@@ -461,7 +456,7 @@ class BossManager{
     constructor(difficulty) {
         // 위더
         this.bosses.push(new Boss(
-            70,  // health
+            50,  // health
             canvas.width/2 - this.size[0][0]/2,  // x
             this.y,  // y
             this.y, // defaultY
@@ -480,7 +475,7 @@ class BossManager{
         ));
         // 가스트
         this.bosses.push(new Boss(
-            50,  // health
+            70,  // health
             canvas.width/2 - this.size[1][0]/2,  // x
             this.y,  // y
             this.y, // defaultY
@@ -559,7 +554,6 @@ class BossManager{
         if(!this.curBoss.isDying && !this.curBoss.checkInvulnerable() && 
            ball.isCollision(this.curBoss.x, this.curBoss.y, this.curBoss.width, this.curBoss.height)) {
             this.curBoss.hit(currentTime);
-            console.log(this.curBoss.health);
             
             // 공의 중심점
             const ballCenterX = ball.x + ball.width / 2;
@@ -576,21 +570,27 @@ class BossManager{
             // 수평 충돌이 더 가까우면 x방향으로 튕김
             if (Math.abs(dx) > Math.abs(dy)) {
                 ball.dx = -ball.dx;
-                // 왼쪽에서 충돌
+                // 위치 보정 시 화면 경계 체크
                 if (dx < 0) {
-                    ball.x = this.curBoss.x - ball.width - 1;
+                    // 왼쪽에서 충돌
+                    const newX = this.curBoss.x - ball.width - 1;
+                    ball.x = Math.max(0, newX); // 화면 왼쪽 경계를 벗어나지 않도록
                 } else {
                     // 오른쪽에서 충돌
-                    ball.x = this.curBoss.x + this.curBoss.width + 1;
+                    const newX = this.curBoss.x + this.curBoss.width + 1;
+                    ball.x = Math.min(canvas.width - ball.width, newX); // 화면 오른쪽 경계를 벗어나지 않도록
                 }
             } else {
                 ball.dy = -ball.dy;
-                // 위에서 충돌
+                // 위치 보정 시 화면 경계 체크
                 if (dy < 0) {
-                    ball.y = this.curBoss.y - ball.height - 1;
+                    // 위에서 충돌
+                    const newY = this.curBoss.y - ball.height - 1;
+                    ball.y = Math.max(0, newY); // 화면 위쪽 경계를 벗어나지 않도록
                 } else {
                     // 아래에서 충돌
-                    ball.y = this.curBoss.y + this.curBoss.height + 1;
+                    const newY = this.curBoss.y + this.curBoss.height + 1;
+                    ball.y = Math.min(canvas.height - ball.height, newY); // 화면 아래쪽 경계를 벗어나지 않도록
                 }
             }
             
@@ -619,6 +619,38 @@ class BossManager{
 
     draw(deltaMultiplier = 1) {
         ctx.save();
+
+        // 보스 체력바 그리기 (보라색, 353px 너비)
+        const healthBarWidth = 353;
+        const healthBarHeight = 20;
+        const healthBarX = (canvas.width - healthBarWidth) / 2; // 중앙 정렬
+        const healthBarY = 30; // 화면 상단에서 30px 아래
+        
+        // 체력 비율 계산
+        const healthPercentage = Math.max(0, this.curBoss.health / this.curBoss.maxHealth);
+        const currentHealthWidth = healthBarWidth * healthPercentage;
+        
+        // 체력바 배경 (검은색)
+        ctx.fillStyle = '#000000';
+        ctx.fillRect(healthBarX - 2, healthBarY - 2, healthBarWidth + 4, healthBarHeight + 4);
+        
+        // 체력바 테두리 (회색)
+        ctx.fillStyle = '#404040';
+        ctx.fillRect(healthBarX, healthBarY, healthBarWidth, healthBarHeight);
+        
+        // 체력바 (보라색)
+        ctx.fillStyle = '#8B00FF';
+        ctx.fillRect(healthBarX, healthBarY, currentHealthWidth, healthBarHeight);
+        
+        // 체력 텍스트
+        ctx.fillStyle = '#FFFFFF';
+        ctx.font = '14px Arial';
+        ctx.textAlign = 'center';
+        ctx.fillText(
+            `${Math.ceil(this.curBoss.health)} / ${this.curBoss.maxHealth}`,
+            healthBarX + healthBarWidth / 2,
+            healthBarY + healthBarHeight / 2 + 4
+        );
 
         // 그리기
         this.curBoss.draw();

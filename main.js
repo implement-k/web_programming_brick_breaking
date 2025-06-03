@@ -137,5 +137,16 @@ $(document).ready(function () {
         // gameStarted 설정과 draw() 호출 대신 start() 메서드 사용
         mainGame.start();
     });
-    
-})
+    $('#go2title').click(() => {
+        $('#masterBtns').empty();
+        // 타이틀 화면으로 돌아가기
+        $('#gameCanvas').hide();
+        $('.dead').hide();
+        showScene('title-screen');
+        
+        // 게임 상태 초기화
+        gameDifficulty = 1;  // 난이도 초기화
+        user = new User(5, 9);  // 사용자 상태 초기화
+        bossGame = new BossGame(gameDifficulty);  // 보스 게임 초기화
+    });
+});

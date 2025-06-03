@@ -187,17 +187,19 @@ class Paddle {
             // 패들의 기울기를 반사 각도에 추가
             const angle = baseAngle + this.tilt;
             
-            // 기울기에 따른 속도 증가 (최대 50% 증가)
-            const tiltSpeedBonus = 1 + Math.abs(this.tilt / this.maxTilt) * 0.5;
+            // 기울기에 따른 속도 증가 (최대 25% 증가로 감소)
+            const tiltSpeedBonus = 1 + Math.abs(this.tilt / this.maxTilt) * 0.25;
             const baseSpeed = Math.sqrt(ball.defaultDx * ball.defaultDx + ball.defaultDy * ball.defaultDy);
             const speed = baseSpeed * tiltSpeedBonus;
             
-            // 새로운 속도와 방향만 계산 (기본 속도 유지)
+            // 새로운 속도와 방향 계산
             const newDx = speed * Math.sin(angle);
             const newDy = -speed * Math.cos(angle);
             
-            // 위치가 겹치지 않도록 약간 위로 이동
-            ball.y = this.y - ball.height;
+            // 공이 패들 위로 올라가도록 위치 보정 (더 안전하게)
+            if (ball.dy > 0) { // 공이 아래쪽으로 움직이고 있을 때만 위치 보정
+                ball.y = this.y - ball.height - 1; // 1픽셀 여유 공간
+            }
             ball.dx = newDx;
             ball.dy = newDy;
         }
@@ -512,6 +514,8 @@ class User {
     equippedItems = new Map();
     hitImage = new Image();
     hitTime = null;
+    boot = null;
+    bootTime = {iron_boots: 1, golden_boots: 0.5, diamond_boots: 0.3};  // 신발 별 불 붙는 시간
 
     constructor(health, defense) {
         console.log("NEW");
@@ -558,8 +562,9 @@ class User {
 
     releaseHit(difficulty) {
         const curTime = Date.now();
+        const fireTime = this.boot == null ? 1.3 : this.bootTime[this.boot];
         // 보호구에 맞춰 초 수정
-        if (difficulty === 2 && this.hitTime && curTime - this.hitTime > 1000) {
+        if (difficulty === 2 && this.hitTime && curTime - this.hitTime > fireTime * 1000) {
             this.hitTime = null;
         }
     }
@@ -571,7 +576,7 @@ class User {
     addArmor(armor) {
         let setValue = this.armor.getDefense() + armor;
         this.armor.setDefense(setValue);  
-          
+        console.log('addArmor', armor);
     }
 
     clone() {

@@ -155,6 +155,10 @@ function startMainGame(round) {
     gameDifficulty = round;
     console.log("Starting a game with difficulty", gameDifficulty);
     hideScene('story-scene');
+    
+    // 캔버스를 먼저 보여줌으로써 canvas.width가 올바르게 설정되도록 함
+    $('#gameCanvas').show();
+    
     startMiniGameTimer();
     
     // 보존된 사용자 상태가 있으면 사용, 없으면 기본 초기화
@@ -168,8 +172,7 @@ function startMainGame(round) {
     // 메인 게임 초기화 (사용자 상태 보존 여부 전달)
     mainGame.init(preserveUser);
     
-    // 기존 게임 코드 실행
-    $('#gameCanvas').show();
+    // 게임 시작
     mainGame.start();
 
     // 기존 마스터 버튼들 제거
