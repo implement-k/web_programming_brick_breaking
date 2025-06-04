@@ -95,7 +95,7 @@ class BossGame {
         const deltaTime = currentTime - (this.draw.lastTime || currentTime);
         this.draw.lastTime = currentTime;
 
-        const TARGET_FPS = 120;
+        const TARGET_FPS = 60;  // 120 → 60으로 변경
         const timeStep = 1000 / TARGET_FPS;
         const deltaMultiplier = deltaTime / timeStep; // 프레임 독립적 속도 보정값
 

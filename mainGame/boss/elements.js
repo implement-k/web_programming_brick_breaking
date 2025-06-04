@@ -214,7 +214,6 @@ class ProjectileManager {
 }
 
 // bossManager에서 사용하는 클래스
-// 각 객체는 boss의 정보를 가지고 있음. (1단계 완성2)
 class Boss{
     health;                     // 보스 피 (health번 만큼 맞으면 죽음)
     x; y;                       // 보스 위치
@@ -276,18 +275,6 @@ class Boss{
         this.currentHeight = 0;
     }
 
-    // 미완성
-    dropItem() {
-        this.droppedItem = {
-            x: this.x + this.width / 2,
-            y: this.y + this.height / 2,
-            dy: 2,
-            width: 30,
-            height: 30,
-            image: new Image()
-        };
-        this.droppedItem.image.src = 'mainGame/items/diamond.png';
-    }
 
     // 맞을때
     hit(currentTime) {
@@ -311,10 +298,8 @@ class Boss{
     }
 
     calculateNext(deltaMultiplier = 1) {
-        // x축 이동 (프레임 독립적)
         this.x += this.dx * deltaMultiplier;
         
-        // 화면 경계에 닿으면 방향 전환
         if (this.x <= 0 || this.x + this.width >= canvas.width) {
             this.dx = -this.dx;
         }

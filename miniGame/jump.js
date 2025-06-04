@@ -1,5 +1,5 @@
 let miniLastDrawTime = null;
-const miniDefaultFPS = 60;
+const miniDefaultFPS = 60;  // 120 → 60으로 변경
 const miniDefaultDeltaTime = 1000 / miniDefaultFPS;
 
 // 미니게임을 main.js에서 실행할 수 있도록 추가
@@ -24,7 +24,7 @@ function startJumpGame(canvasId = "gameCanvas") {
     const canvasHeight = 650;
 
     const charFrame = 7;
-    const charSpeed = 2;
+    const charSpeed = 5; // 2 → 3 (더 느린 애니메이션)
     const charScale = 0.15;
     const posX = 150;
     const charImg = [];
@@ -33,20 +33,19 @@ function startJumpGame(canvasId = "gameCanvas") {
     let frameDir = 1;
 
     const groundHeight = 100;
-    const groundSpeed = 15;
+    const groundSpeed = 6;  // 8 → 6로 더 감소
     let groundX = 0;
 
-    const cloudSpeed = 1.2;
+    const cloudSpeed = 0.8;  // 1.2 → 0.8로 감소
     const cloudImg = [];
 
     let isJumping = false;
     let jumpVelocity = 0;
-    const gravity = 3;
-    const jumpPower = -37;
+    const gravity = 2;
+    const jumpPower = -35;
     let posY = 0;
     let baseY = 0;
 
-    const cactusSpeed = groundSpeed;
     const cactusImg = [];
     let cactusList = [];
     let cactusInterval = getRandomInterval();
@@ -101,7 +100,7 @@ function startJumpGame(canvasId = "gameCanvas") {
     });
 
     function getRandomInterval() {
-        return Math.floor(Math.random() * (60 - 25 + 1)) + 25;
+        return Math.floor(Math.random() * (120 - 80 + 1)) + 80;  // 25-60 → 80-120으로 간격 증가
     }
 
     function checkCollision(a, b) {
@@ -119,6 +118,13 @@ function startJumpGame(canvasId = "gameCanvas") {
         jumpCtx.fillStyle = "#fff";
         jumpCtx.font = "48px Galmuri";
         jumpCtx.fillText(text, 300, 300);
+        
+        // 1.5초 후 메인게임 복귀
+        setTimeout(() => {
+            if (typeof mainGame !== 'undefined' && mainGame.endMiniGame) {
+                mainGame.endMiniGame();
+            }
+        }, 1500);
     }
 
     function loop() {
@@ -132,7 +138,7 @@ function startJumpGame(canvasId = "gameCanvas") {
         jumpCtx.clearRect(0, 0, canvasWidth, canvasHeight);
 
         const curTime = Date.now();
-        const deltaTime = curTime - miniLastDrawTime  | curTime
+        const deltaTime = curTime - (miniLastDrawTime || curTime);
         const frameMultiplier = Math.min(deltaTime / miniDefaultDeltaTime, 3);
 
         miniLastDrawTime = curTime;
@@ -154,12 +160,12 @@ function startJumpGame(canvasId = "gameCanvas") {
         const groundY = canvasHeight - groundHeight;
         jumpCtx.drawImage(groundImg, groundX, groundY, canvasWidth + 1, groundHeight);
         jumpCtx.drawImage(groundImg, groundX + canvasWidth, groundY, canvasWidth + 1, groundHeight);
-        groundX -= groundSpeed*frameMultiplier;
+        groundX -= groundSpeed * frameMultiplier;
         if (groundX <= -canvasWidth) groundX = 0;
 
         if (isJumping) {
-            jumpVelocity += gravity;
-            posY += jumpVelocity;
+            jumpVelocity += gravity * frameMultiplier;
+            posY += jumpVelocity * frameMultiplier;
             if (posY >= baseY) {
                 posY = baseY;
                 isJumping = false;
@@ -196,11 +202,25 @@ function startJumpGame(canvasId = "gameCanvas") {
         }
 
         cactusList.forEach(obs => {
-            obs.x -= cactusSpeed * frameMultiplier;
+            obs.x -= groundSpeed * frameMultiplier;  // cactusSpeed 대신 groundSpeed 직접 사용
+            obs.x = Math.floor(obs.x);  // 땅과 동일하게 Math.floor() 적용
             jumpCtx.drawImage(obs.img, obs.x, obs.y, obs.width, obs.height);
 
-            const charBox = { x: posX, y: posY, width, height };
-            if (checkCollision(charBox, obs)) isGameOver = true;
+            // 충돌 판정을 관대하게 만들기 위해 박스 크기 축소
+            const margin = 8; // 여유 공간
+            const charBox = { 
+                x: posX + margin, 
+                y: posY + margin, 
+                width: width - margin * 2, 
+                height: height - margin * 2 
+            };
+            const obsBox = { 
+                x: obs.x + margin, 
+                y: obs.y + margin, 
+                width: obs.width - margin * 2, 
+                height: obs.height - margin * 2 
+            };
+            if (checkCollision(charBox, obsBox)) isGameOver = true;
         });
 
         cactusList = cactusList.filter(obs => obs.x + obs.width > 0);

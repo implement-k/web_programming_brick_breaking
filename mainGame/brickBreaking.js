@@ -35,6 +35,9 @@ class MainGame {
         this.isPaused = false;
         this.pauseStartTime = null;
         this.totalPausedTime = 0;
+        
+        // 미니게임 실행 플래그 (라운드당 한 번만 실행)
+        this.miniGameTriggered = false;
         this.craftingItems = [
             [0, 0, 0],
             [0, 0, 0],
@@ -82,6 +85,9 @@ class MainGame {
         this.isPaused = false;
         this.pauseStartTime = null;
         this.totalPausedTime = 0;
+        
+        // 미니게임 플래그 초기화
+        this.miniGameTriggered = false;
         
         // 게임 자동 시작
         // this.start();
@@ -686,18 +692,67 @@ class MainGame {
         ctx.restore();
     }
 
+    // 미니게임 종료 및 메인게임 복귀
+    endMiniGame() {
+        console.log("미니게임 종료, 메인게임 복귀");
+        
+        // 점프 미니게임 캔버스 숨기기
+        $('#miniGameCanvas').hide();
+        
+        // falling 미니게임 캔버스 숨기기 (1라운드용)
+        const miniCanvas = document.getElementById('mini-game-canvas');
+        if (miniCanvas) {
+            miniCanvas.style.display = 'none';
+        }
+        
+        // 메인 게임 캔버스 보이기
+        $('#gameCanvas').show();
+        
+        // 메인게임 재개
+        this.resumeGame();
+    }
+
     // 메인 게임 루프
     draw(currentTime) {
         if (!this.gameStarted) return;
         console.log(Date.now() - this.gameStartTime);
 
-        if (Date.now() - this.gameStartTime >= 20000 && Date.now() - this.gameStartTime <= 20100) {
+        if (Date.now() - this.gameStartTime >= 2000 && Date.now() - this.gameStartTime <= 2100 && !this.miniGameTriggered) {
+            this.miniGameTriggered = true; 
             this.pauseGame();
             console.log("미니게임 시작");
             if (gameDifficulty === 1) {
-                // 1단계일때 미니게임
+                // 1단계 미니게임 (game.js의 falling mini game 사용)
+                if (typeof startMiniGame === 'function') {
+                    startMiniGame();
+                    
+                    // 15초 후 자동으로 메인게임 복귀
+                    setTimeout(() => {
+                        this.endMiniGame();
+                    }, 15000);
+                } else {
+                    console.error('game.js의 startMiniGame 함수를 찾을 수 없습니다.');
+                    this.resumeGame();
+                }
             } else {
-                // 2,3단계일때 미니게임
+                // 메인 게임 캔버스 숨기기
+                $('#gameCanvas').hide();
+                
+                // 미니게임 캔버스 보이기 및 점프게임 시작
+                $('#miniGameCanvas').show();
+                
+                // 점프게임 시작 (미니게임 캔버스 사용)
+                if (typeof initJumpGame === 'function') {
+                    initJumpGame();
+                    
+                    // 15초 후 자동으로 메인게임 복귀
+                    setTimeout(() => {
+                        this.endMiniGame();
+                    }, 15000);
+                } else {
+                    console.error('jump.js가 제대로 로드되지 않았습니다.');
+                    this.resumeGame(); // 오류시 게임 재개
+                }
             }
             // 각 미니게임은 끝나는 부분에 this.resumeGame();로 본 게임 재시작 필수
         }

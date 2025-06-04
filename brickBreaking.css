@@ -40,28 +40,20 @@ canvas {
     display: block;
 }
 
-#startButton {
-    display: block;
-    margin: 20px auto;
-    padding: 10px 20px;
-    font-size: 18px;
-    background-color: #0095DD;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-}
-
-#startButton:hover {
-    background-color: #0077AA;
-}
-
-section{
-    position:relative;
-    margin: 0 auto;
+/* miniCanvas를 gameCanvas 중앙에 배치 */
+#miniCanvas {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 1000;
+    border: 3px solid #8B4513;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.8);
+    background-color: #87CEEB;
 }
 
 #gameCanvas {
+    position: relative;
     display:none;
 }
 
