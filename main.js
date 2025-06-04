@@ -30,14 +30,24 @@ $(document).ready(function () {
     $('#respawn').click(() => {
         let preserveUser = false;
 
-        // 보스 게임에서 온 경우 원래 상태로 복원
-        if (bossGame && bossGame.originUser) {
-            user = bossGame.originUser.clone();
-            bossGame.originUser = null; // 백업 정리
-            preserveUser = true; // 복원된 user 상태 유지
+        // 미니게임 캔버스가 보이는 상태인지 확인
+        const miniGameVisible = $('#miniGameCanvas').is(':visible');
+
+        if (miniGameVisible) {
+            // 미니게임에서 메인 게임으로 돌아가기
+            $('#miniGameCanvas').hide();
+            $('#gameCanvas').show();
+        } else {
+            // 보스 게임에서 온 경우 원래 상태로 복원
+            if (bossGame && bossGame.originUser) {
+                user = bossGame.originUser.clone();
+                bossGame.originUser = null; // 백업 정리
+                preserveUser = true; // 복원된 user 상태 유지
+            }
+
+            mainGame.init(preserveUser);
         }
 
-        mainGame.init(preserveUser);
         $('.dead').hide();
         // gameStarted 설정과 draw() 호출 대신 start() 메서드 사용
         mainGame.start();
@@ -48,7 +58,7 @@ $(document).ready(function () {
         $('#gameCanvas').hide();
         $('.dead').hide();
         showScene('title-screen');
-        if(user.score > 0) {
+        if (user.score > 0) {
             let li = $("<li />");
             li.text(`${userName} - ${user.score}`);
             $('#score-list').append(li);
