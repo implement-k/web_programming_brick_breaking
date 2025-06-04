@@ -161,10 +161,29 @@ class MainGame {
         ctx.restore();
     }
 
+    // 점수 그리기
+    drawScore() {
+        ctx.save();
+
+        const scoreString = `Score: ${user.score}`;
+        ctx.font = "24px Minecraftia";
+        ctx.textAlign = "left";
+        ctx.fillStyle = "#FFFFFF";
+
+        ctx.strokeStyle = "#000000";
+        ctx.lineWidth = 2;
+        ctx.strokeText(scoreString, 20, 40);
+
+        ctx.fillText(scoreString, 20, 40);
+        ctx.restore();
+    }
+
     // 죽을때
     gameover() {
         this.gameStarted = false;
         SOUND_EFFECT.death.play();
+        let scoreStr = "점수: " + user.score;
+        $('#dead_score').text(scoreStr);
         $('.dead').css('display', 'flex');
     }
 
@@ -517,7 +536,6 @@ class MainGame {
                     if (itemInfo[1] == 'boots') {
                         user.boot = itmSrc;
                     }
-                    user.currentItems();
                     let tmpEquipped = $('.equipped-highlight');
                     for(let i = 0; i < tmpEquipped.length; i++) {
                         let tmpImg = $(tmpEquipped[i]).find('img').attr('src');
@@ -628,6 +646,9 @@ class MainGame {
         
         // 타이머 그리기
         this.drawTimer();
+
+        // 스코어 그리기
+        this.drawScore();
         
         // 패들 이동 및 기울기 처리 (프레임 독립적)
         paddle.updateRocation(canvas, leftPressed, rightPressed, deltaMultiplier);

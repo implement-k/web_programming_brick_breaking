@@ -26,6 +26,10 @@
     <!-- mainGame js 로딩 끝 -->
     <script src="mainGame/processGame.js"></script>
 
+    <!-- 미니게임 관련 스크립트 -->
+    <link rel="stylesheet" href="miniGame/jump.css">
+    <script src="miniGame/jump.js"></script>
+
     <!-- minecraft 기본 폰트 -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/galmuri/dist/galmuri.css" />
     <link href="https://fonts.cdnfonts.com/css/minecraftia" rel="stylesheet">
@@ -91,9 +95,6 @@
         <div class="score-panel">
             <h2>스코어</h2>
             <ul id="score-list">
-                <li>플레이어1 - 12000점</li>
-                <li>플레이어2 - 9500점</li>
-                <li>플레이어3 - 8500점</li>
                 <!-- 여기에 점수 리스트 동적으로 추가 가능 -->
             </ul>
             <button class="button" id="score-back-btn">Back</button>
@@ -110,11 +111,12 @@
     <section>
         <!-- 공 튀기기 -->
         <canvas id="gameCanvas" width="900" height="650"></canvas>
+        <canvas id="miniGameCanvas" width="900" height="650" style="display: none;"></canvas>
         <!-- 죽었습니다. -->
         <div class="dead">
             <div class="dead_alert">
                 <div>죽었습니다!</div>
-                <div>점수: 0</div>
+                <div id="dead_score"></div>
                 <button id="respawn">리스폰</button>
                 <button id="go2title">타이틀 화면으로</button>
             </div>

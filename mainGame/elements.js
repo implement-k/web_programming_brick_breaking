@@ -240,13 +240,15 @@ class Brick {
     status; life; maxlife;
     brickSize = 50;
     image;
+    score;
 
-    constructor(x, y, status, life, image=undefined) {
+    constructor(x, y, status, life, score, image=undefined) {
         this.x = x;
         this.y = y;
         this.status = status;
         this.life = life;
         this.maxlife = life;
+        this.score = score;
         if (status != 0) this.image = image;
     }
 }
@@ -268,9 +270,9 @@ class BrickManager {
         ], [
             'mainGame/bricks/ender/end_stone.png',
             'mainGame/bricks/ender/end_bricks.png',
-            'mainGame/bricks/ender/amethyst.png',
+            'mainGame/bricks/ender/calcite.png',
             'mainGame/bricks/ender/raw_gold.png',
-            'mainGame/bricks/ender/obsidian.png'
+            'mainGame/bricks/ender/amethyst.png'
     ]];
     images = [];
     brickRowCount = 8;
@@ -280,7 +282,7 @@ class BrickManager {
     bricks = [];
     
     constructor(difficulty) {
-        for (let i = 0; i<this.dir[difficulty-1].length; i++) {
+        for (let i = 0; i < this.dir[difficulty-1].length; i++) {
             const img = new Image();
             img.src = this.dir[difficulty-1][i];
             this.images.push(img);
@@ -292,18 +294,18 @@ class BrickManager {
                 if(Math.random() > 0.3) {  // 70% 확률로 벽돌 생성
                     let brickType = Math.random();
                     if(brickType < this.brickRatio[0]) {
-                        this.bricks[c][r] = new Brick(0, 0, 1, 1, this.images[0]);
+                        this.bricks[c][r] = new Brick(0, 0, 1, 1, 1, this.images[0]);
                     } else if(brickType < this.brickRatio[1]) {
-                        this.bricks[c][r] = new Brick(0, 0, 2, 1, this.images[1]);
+                        this.bricks[c][r] = new Brick(0, 0, 2, 1, 1, this.images[1]);
                     } else if(brickType < this.brickRatio[2]) {
-                        this.bricks[c][r] = new Brick(0, 0, 3, 2, this.images[2]);
+                        this.bricks[c][r] = new Brick(0, 0, 3, 2, 3, this.images[2]);
                     } else if(brickType < this.brickRatio[3]) {
-                        this.bricks[c][r] = new Brick(0, 0, 4, 2, this.images[3]);
+                        this.bricks[c][r] = new Brick(0, 0, 4, 2, 3, this.images[3]);
                     } else {
-                        this.bricks[c][r] = new Brick(0, 0, 5, 3, this.images[4]);
+                        this.bricks[c][r] = new Brick(0, 0, 5, 3, 5,this.images[4]);
                     }
                 } else {
-                    this.bricks[c][r] = new Brick(0, 0, 0, 0);
+                    this.bricks[c][r] = new Brick(0, 0, 0, 0, 0);
                 }
             }
         }
@@ -319,8 +321,8 @@ class BrickManager {
                         let tmp = b.status;
                         if(b.life === 1) {
                             b.status = 0;
-
-                            // TODO
+                            user.score += b.score;
+                            
                             if(tmp >= 2 && tmp <= 5) {
                                 const itemType = tmp - 2;
                                 fallingItems.push(new Item(b.x, b.y, itemImages[itemType], itemType));
@@ -510,6 +512,7 @@ class User {
     heart;
     armor;
     defense;
+    score;
     hitSound = new Audio('mainGame/user/hit.mp3');
     equippedItems = new Map();
     hitImage = new Image();
@@ -536,6 +539,7 @@ class User {
         // this.
 
         this.equippedItems.set('sword', 'wooden_sword');
+        this.score = 0;
     }
 
     init() {
@@ -575,7 +579,6 @@ class User {
     addArmor(armor) {
         let setValue = this.armor.getDefense() + armor;
         this.armor.setDefense(setValue);  
-        console.log('addArmor', armor);
     }
 
     clone() {
@@ -589,9 +592,11 @@ class User {
         
         // havingItems Map 복사 (깊은 복사)
         clonedUser.havingItems = new Map(this.havingItems);
+        clonedUser.equippedItems = new Map(this.equippedItems);
         
         // xpbar 복사
         clonedUser.xpbars = [...this.xpbars];
+        clonedUser.score = this.score;
         
         return clonedUser;
     }

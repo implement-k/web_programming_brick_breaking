@@ -1,11 +1,23 @@
+// 미니게임을 main.js에서 실행할 수 있도록 추가
+function initJumpGame() {
+    // gameCanvas 숨기고 miniGameCanvas 보여줌
+    const prev = document.getElementById("gameCanvas");
+    if (prev) prev.style.display = "none";
+    const miniCanvas = document.getElementById("miniGameCanvas");
+    miniCanvas.style.display = "block";
+    startJumpGame("miniGameCanvas");
+}
 
-function startJumpGame() {
-    const jumpCanvas = document.getElementById("gameCanvas");
+function startJumpGame(canvasId = "gameCanvas") {
+    const jumpCanvas = document.getElementById(canvasId);
     const jumpCtx = jumpCanvas.getContext("2d");
     jumpCtx.imageSmoothingEnabled = false;
 
-    const canvasWidth = jumpCanvas.width;
-    const canvasHeight = jumpCanvas.height;
+    // 캔버스 크기 900x650으로 고정
+    jumpCanvas.width = 900;
+    jumpCanvas.height = 650;
+    const canvasWidth = 900;
+    const canvasHeight = 650;
 
     const charFrame = 7;
     const charSpeed = 2;
@@ -42,26 +54,26 @@ function startJumpGame() {
     let startTime = null;
 
     let loadedCount = 0;
-    const groundImg = new Image(); groundImg.src = "ground.jpg"; groundImg.onload = onImageLoad;
-    const sunImg = new Image(); sunImg.src = "sun.png"; sunImg.onload = onImageLoad;
+    const groundImg = new Image(); groundImg.src = "miniGame/ground.jpg"; groundImg.onload = onImageLoad;
+    const sunImg = new Image(); sunImg.src = "miniGame/sun.png"; sunImg.onload = onImageLoad;
 
     for (let i = 1; i <= 3; i++) {
         const img = new Image();
-        img.src = `cloud${i}.png`;
+        img.src = `miniGame/cloud${i}.png`;
         img.onload = onImageLoad;
         cloudImg.push({ img, x: canvasWidth + i * 200, y: 50 + i * 40 });
     }
 
     for (let i = 1; i <= charFrame; i++) {
         const img = new Image();
-        img.src = `run${i}.png`;
+        img.src = `miniGame/run${i}.png`;
         img.onload = onImageLoad;
         charImg.push(img);
     }
 
     for (let i = 1; i <= 4; i++) {
         const img = new Image();
-        img.src = `cactus${i}.png`;
+        img.src = `miniGame/cactus${i}.png`;
         img.onload = onImageLoad;
         cactusImg.push(img);
     }
