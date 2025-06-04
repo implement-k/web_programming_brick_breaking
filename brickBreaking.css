@@ -369,3 +369,37 @@ section {
     position: absolute;
     bottom: 20px;
 }
+
+.weapon-option {
+    border: 2px solid transparent;
+    cursor: pointer;
+    image-rendering: pixelated;
+}
+
+.weapon-option.selected {
+    border-color: gold;
+}
+
+#skip-story-btn {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin-top: 20px;
+    flex-wrap: wrap;
+}
+
+#skip-story-btn button {
+    font-family: 'galmuri11';
+    height: 40px;
+    width: 120px;
+    cursor: pointer;
+    background-color: #0095DD;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-size: 14px;
+}
+
+#skip-story-btn button:hover {
+    background-color: #0077AA;
+}

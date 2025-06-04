@@ -23,6 +23,53 @@ const gameCanvas = document.getElementById('gameCanvas');
 
 // document.getElementById('test-mini-btn').addEventListener('click', startMiniGame);
 
+let selectedBallSkin = "pick";      // 'pick' 또는 'sword'
+let selectedWeaponId = "pick1";     // 실제 선택된 이미지 ID
+BALL_STYLE = "pick1"; // 기본값
+
+BALL_DIR = {
+    pick1: "mainGame/ball/wood.png",
+    pick2: "mainGame/ball/stone.png",
+    pick3: "mainGame/ball/iron.png",
+    pick4: "mainGame/ball/gold.png",
+    pick5: "mainGame/ball/diamond.png"
+};
+
+document.querySelectorAll('.weapon-option').forEach(img => {
+    img.addEventListener('click', () => {
+        BALL_STYLE = img.dataset.id; // pick1, sword3 등 저장
+        // 선택된 이미지에 강조 효과 추가하고 나머지는 제거
+        document.querySelectorAll('.weapon-option').forEach(el => el.classList.remove('selected'));
+        img.classList.add('selected');
+    });
+});
+
+
+// 공 디자인 선택 시 무기 옵션 필터링
+$('#ball-skin').on('change', function () {
+    selectedBallSkin = this.value;
+    $('.weapon-options').show();
+
+    $('.weapon-option').hide(); // 전체 숨김
+    $(`.weapon-option[data-type="${selectedBallSkin}"]`).show(); // 해당 타입만 보임
+
+    // 자동 선택 초기화
+    $('.weapon-option').removeClass('selected');
+    const firstOption = $(`.weapon-option[data-type="${selectedBallSkin}"]`).first();
+    firstOption.addClass('selected');
+    selectedWeaponId = firstOption.data('id');
+});
+
+// 무기 선택 클릭 처리
+$('.weapon-option').on('click', function () {
+    const type = $(this).data('type');
+    if (type !== selectedBallSkin) return; // 현재 선택된 타입만 반응
+
+    $('.weapon-option').removeClass('selected');
+    $(this).addClass('selected');
+    selectedWeaponId = $(this).data('id');
+});
+
 function playClickSound() {
     btnSound.currentTime = 0;
     btnSound.play();
@@ -144,6 +191,21 @@ function startStory(round = 1) {
     showScene('story-scene');
     updateStory();
 }
+
+document.getElementById('skip-story-btn').addEventListener('click', () => {
+    const range = storyRanges[gameDifficulty];
+
+    // 현재 게임 난이도에 맞는 마지막 스토리로 올바르게 이동
+    currentSceneIndex = range.end;
+    currentLineIndex = story[currentSceneIndex].lines.length - 1; // 마지막 대사로 설정
+    
+    updateStory(); // 즉시 마지막 장면 표시
+
+    // 스토리가 끝났다고 판단되면 자동으로 게임 시작
+    setTimeout(() => {
+        nextDialogueBtn.click(); // 마지막 스토리 후 게임으로 바로 진행
+    }, 500);
+});
 
 // 사용자 상태를 보존하면서 스토리 시작하는 함수
 function startStoryWithUserState(round, userState) {
@@ -338,4 +400,11 @@ function endMiniGame(message) {
     miniGameActive = false;
     if (miniCanvas) miniCanvas.style.display = 'none';
     alert(`미니게임 결과: ${message}`);
+    // Miss일 경우 체력 깎기
+    if (message === 'Miss!') {
+        if (user && user.heart) {
+            user.heart.health--;
+            user.hit(1); // 추가로 데미지 처리 함수 호출 (필요 시)
+        }
+    }
 }
