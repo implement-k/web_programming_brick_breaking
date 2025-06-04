@@ -17,8 +17,9 @@ const storyImage = document.getElementById('story-image');
 const speechBox = document.getElementById('speech-box');
 const nextDialogueBtn = document.getElementById('next-dialogue-btn');
 
-const miniCanvas = document.getElementById('mini-game-canvas');
-const gameCanvas = document.getElementById('game-canvas');
+const miniCanvas = document.getElementById('miniCanvas');
+const miniGameCanvas = document.getElementById('miniGameCanvas');
+const gameCanvas = document.getElementById('gameCanvas');
 
 // document.getElementById('test-mini-btn').addEventListener('click', startMiniGame);
 
@@ -30,7 +31,7 @@ function playClickSound() {
 document.addEventListener('DOMContentLoaded', () => {
     showScene('title-screen');
     hideScene('main-game');
-    miniGameCanvas.style.display = 'none';
+    if (miniGameCanvas) miniGameCanvas.style.display = 'none';
 });
 
 function showScene(id) {
@@ -110,7 +111,7 @@ createBtn.addEventListener('click', () => {
         alert('이름을 입력하세요!');
         return;
     }
-    let diff = $('#difficulty').val();
+    let diff = difficultySelect.value;
     if (diff == "easy") startStory(1);
     else if (diff == "normal") startStory(2);
     else if (diff == "hard") startStory(3);
@@ -183,10 +184,8 @@ nextDialogueBtn.addEventListener('click', () => {
 function startMainGame(round) {
     gameDifficulty = round;
     hideScene('story-scene');
-    startMiniGameTimer();
-
+    
     // 기존 게임 코드 실행
-
     // 캔버스를 먼저 보여줌으로써 canvas.width가 올바르게 설정되도록 함
     $('#gameCanvas').show();
 
@@ -276,26 +275,41 @@ let miniGameActive = false;
 let miniGameY = 0;
 let miniGameSpeed = 3;
 let miniGameImage;
+let lastMiniGameTime = 0;
+const TARGET_FPS = 60;
+const FRAME_TIME = 1000 / TARGET_FPS;
 
 function startMiniGame() {
-    miniCanvas.style.display = 'block';
-    miniGameActive = false;
-    miniGameImage = new Image();
-    miniGameImage.src = 'story/villager.png';
-    miniGameImage.onload = () => {
-        miniGameY = 0;
-        miniGameActive = true;
-        requestAnimationFrame(updateMiniGame);
-    };
+    if (miniCanvas) {
+        miniCanvas.style.display = 'block';
+        miniGameActive = false;
+        miniGameImage = new Image();
+        miniGameImage.src = 'story/villager.png';
+        miniGameImage.onload = () => {
+            miniGameY = 0;
+            miniGameActive = true;
+            lastMiniGameTime = performance.now();
+            requestAnimationFrame(updateMiniGame);
+        };
+    }
 }
 
-function updateMiniGame() {
-    if (!miniGameActive) return;
+function updateMiniGame(currentTime) {
+    if (!miniGameActive || !miniCanvas) return;
+    
+    // 프레임 보정 계산 (60fps 기준)
+    const deltaTime = currentTime - lastMiniGameTime;
+    const deltaMultiplier = Math.min(deltaTime / FRAME_TIME, 3); // 최대 3배까지만 보정
+    lastMiniGameTime = currentTime;
+    
     const ctx = miniCanvas.getContext('2d');
     const background = new Image();
     background.src = 'story/drop.webp';
     ctx.drawImage(background, 0, 0, miniCanvas.width, miniCanvas.height);
-    miniGameY += miniGameSpeed;
+    
+    // 프레임 보정 적용
+    miniGameY += miniGameSpeed * deltaMultiplier;
+    
     ctx.drawImage(miniGameImage, miniCanvas.width / 2 - 25, miniGameY, 50, 50);
     ctx.strokeStyle = 'black';
     ctx.lineWidth = 2;
@@ -322,6 +336,6 @@ document.addEventListener('keydown', (e) => {
 
 function endMiniGame(message) {
     miniGameActive = false;
-    miniCanvas.style.display = 'none';
+    if (miniCanvas) miniCanvas.style.display = 'none';
     alert(`미니게임 결과: ${message}`);
 }
