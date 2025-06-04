@@ -592,21 +592,12 @@ class User {
 
     clone() {
         const clonedUser = new User(this.heart.maxHealth, 9);
-        
-        // 현재 체력 상태 복사
         clonedUser.heart.health = this.heart.health;
-
-        // 현재 방어력 상태 복사
         clonedUser.armor.defense = this.armor.defense;
-        
-        // havingItems Map 복사 (깊은 복사)
         clonedUser.havingItems = new Map(this.havingItems);
         clonedUser.equippedItems = new Map(this.equippedItems);
-        
-        // xpbar 복사
         clonedUser.xpbars = [...this.xpbars];
         clonedUser.score = this.score;
-        
         return clonedUser;
     }
 

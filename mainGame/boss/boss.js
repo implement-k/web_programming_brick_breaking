@@ -7,10 +7,8 @@ class BossGame {
         'mainGame/background/ender.png'
     ];
     background = new Image();
-    // 보스와 발사체 manager
     bossManager; projectileManager;
-    // 사용자 아이템, 체력 정보
-    originUser;   // 유저 죽을 경우 이전 상태로 초기화
+    originUser;  
     difficulty;
     isStarted = false;
     ball; paddle; hotbar;
@@ -33,16 +31,14 @@ class BossGame {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 
         this.background.src = this.backgroundDir[difficulty-1];
-        this.ball = new Ball(canvas.width/2 - 10, canvas.height-150, 1, 1); // 볼의 중심이 화면 중앙에 오도록
+        this.ball = new Ball(canvas.width/2 - 10, canvas.height-150, 1, 1); 
         this.paddle = new Paddle(WIDTH/2-50, HEIGHT-100);
         this.hotbar = new Hotbar(WIDTH/2-195, HEIGHT-60);
         this.bossManager.init(difficulty);
         this.projectileManager.init(difficulty);
         
-        // 보스 게임 진입 전 사용자 상태 백업 (복원용)
         this.originUser = user.clone();
-        // 사용자 상태를 초기화하지 않고 현재 상태 유지
-        // user.init(); // 이 줄을 제거하여 현재 사용자 상태 유지
+        // user.init(); 
         
         this.isStarted = true;
         this.bossStartTime = Date.now();
@@ -65,19 +61,15 @@ class BossGame {
             return
         }
 
-        // 보스가 죽었는지 확인하고 다음 스토리로 진행
         if (this.bossManager.isDying()) {
             this.bossEndTime = Date.now();
             user.score += (this.difficulty * 10000) - (Math.floor((this.bossEndTime - this.bossStartTime) / 1000) * 50);
 
             this.isStarted = false;
-            // 보스 죽음 후 잠시 대기 (1.5초)
             setTimeout(() => {
-                // 현재 사용자 상태를 보존하여 다음 단계로 전달
                 const currentUserState = user.clone();
                 
                 if (gameDifficulty < 3) {
-                    // 다음 보스 게임으로 진행하면서 사용자 상태 보존
                     startStoryWithUserState(gameDifficulty + 1, currentUserState);
                 } else {
 
@@ -85,7 +77,7 @@ class BossGame {
                     li.text(`${userName} - ${user.score}`);
                     $('#score-list').append(li);
 
-                    startStory(4); // 3라운드 끝나면 종료 스토리(4라운드) 시작
+                    startStory(4);
                 }
             }, 1500);
             return;
@@ -97,7 +89,7 @@ class BossGame {
 
         const TARGET_FPS = 120; 
         const timeStep = 1000 / TARGET_FPS;
-        const deltaMultiplier = deltaTime / timeStep; // 프레임 독립적 속도 보정값
+        const deltaMultiplier = deltaTime / timeStep; 
 
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         if (this.background.complete) {
@@ -107,7 +99,7 @@ class BossGame {
 
         this.bossManager.collisionDetection(this.ball); // 보스 - 공 충돌
         this.paddle.collisionDetection(this.ball);      // 공 - 패들 충돌
-        this.projectileManager.checkCollisions(deltaMultiplier, this.paddle);   // 발사체 - 유저 충돌 (프레임 독립적)
+        this.projectileManager.checkCollisions(deltaMultiplier, this.paddle);   // 발사체 - 유저 충돌 
         this.bossManager.attack(this.projectileManager);    // 보스 - 발사체 발사
 
         // 그리기
@@ -117,10 +109,8 @@ class BossGame {
         // this.user.draw();
         user.draw();
 
-        // 패들 이동 및 기울기 처리 (프레임 독립적)
         this.paddle.updateRocation(canvas, leftPressed, rightPressed, deltaMultiplier);
 
-        // 공 회전 및 이동 (프레임 독립적)
         this.ball.updateRotation(deltaMultiplier);
         this.ball.updateLocation(deltaMultiplier);
 
@@ -131,7 +121,7 @@ class BossGame {
         if(this.ball.y < 0) {
             this.ball.dy = -this.ball.dy;
         } else if(this.ball.y + this.ball.height > canvas.height) {
-            this.ball = new Ball(canvas.width/2 - 10, canvas.height-150, 1, -1); // 볼의 중심이 화면 중앙에 오도록
+            this.ball = new Ball(canvas.width/2 - 10, canvas.height-150, 1, -1); 
             let sword_name = user.equippedItems.get("sword");
             if(sword_name == "wooden_sword") this.ball.image.src = 'mainGame/items/sword/wooden_sword.png';
             else if(sword_name == "iron_sword") this.ball.image.src = 'mainGame/items/sword/iron_sword.png';
