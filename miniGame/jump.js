@@ -1,3 +1,7 @@
+let miniLastDrawTime = null;
+const miniDefaultFPS = 60;
+const miniDefaultDeltaTime = 1000 / miniDefaultFPS;
+
 // 미니게임을 main.js에서 실행할 수 있도록 추가
 function initJumpGame() {
     // gameCanvas 숨기고 miniGameCanvas 보여줌
@@ -38,7 +42,7 @@ function startJumpGame(canvasId = "gameCanvas") {
     let isJumping = false;
     let jumpVelocity = 0;
     const gravity = 3;
-    const jumpPower = -35;
+    const jumpPower = -37;
     let posY = 0;
     let baseY = 0;
 
@@ -127,6 +131,11 @@ function startJumpGame(canvasId = "gameCanvas") {
 
         jumpCtx.clearRect(0, 0, canvasWidth, canvasHeight);
 
+        const curTime = Date.now();
+        const deltaTime = curTime - miniLastDrawTime  | curTime
+        const frameMultiplier = Math.min(deltaTime / miniDefaultDeltaTime, 3);
+
+        miniLastDrawTime = curTime;
         const gradient = jumpCtx.createLinearGradient(0, 0, 0, canvasHeight);
         gradient.addColorStop(0, "#99c1fa");
         gradient.addColorStop(1, "#e0f0ff");
@@ -136,7 +145,7 @@ function startJumpGame(canvasId = "gameCanvas") {
         jumpCtx.drawImage(sunImg, 40, 40, 180, 180);
 
         cloudImg.forEach(cloud => {
-            cloud.x -= cloudSpeed;
+            cloud.x -= cloudSpeed * frameMultiplier;
             if (cloud.x < -200) cloud.x = canvasWidth + Math.random() * 300;
             jumpCtx.drawImage(cloud.img, cloud.x, cloud.y, 100, 60);
         });
@@ -145,7 +154,7 @@ function startJumpGame(canvasId = "gameCanvas") {
         const groundY = canvasHeight - groundHeight;
         jumpCtx.drawImage(groundImg, groundX, groundY, canvasWidth + 1, groundHeight);
         jumpCtx.drawImage(groundImg, groundX + canvasWidth, groundY, canvasWidth + 1, groundHeight);
-        groundX -= groundSpeed;
+        groundX -= groundSpeed*frameMultiplier;
         if (groundX <= -canvasWidth) groundX = 0;
 
         if (isJumping) {
@@ -187,7 +196,7 @@ function startJumpGame(canvasId = "gameCanvas") {
         }
 
         cactusList.forEach(obs => {
-            obs.x -= cactusSpeed;
+            obs.x -= cactusSpeed * frameMultiplier;
             jumpCtx.drawImage(obs.img, obs.x, obs.y, obs.width, obs.height);
 
             const charBox = { x: posX, y: posY, width, height };

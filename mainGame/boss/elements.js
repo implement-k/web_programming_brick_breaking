@@ -449,7 +449,7 @@ class BossManager{
     bosses = [];
     curBoss;
     size = [[170, 150], [119, 150], [147, 150]];    // 보스 사이즈(이미지 해상도에 맞는)
-    y = 100;    // 보스 y 위치
+    y = 80;    // 보스 y 위치
 
     constructor(difficulty) {
         // 위더
@@ -459,7 +459,7 @@ class BossManager{
             this.y,  // y
             this.y, // defaultY
             1,  // dx
-            2,  // dy
+            6,  // dy
             this.size[0][0],  // width
             this.size[0][1],  // height
             this.bossImageDirs[0][0],  // bossImageDir
@@ -478,7 +478,7 @@ class BossManager{
             this.y,  // y
             this.y, // defaultY
             2,  // dx
-            2,  // dy
+            6,  // dy
             this.size[1][0],  // width
             this.size[1][1],  // height
             this.bossImageDirs[1][0],  // bossImageDir
@@ -497,7 +497,7 @@ class BossManager{
             this.y,  // y
             this.y,  // defaultY
             2.4,  // dx
-            2,  // dy
+            6,  // dy
             this.size[2][0],  // width
             this.size[2][1],  // height
             this.bossImageDirs[2][0],  // bossImageDir
@@ -620,7 +620,7 @@ class BossManager{
 
         // 보스 체력바 그리기 (보라색, 353px 너비)
         const healthBarWidth = 353;
-        const healthBarHeight = 20;
+        const healthBarHeight = 5;
         const healthBarX = (canvas.width - healthBarWidth) / 2; // 중앙 정렬
         const healthBarY = 30; // 화면 상단에서 30px 아래
         
@@ -629,25 +629,25 @@ class BossManager{
         const currentHealthWidth = healthBarWidth * healthPercentage;
         
         // 체력바 배경 (검은색)
-        ctx.fillStyle = '#000000';
+        ctx.fillStyle = '#210444';
         ctx.fillRect(healthBarX - 2, healthBarY - 2, healthBarWidth + 4, healthBarHeight + 4);
         
         // 체력바 테두리 (회색)
-        ctx.fillStyle = '#404040';
+        ctx.fillStyle = '#210444';
         ctx.fillRect(healthBarX, healthBarY, healthBarWidth, healthBarHeight);
         
         // 체력바 (보라색)
-        ctx.fillStyle = '#8B00FF';
+        ctx.fillStyle = '#5B00AA';
         ctx.fillRect(healthBarX, healthBarY, currentHealthWidth, healthBarHeight);
         
         // 체력 텍스트
         ctx.fillStyle = '#FFFFFF';
-        ctx.font = '14px Arial';
+        ctx.font = '14px minecraftia';
         ctx.textAlign = 'center';
         ctx.fillText(
             `${Math.ceil(this.curBoss.health)} / ${this.curBoss.maxHealth}`,
             healthBarX + healthBarWidth / 2,
-            healthBarY + healthBarHeight / 2 + 4
+            healthBarY + healthBarHeight / 2 - 13
         );
 
         // 그리기
