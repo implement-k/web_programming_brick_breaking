@@ -547,8 +547,17 @@ class User {
         this.heart.health = 5;
     }
 
-    hit(difficulty, damage) {
-        if (difficulty === 2) {
+    hit(difficulty, damage = 1) {
+        // 철 모자 착용 시 1/50 확률로 공격 무효화
+        const helmet = this.equippedItems.get("helmet");
+        if (helmet === "iron_helmet") {
+            const dodgeChance = Math.random();
+            if (dodgeChance < 0.02) { 
+                return;
+            }
+        }
+        
+        if (difficulty === 2 || difficulty === 3) {
             this.hitTime = Date.now();
         }
         if(this.armor.getDefense() >= damage) this.armor.setDefense(this.armor.getDefense() - damage);
@@ -567,7 +576,7 @@ class User {
         const curTime = Date.now();
         const fireTime = this.boot == null ? 1.3 : this.bootTime[this.boot];
         // 보호구에 맞춰 초 수정
-        if (difficulty === 2 && this.hitTime && curTime - this.hitTime > fireTime * 1000) {
+        if ((difficulty === 2 || difficulty === 3) && this.hitTime && curTime - this.hitTime > fireTime * 1000) {
             this.hitTime = null;
         }
     }
