@@ -24,7 +24,7 @@ function startJumpGame(canvasId = "gameCanvas") {
     const canvasHeight = 650;
 
     const charFrame = 7;
-    const charSpeed = 5; // 2 → 3 (더 느린 애니메이션)
+    const charSpeed = 2; // 2 → 3 (더 느린 애니메이션)
     const charScale = 0.15;
     const posX = 150;
     const charImg = [];
@@ -33,7 +33,7 @@ function startJumpGame(canvasId = "gameCanvas") {
     let frameDir = 1;
 
     const groundHeight = 100;
-    const groundSpeed = 6;  // 8 → 6로 더 감소
+    const groundSpeed = 8;  // 8 → 6로 더 감소
     let groundX = 0;
 
     const cloudSpeed = 0.8;  // 1.2 → 0.8로 감소
@@ -118,7 +118,7 @@ function startJumpGame(canvasId = "gameCanvas") {
         jumpCtx.fillStyle = "#fff";
         jumpCtx.font = "48px Galmuri";
         jumpCtx.fillText(text, 300, 300);
-        
+
         // 1.5초 후 메인게임 복귀
         setTimeout(() => {
             if (typeof mainGame !== 'undefined' && mainGame.endMiniGame) {
@@ -127,8 +127,16 @@ function startJumpGame(canvasId = "gameCanvas") {
         }, 1500);
     }
 
+    function gameover() {
+        this.gameStarted = false;
+        SOUND_EFFECT.death.play();
+        let scoreStr = "점수: " + user.score;
+        $('#dead_score').text(scoreStr);
+        $('.dead').css('display', 'flex');
+    }
+
     function loop() {
-        if (isGameOver) return drawMessage("Game Over!");
+        if (isGameOver) return gameover();
         if (isSuccess) return drawMessage("Success!");
         if (Date.now() - startTime >= gameTotalTime) {
             isSuccess = true;
@@ -208,28 +216,28 @@ function startJumpGame(canvasId = "gameCanvas") {
 
             // 충돌 판정을 관대하게 만들기 위해 박스 크기 축소
             const margin = 8; // 여유 공간
-            const charBox = { 
-                x: posX + margin, 
-                y: posY + margin, 
-                width: width - margin * 2, 
-                height: height - margin * 2 
+            const charBox = {
+                x: posX + margin,
+                y: posY + margin,
+                width: width - margin * 2,
+                height: height - margin * 2
             };
-            const obsBox = { 
-                x: obs.x + margin, 
-                y: obs.y + margin, 
-                width: obs.width - margin * 2, 
-                height: obs.height - margin * 2 
+            const obsBox = {
+                x: obs.x + margin,
+                y: obs.y + margin,
+                width: obs.width - margin * 2,
+                height: obs.height - margin * 2
             };
             if (checkCollision(charBox, obsBox)) isGameOver = true;
         });
 
         cactusList = cactusList.filter(obs => obs.x + obs.width > 0);
 
-        // ⏱️ 남은 시간 표시
+        // 남은 시간 표시
         const timeLeft = Math.max(0, Math.ceil((gameTotalTime - (Date.now() - startTime)) / 1000));
         jumpCtx.fillStyle = "#333";
-        jumpCtx.font = "24px Galmuri";
-        jumpCtx.fillText(`${timeLeft}초`, canvasWidth - 110, 50);
+        jumpCtx.font = "24px Minecraftia";
+        jumpCtx.fillText(`${timeLeft}s`, canvasWidth - 110, 50);
 
         requestAnimationFrame(loop);
     }
