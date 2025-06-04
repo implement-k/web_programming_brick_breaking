@@ -30,6 +30,11 @@ class MainGame {
         this.gameStartTime = null;
         this.timeLimit = 60; // 60초 제한시간
         this.remainingTime = this.timeLimit;
+        
+        // 일시중지 관련 속성들
+        this.isPaused = false;
+        this.pauseStartTime = null;
+        this.totalPausedTime = 0;
         this.craftingItems = [
             [0, 0, 0],
             [0, 0, 0],
@@ -72,6 +77,11 @@ class MainGame {
         // 타이머 초기화
         this.gameStartTime = null;
         this.remainingTime = this.timeLimit;
+        
+        // 일시중지 상태 초기화
+        this.isPaused = false;
+        this.pauseStartTime = null;
+        this.totalPausedTime = 0;
         
         // 게임 자동 시작
         // this.start();
@@ -133,7 +143,7 @@ class MainGame {
         if (!this.gameStartTime) return;
         
         const currentTime = Date.now();
-        const elapsedTime = (currentTime - this.gameStartTime) / 1000; // 초 단위
+        const elapsedTime = (currentTime - this.gameStartTime - this.totalPausedTime) / 1000; // 일시중지 시간 제외
         this.remainingTime = Math.max(0, this.timeLimit - elapsedTime);
         
         const minutes = Math.floor(this.remainingTime / 60);
@@ -335,6 +345,16 @@ class MainGame {
                 e.preventDefault();
                 $('.clear_item').remove();
                 this.startBoss();    
+            }
+            
+            // P 키로 일시중지/해제 토글
+            if (e.code === 'KeyP') {
+                e.preventDefault();
+                if (this.isPaused) {
+                    this.resumeGame();
+                } else {
+                    this.pauseGame();
+                }
             }
         });
     }
@@ -605,11 +625,89 @@ class MainGame {
             bossGame = new BossGame(gameDifficulty);
             bossGame.init(gameDifficulty);
         }
+    }    phase() {
+        
+    }
+
+    // 게임 일시중지
+    pauseGame() {
+        if (!this.gameStarted || this.isPaused) return;
+        
+        this.isPaused = true;
+        this.pauseStartTime = Date.now();
+    }
+
+    // 게임 일시중지 해제
+    resumeGame() {
+        if (!this.gameStarted || !this.isPaused) return;
+        
+        // 일시중지된 시간을 누적
+        if (this.pauseStartTime) {
+            this.totalPausedTime += Date.now() - this.pauseStartTime;
+        }
+        
+        this.isPaused = false;
+        this.pauseStartTime = null;
+        
+        // 게임 루프 재시작
+        requestAnimationFrame((time) => this.draw(time));
+    }
+
+    // 일시중지 상태 표시
+    drawPauseOverlay() {
+        ctx.save();
+        
+        // 반투명 오버레이
+        ctx.fillStyle = "rgba(0, 0, 0, 0.7)";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        
+        // 일시중지 텍스트
+        ctx.fillStyle = "#FFFFFF";
+        ctx.font = "48px Minecraftia";
+        ctx.textAlign = "center";
+        ctx.strokeStyle = "#000000";
+        ctx.lineWidth = 3;
+        
+        const pauseText = "PAUSED";
+        const x = canvas.width / 2;
+        const y = canvas.height / 2 - 40;
+        
+        ctx.strokeText(pauseText, x, y);
+        ctx.fillText(pauseText, x, y);
+        
+        // 안내 텍스트
+        ctx.font = "24px Minecraftia";
+        const instructionText = "Press P to Resume";
+        const instructionY = y + 60;
+        
+        ctx.strokeText(instructionText, x, instructionY);
+        ctx.fillText(instructionText, x, instructionY);
+        
+        ctx.restore();
     }
 
     // 메인 게임 루프
     draw(currentTime) {
         if (!this.gameStarted) return;
+        console.log(Date.now() - this.gameStartTime);
+
+        if (Date.now() - this.gameStartTime >= 20000 && Date.now() - this.gameStartTime <= 20100) {
+            this.pauseGame();
+            console.log("미니게임 시작");
+            if (gameDifficulty === 1) {
+                // 1단계일때 미니게임
+            } else {
+                // 2,3단계일때 미니게임
+            }
+            // 각 미니게임은 끝나는 부분에 this.resumeGame();로 본 게임 재시작 필수
+        }
+        
+        // 일시중지 상태 처리
+        if (this.isPaused) {
+            this.drawPauseOverlay();
+            return; // 일시중지 중에는 게임 루프를 계속하지 않음
+        }
+        
         if (this.isClear) {
             this.gameclear();
             return;
