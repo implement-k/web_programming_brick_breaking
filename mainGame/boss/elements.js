@@ -35,7 +35,7 @@ class ProjectileManager {
     delay;              // ms단위, delay +- 2초에서 랜덤으로 공격 
     projectileSize = [[40, 40], [40, 40], [40, 40]];
     delaies = [8000, 4000, 3000];   // 공격 간격
-    damages = [1, 2, 1];            // 발사체 데미지
+    damages = [1, 2, 2];            // 발사체 데미지
     speeds = [1.2, 1.3, 1.4];
     projectile;
     difficulty;

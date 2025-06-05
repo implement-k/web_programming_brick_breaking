@@ -551,8 +551,17 @@ class User {
         this.heart.health = 5;
     }
 
-    hit(difficulty, damage) {
-        if (difficulty === 2) {
+    hit(difficulty, damage = 1) {
+        // 철 모자 착용 시 1/50 확률로 공격 무효화
+        const helmet = this.equippedItems.get("helmet");
+        if (helmet === "iron_helmet") {
+            const dodgeChance = Math.random();
+            if (dodgeChance < 0.02) { 
+                return;
+            }
+        }
+        
+        if (difficulty === 2 || difficulty === 3) {
             this.hitTime = Date.now();
         }
         if(this.armor.getDefense() >= damage) this.armor.setDefense(this.armor.getDefense() - damage);
@@ -571,7 +580,7 @@ class User {
         const curTime = Date.now();
         const fireTime = this.boot == null ? 1.3 : this.bootTime[this.boot];
         // 보호구에 맞춰 초 수정
-        if (difficulty === 2 && this.hitTime && curTime - this.hitTime > fireTime * 1000) {
+        if ((difficulty === 2 || difficulty === 3) && this.hitTime && curTime - this.hitTime > fireTime * 1000) {
             this.hitTime = null;
         }
     }
@@ -587,21 +596,12 @@ class User {
 
     clone() {
         const clonedUser = new User(this.heart.maxHealth, 9);
-        
-        // 현재 체력 상태 복사
         clonedUser.heart.health = this.heart.health;
-
-        // 현재 방어력 상태 복사
         clonedUser.armor.defense = this.armor.defense;
-        
-        // havingItems Map 복사 (깊은 복사)
         clonedUser.havingItems = new Map(this.havingItems);
         clonedUser.equippedItems = new Map(this.equippedItems);
-        
-        // xpbar 복사
         clonedUser.xpbars = [...this.xpbars];
         clonedUser.score = this.score;
-        
         return clonedUser;
     }
 
@@ -611,8 +611,7 @@ class User {
         this.heart.draw();
         this.armor.draw();
         ctx.drawImage(this.xpbars[gameDifficulty-1], 256, 570, 387, 23);
-        if (gameDifficulty == 2 && this.hitTime) {
-            console.log(this.hitTime);
+        if ((gameDifficulty == 2 || gameDifficulty == 3) && this.hitTime) {
             ctx.drawImage(this.hitImage, 0, 0, 900, 650);
         }
         ctx.restore();

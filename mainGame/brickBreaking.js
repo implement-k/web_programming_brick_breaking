@@ -549,7 +549,7 @@ class MainGame {
                     ['iron_chestplate', 2],
                     ['golden_chestplate', 3],
                     ['diamond_chestplate', 4],
-                    ['iron_helmet', 1],
+                    // ['iron_helmet', 1],
                     ['golden_helmet', 1],
                     ['diamond_helmet', 2]
                 ]);
