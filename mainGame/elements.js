@@ -1,6 +1,6 @@
 // 공
-const BALL_STYLE = 0;   // 공 스타일 (0: wood, 1: stone, 2: iron, 3: gold, 4: diamond)
-const BALL_DIR = [
+let BALL_STYLE = 0;   // 공 스타일 (0: wood, 1: stone, 2: iron, 3: gold, 4: diamond)
+let BALL_DIR = [
     'mainGame/ball/wood.png',
     'mainGame/ball/stone.png',
     'mainGame/ball/iron.png',
@@ -89,9 +89,13 @@ class Ball {
         this.defaultDy = dy;
         this.dx = dx;
         this.dy = dy;
-        this.image.src = BALL_DIR[BALL_STYLE];
+        this.setType(BALL_STYLE);
     }
-
+    setType(type) {
+            this.type = type;
+            this.image.src = BALL_DIR[type] || BALL_DIR["pick1"]; // 기본값
+    }
+    
     // 공 충돌
     isCollision(elementX, elementY, elementWidth, elementHeight) {
         if (

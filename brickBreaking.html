@@ -78,14 +78,19 @@
                 <label>디자인 선택</label>
                 <div id="weapon-list" style="display: flex; gap: 10px; flex-wrap: wrap;">
                     <!-- 곡괭이 -->
-                    <img src="mainGame/ball/wood.png" class="weapon-option" data-type="pick" data-id="pick1" width="50" height="50">
-                    <img src="mainGame/ball/stone.png" class="weapon-option" data-type="pick" data-id="pick2" width="50" height="50">
-                    <img src="mainGame/ball/iron.png" class="weapon-option" data-type="pick" data-id="pick3" width="50" height="50">
-                    <img src="mainGame/ball/gold.png" class="weapon-option" data-type="pick" data-id="pick4" width="50" height="50">
-                    <img src="mainGame/ball/diamond.png" class="weapon-option" data-type="pick" data-id="pick5" width="50" height="50">
+                    <img src="mainGame/ball/wood.png" class="weapon-option" data-type="pick" data-id="pick1" width="50"
+                        height="50">
+                    <img src="mainGame/ball/stone.png" class="weapon-option" data-type="pick" data-id="pick2" width="50"
+                        height="50">
+                    <img src="mainGame/ball/iron.png" class="weapon-option" data-type="pick" data-id="pick3" width="50"
+                        height="50">
+                    <img src="mainGame/ball/gold.png" class="weapon-option" data-type="pick" data-id="pick4" width="50"
+                        height="50">
+                    <img src="mainGame/ball/diamond.png" class="weapon-option" data-type="pick" data-id="pick5"
+                        width="50" height="50">
                 </div>
             </div>
-            <button class="button" id="back-btn">← 뒤로가기</button>
+            <button class="button" id="back-btn">Back</button>
         </div>
     </div>
 
@@ -119,19 +124,22 @@
             <div id="speech-box"></div>
             <button class="button" id="next-dialogue-btn">다음</button>
         </div>
-        <button id="skip-story-btn">스토리 건너뛰기</button>
+        <div class="skip">
+            <button id="skip-story-btn">스토리 건너뛰기</button>
+        </div>
     </div>
     <section>
         <!-- 공 튀기기 -->
         <canvas id="gameCanvas" width="900" height="650"></canvas>
         <canvas id="miniCanvas" width="600" height="300" style="display: none;"></canvas>
         <canvas id="miniGameCanvas" width="900" height="650" style="display: none;"></canvas>
-        
+
         <!-- 메인게임 영역 -->
         <div id="main-game" style="display: none;">
-            <button id="instant-win-btn" style="position: absolute; top: 10px; right: 10px; z-index: 1000; display: none;">즉시 승리</button>
+            <button id="instant-win-btn"
+                style="position: absolute; top: 10px; right: 10px; z-index: 1000; display: none;">즉시 승리</button>
         </div>
-        
+
         <!-- 죽었습니다. -->
         <div class="dead">
             <div class="dead_alert">
