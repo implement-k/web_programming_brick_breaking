@@ -40,7 +40,6 @@ canvas {
     display: block;
 }
 
-/* miniCanvas를 gameCanvas 중앙에 배치 */
 #miniCanvas {
     position: absolute;
     top: 50%;
@@ -128,7 +127,6 @@ canvas {
     box-shadow: inset -2px -4px #0004, inset 2px 2px #FFF5;
 }
 
-/* 타이틀 화면 및 설정 화면 스타일 추가 */
 #title-screen,
 #setting-scene,
 #create-scene,
@@ -160,15 +158,13 @@ section {
     height: 40px;
     width: 120px;
     cursor: pointer;
-    background-color: #0095DD;
-    color: white;
+    background-color: white;
     border: none;
-    border-radius: 5px;
     font-size: 14px;
 }
 
 #masterBtns button:hover {
-    background-color: #0077AA;
+    background-color: #f4f4f4;
 }
 
 #title-screen {
