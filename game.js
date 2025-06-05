@@ -193,18 +193,7 @@ function startStory(round = 1) {
 }
 
 document.getElementById('skip-story-btn').addEventListener('click', () => {
-    const range = storyRanges[gameDifficulty];
-
-    // 현재 게임 난이도에 맞는 마지막 스토리로 올바르게 이동
-    currentSceneIndex = range.end;
-    currentLineIndex = story[currentSceneIndex].lines.length - 1; // 마지막 대사로 설정
-    
-    updateStory(); // 즉시 마지막 장면 표시
-
-    // 스토리가 끝났다고 판단되면 자동으로 게임 시작
-    setTimeout(() => {
-        nextDialogueBtn.click(); // 마지막 스토리 후 게임으로 바로 진행
-    }, 500);
+    startMainGame(gameDifficulty);
 });
 
 // 사용자 상태를 보존하면서 스토리 시작하는 함수
