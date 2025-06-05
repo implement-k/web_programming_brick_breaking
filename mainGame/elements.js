@@ -298,15 +298,15 @@ class BrickManager {
                 if(Math.random() > 0.3) {  // 70% 확률로 벽돌 생성
                     let brickType = Math.random();
                     if(brickType < this.brickRatio[0]) {
-                        this.bricks[c][r] = new Brick(0, 0, 1, 1, 1, this.images[0]);
+                        this.bricks[c][r] = new Brick(0, 0, 1, 1, 10, this.images[0]);
                     } else if(brickType < this.brickRatio[1]) {
-                        this.bricks[c][r] = new Brick(0, 0, 2, 1, 1, this.images[1]);
+                        this.bricks[c][r] = new Brick(0, 0, 2, 1, 10, this.images[1]);
                     } else if(brickType < this.brickRatio[2]) {
-                        this.bricks[c][r] = new Brick(0, 0, 3, 2, 3, this.images[2]);
+                        this.bricks[c][r] = new Brick(0, 0, 3, 2, 30, this.images[2]);
                     } else if(brickType < this.brickRatio[3]) {
-                        this.bricks[c][r] = new Brick(0, 0, 4, 2, 3, this.images[3]);
+                        this.bricks[c][r] = new Brick(0, 0, 4, 2, 30, this.images[3]);
                     } else {
-                        this.bricks[c][r] = new Brick(0, 0, 5, 3, 5,this.images[4]);
+                        this.bricks[c][r] = new Brick(0, 0, 5, 3, 50,this.images[4]);
                     }
                 } else {
                     this.bricks[c][r] = new Brick(0, 0, 0, 0, 0);
