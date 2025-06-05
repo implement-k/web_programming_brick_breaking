@@ -172,7 +172,6 @@ section {
     background-size: cover;
     background-position: center;
     flex-direction: column;
-    gap: 25px;
 }
 
 #setting-scene,
@@ -258,7 +257,7 @@ section {
 #player-name {
     font-family: 'Galmuri11', sans-serif;
     font-size: 18px;
-    width: 400px;
+    width: 600px;
     height: 48px;
     padding: 6px 12px;
     border: 3px solid #ffffff;

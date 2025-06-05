@@ -584,14 +584,6 @@ class MainGame {
     gameclear() {
         // 게임 클리어 시 타이머 정지
         this.gameStarted = false;
-        
-        // user.havingItems.set(1, 20);  // 철
-        // user.havingItems.set(0, 20);  // 원목
-        // user.havingItems.set(4, 20);  // plank
-        // user.havingItems.set(2, 20);  // gold
-        // user.havingItems.set(3, 20);  // diamond
-        // user.havingItems.set(5, 20);  // stick
-
         SOUND_EFFECT.clear.play();
         $('.clear').css('display', 'flex');
         
@@ -618,10 +610,6 @@ class MainGame {
                 }
             }
         }
-        
-        // 인벤토리 UI 업데이트
-        //$('.clear_item').remove();
-        //this.drawInventory();
     }
 
     startBoss() {
@@ -631,7 +619,7 @@ class MainGame {
             bossGame = new BossGame(gameDifficulty);
             bossGame.init(gameDifficulty);
         }
-    }    phase() {
+    } phase() {
         
     }
 
