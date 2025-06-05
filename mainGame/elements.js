@@ -611,8 +611,7 @@ class User {
         this.heart.draw();
         this.armor.draw();
         ctx.drawImage(this.xpbars[gameDifficulty-1], 256, 570, 387, 23);
-        if (gameDifficulty == 2 && this.hitTime) {
-            console.log(this.hitTime);
+        if ((gameDifficulty == 2 || gameDifficulty == 3) && this.hitTime) {
             ctx.drawImage(this.hitImage, 0, 0, 900, 650);
         }
         ctx.restore();
