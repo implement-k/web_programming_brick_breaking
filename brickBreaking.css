@@ -367,12 +367,15 @@ section {
 }
 
 .weapon-option {
+    text-align: center;
     border: 2px solid transparent;
     cursor: pointer;
     image-rendering: pixelated;
+    width: 20%;
 }
 
-.weapon-option.selected {
+.ball-selected {
+    border: 2px solid transparent;
     border-color: gold;
 }
 
@@ -389,4 +392,8 @@ section {
     border: none;
     cursor: pointer;
     font-size: 30px;
+}
+
+.korean {
+    font-family: "Galmuri11";
 }

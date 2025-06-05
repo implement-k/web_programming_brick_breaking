@@ -50,47 +50,25 @@
     <div id="setting-scene" style="display: none;">
         <div class="setting-panel">
             <h2>설정</h2>
-            <div class="setting-group">
-                <label for="bgm-select">배경음악</label>
-                <select id="bgm-select">
-                    <option value="main/title_bgm.mp3">piano 3</option>
-                    <option value="main/title_bgm2.mp3">moog city</option>
-                    <option value="none">음악 끄기</option>
-                </select>
-            </div>
-            <div class="setting-group">
-                <label>난이도</label>
-                <select id="difficulty">
-                    <option value="easy" selected>Easy</option>
-                    <option value="normal">Normal</option>
-                    <option value="hard">Hard</option>
-                </select>
-            </div>
-            <div class="setting-group">
-                <label>공 디자인</label>
-                <select id="ball-skin">
-                    <option value="pick" selected>곡괭이</option>
-                    <option value="sword">칼</option>
-                </select>
-            </div>
 
-            <div class="weapon-options" style="display: none;">
-                <label>디자인 선택</label>
-                <div id="weapon-list" style="display: flex; gap: 10px; flex-wrap: wrap;">
-                    <!-- 곡괭이 -->
-                    <img src="mainGame/ball/wood.png" class="weapon-option" data-type="pick" data-id="pick1" width="50"
-                        height="50">
-                    <img src="mainGame/ball/stone.png" class="weapon-option" data-type="pick" data-id="pick2" width="50"
-                        height="50">
-                    <img src="mainGame/ball/iron.png" class="weapon-option" data-type="pick" data-id="pick3" width="50"
-                        height="50">
-                    <img src="mainGame/ball/gold.png" class="weapon-option" data-type="pick" data-id="pick4" width="50"
-                        height="50">
-                    <img src="mainGame/ball/diamond.png" class="weapon-option" data-type="pick" data-id="pick5"
-                        width="50" height="50">
+            <div class="weapon-options">
+                <p style="text-align: center">공 디자인 선택<br><br></p>
+                <div id="weapon-list" style="display: flex; flex-wrap: wrap;">
+                    <div class="weapon-option"><img src="mainGame/ball/wood.png" data-type="pick" data-id="0" width="50"
+                        height="50"></div>
+                    <div class="weapon-option"><img src="mainGame/ball/stone.png" data-type="pick" data-id="1" width="50"
+                        height="50"></div>
+                    <div class="weapon-option"><img src="mainGame/ball/iron.png" data-type="pick" data-id="2" width="50"
+                        height="50"></div>
+                    <div class="weapon-option"><img src="mainGame/ball/gold.png" data-type="pick" data-id="3" width="50"
+                        height="50"></div>
+                    <div class="weapon-option"><img src="mainGame/ball/diamond.png"    data-type="pick" data-id="4" width="50"
+                        height="50"></div>
                 </div>
             </div>
-            <button class="button" id="back-btn">Back</button>
+            <button class="button korean" id="music-btn">배경음악: piano 3</button>
+            <button class="button korean" id="difficulty-btn">난이도: Easy</button>
+            <button class="button korean" id="back-btn">Back</button>
         </div>
     </div>
 

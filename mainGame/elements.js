@@ -1,5 +1,5 @@
 // 공
-let BALL_STYLE = 0;   // 공 스타일 (0: wood, 1: stone, 2: iron, 3: gold, 4: diamond)
+//let BALL_STYLE = 0;   // 공 스타일 (0: wood, 1: stone, 2: iron, 3: gold, 4: diamond)
 let BALL_DIR = [
     'mainGame/ball/wood.png',
     'mainGame/ball/stone.png',
@@ -92,8 +92,8 @@ class Ball {
         this.setType(BALL_STYLE);
     }
     setType(type) {
-            this.type = type;
-            this.image.src = BALL_DIR[type] || BALL_DIR["pick1"]; // 기본값
+        this.type = type;
+        this.image.src = BALL_DIR[type] || BALL_DIR[0]; // 기본값
     }
     
     // 공 충돌

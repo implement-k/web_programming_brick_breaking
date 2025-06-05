@@ -9,7 +9,7 @@ const cancelBtn = document.getElementById('cancel-btn');
 const btnSound = document.getElementById('btn-sound');
 const bgm = document.getElementById('bgm');
 const bgmToggle = document.getElementById('bgm-toggle');
-const difficultySelect = document.getElementById('difficulty');
+//const difficultySelect = document.getElementById('difficulty');
 const playerNameInput = document.getElementById('player-name');
 
 const storyScene = document.getElementById('story-scene');
@@ -25,49 +25,16 @@ const gameCanvas = document.getElementById('gameCanvas');
 
 let selectedBallSkin = "pick";      // 'pick' 또는 'sword'
 let selectedWeaponId = "pick1";     // 실제 선택된 이미지 ID
-BALL_STYLE = "pick1"; // 기본값
 
-BALL_DIR = {
-    pick1: "mainGame/ball/wood.png",
-    pick2: "mainGame/ball/stone.png",
-    pick3: "mainGame/ball/iron.png",
-    pick4: "mainGame/ball/gold.png",
-    pick5: "mainGame/ball/diamond.png"
-};
-
-document.querySelectorAll('.weapon-option').forEach(img => {
-    img.addEventListener('click', () => {
-        BALL_STYLE = img.dataset.id; // pick1, sword3 등 저장
-        // 선택된 이미지에 강조 효과 추가하고 나머지는 제거
-        document.querySelectorAll('.weapon-option').forEach(el => el.classList.remove('selected'));
-        img.classList.add('selected');
-    });
-});
-
-
-// 공 디자인 선택 시 무기 옵션 필터링
-$('#ball-skin').on('change', function () {
-    selectedBallSkin = this.value;
-    $('.weapon-options').show();
-
-    $('.weapon-option').hide(); // 전체 숨김
-    $(`.weapon-option[data-type="${selectedBallSkin}"]`).show(); // 해당 타입만 보임
-
-    // 자동 선택 초기화
-    $('.weapon-option').removeClass('selected');
-    const firstOption = $(`.weapon-option[data-type="${selectedBallSkin}"]`).first();
-    firstOption.addClass('selected');
-    selectedWeaponId = firstOption.data('id');
-});
-
-// 무기 선택 클릭 처리
-$('.weapon-option').on('click', function () {
-    const type = $(this).data('type');
-    if (type !== selectedBallSkin) return; // 현재 선택된 타입만 반응
-
-    $('.weapon-option').removeClass('selected');
-    $(this).addClass('selected');
-    selectedWeaponId = $(this).data('id');
+$('.weapon-option').on('click', function() {
+    BALL_STYLE = $(this).find('img').data().id;
+    let tempImg = $(this).find('img');
+    let weapondivs = $('.weapon-option');
+    for(let i = 0; i < weapondivs.length; i++) {
+        $(weapondivs[i]).find('img').removeClass('ball-selected');
+    }
+    $(tempImg).addClass('ball-selected');
+    selectedWeaponId = BALL_STYLE;
 });
 
 function playClickSound() {
@@ -105,25 +72,37 @@ settingBtn.addEventListener('click', () => {
     showScene('setting-scene');
 });
 
-const bgmSelect = document.getElementById('bgm-select');
+const bgmSelect = document.getElementById('music-btn');
+bgmSelect.addEventListener('click', function () {
+    playClickSound();
+    let current_music = bgmSelect.innerText.split(': ')[1];
+    if(current_music == 'piano 3') current_music = "moong city";
+    else if(current_music == "moong city") current_music = "음악 끄기";
+    else if(current_music = "음악 끄기") current_music = 'piano 3';
+    bgmSelect.innerText = "배경음악: " + current_music;
 
-bgmSelect.addEventListener('change', function () {
-    if (bgmSelect.value === 'none') {
+    if (current_music == "음악 끄기") {
         bgm.pause();
         bgm.currentTime = 0;
     } else {
-        const prevSrc = bgm.src;
-        const newSrc = bgmSelect.value;
-        // src가 다를 때만 변경
-        if (!prevSrc.endsWith(newSrc)) {
-            bgm.src = newSrc;
-            bgm.load();
-            bgm.play();
-        } else {
-            // 이미 재생 중인 경우 다시 play만
-            bgm.play();
-        }
+        if(current_music == 'piano 3') bgm.src = 'main/title_bgm.mp3';
+        else if(current_music == 'moong city') bgm.src = 'main/title_bgm2.mp3';
+        
+        bgm.load();
+        bgm.play();
     }
+});
+
+const diffSelect = document.getElementById('difficulty-btn');
+diffSelect.addEventListener('click', function () {
+    playClickSound();
+    let current_diff = diffSelect.innerText.split(': ')[1];
+    if(current_diff == 'Easy') current_diff = 'Normal';
+    else if(current_diff == 'Normal') current_diff = 'Hard';
+    else if(current_diff == 'Hard') current_diff = 'Easy';
+
+    console.log(current_diff);
+    diffSelect.innerText = "난이도: " + current_diff;
 });
 
 // 초기화 (페이지 로드시 select와 bgm 싱크)
@@ -158,10 +137,11 @@ createBtn.addEventListener('click', () => {
         alert('이름을 입력하세요!');
         return;
     }
-    let diff = difficultySelect.value;
-    if (diff == "easy") startStory(1);
-    else if (diff == "normal") startStory(2);
-    else if (diff == "hard") startStory(3);
+    let diff = diffSelect.innerText.split(': ')[1];
+    console.log(diff);
+    if (diff == "Easy") startStory(1);
+    else if (diff == "Normal") startStory(2);
+    else if (diff == "Hard") startStory(3);
 });
 
 const story = [
@@ -192,6 +172,7 @@ function startStory(round = 1) {
     updateStory();
 }
 
+// 스토리 Skip 버튼 클릭 시 게임 시작하는 이벤트 추가
 document.getElementById('skip-story-btn').addEventListener('click', () => {
     startMainGame(gameDifficulty);
 });

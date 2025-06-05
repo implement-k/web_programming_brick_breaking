@@ -18,4 +18,6 @@ const SOUND_EFFECT = {
     clear: new Audio('mainGame/etc_sound/levelup.mp3')
 };
 
+let BALL_STYLE = 0;
+
 let user, userCheckpoint, userName;
