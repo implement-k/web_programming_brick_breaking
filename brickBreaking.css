@@ -377,25 +377,16 @@ section {
 }
 
 #skip-story-btn {
-    display: flex;
-    gap: 10px;
-    justify-content: center;
-    margin-top: 20px;
-    flex-wrap: wrap;
-}
+    background: none;
+    position: absolute;
 
-#skip-story-btn button {
-    font-family: 'galmuri11';
+    font-family: 'Minecraftia';
+    right: 0;
     height: 40px;
-    width: 120px;
-    cursor: pointer;
-    background-color: #0095DD;
+    line-height: 40px;
     color: white;
+    width: 80px;
     border: none;
-    border-radius: 5px;
-    font-size: 14px;
-}
-
-#skip-story-btn button:hover {
-    background-color: #0077AA;
+    cursor: pointer;
+    font-size: 30px;
 }
