@@ -121,6 +121,11 @@ function startJumpGame(canvasId = "gameCanvas") {
 
         // 1.5초 후 메인게임 복귀
         setTimeout(() => {
+            // 실패했을 경우만 체력 깎기
+            if (text !== "Success!") {
+                user.hit(gameDifficulty, 1);
+            }
+            
             if (typeof mainGame !== 'undefined' && mainGame.endMiniGame) {
                 mainGame.endMiniGame();
             }
@@ -129,10 +134,7 @@ function startJumpGame(canvasId = "gameCanvas") {
 
     function gameover() {
         this.gameStarted = false;
-        SOUND_EFFECT.death.play();
-        let scoreStr = "점수: " + user.score;
-        $('#dead_score').text(scoreStr);
-        $('.dead').css('display', 'flex');
+        drawMessage("Failed!");
     }
 
     function loop() {
