@@ -582,7 +582,6 @@ class BossManager{
             
             if (this.curBoss.health <= 1) {
                 this.curBoss.isDying = true;
-                this.curBoss.dropItem();
                 this.curBoss.deathSound.play();
             } else {
                 let sword_name = user.equippedItems.get("sword");
