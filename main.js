@@ -22,10 +22,6 @@ $(document).ready(function () {
         mainGame.init();
     }
 
-    $('#miniGameBtn').click(() => {
-        miniGameStart();
-    });
-
     // 리스폰 버튼 처리
     $('#respawn').click(() => {
         let preserveUser = false;
