@@ -130,7 +130,6 @@ function startJumpGame(canvasId = "gameCanvas") {
     }
 
     function gameover() {
-        this.gameStarted = false;
         drawMessage("Failed!");
     }
 
