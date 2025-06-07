@@ -553,7 +553,7 @@ class User {
             }
         }
         
-        if (isMiniGame && (difficulty === 2 || difficulty === 3)) {
+        if (!isMiniGame && (difficulty === 2 || difficulty === 3)) {
             this.hitTime = Date.now();
         }
         if(this.armor.getDefense() >= damage) this.armor.setDefense(this.armor.getDefense() - damage);
