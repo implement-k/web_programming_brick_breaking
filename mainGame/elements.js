@@ -107,13 +107,11 @@ class Ball {
         return false;
     };
 
-    // 공 회전 업데이트
     updateRotation(deltaMultiplier = 1) {
         if(this.dx > 0) this.rotation -= (0.1 * Math.abs(this.dx)) * deltaMultiplier; // 반시계 방향
         else this.rotation += (0.1 * Math.abs(this.dx)) * deltaMultiplier; // 시계 방향
     };
 
-    // 공 위치 업데이트
     updateLocation(deltaMultiplier = 1) {
         this.x += this.dx * deltaMultiplier;
         this.y += this.dy * deltaMultiplier;

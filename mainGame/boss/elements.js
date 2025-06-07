@@ -508,25 +508,22 @@ class BossManager{
     attack(projectileManager) {
         const currentTime = Date.now();
         
-        // 발사 시간이 되었는지 체크
         if (!this.isDying() && currentTime - projectileManager.lastFireTime >= projectileManager.nextFireDelay) {
-            // 보스가 멈춘 상태에서 발사체 생성
             this.curBoss.attackSound.play();
             this.curBoss.image.src = this.curBoss.imageAngry.src;
-            this.curBoss.dx = this.curBoss.dx * 0.1;  // 보스 정지
-            this.curBoss.attackStopTime = currentTime;  // attackStopTime 사용
+            this.curBoss.dx = this.curBoss.dx * 0.1; 
+            this.curBoss.attackStopTime = currentTime;  
             
             projectileManager.createProjectiles(this.curBoss);
             projectileManager.lastFireTime = currentTime;
             projectileManager.nextFireDelay = projectileManager.getRandomDelay();
         }
-        // 보스가 멈춰있는 상태라면
         else if (this.curBoss.attackStopTime) {
-            // 0.5초가 지났다면 다시 움직임
+    
             if (currentTime - this.curBoss.attackStopTime >= 500) {
                 this.curBoss.image.src = this.curBoss.originalImage.src;
-                this.curBoss.dx = this.curBoss.dx < 0 ? -this.curBoss.defaultDx: this.curBoss.defaultDx;;  // 원래 속도로 복구
-                this.curBoss.attackStopTime = null;  // attackStopTime 초기화
+                this.curBoss.dx = this.curBoss.dx < 0 ? -this.curBoss.defaultDx: this.curBoss.defaultDx;;
+                this.curBoss.attackStopTime = null;  
             }
         }
     }
@@ -538,42 +535,32 @@ class BossManager{
            ball.isCollision(this.curBoss.x, this.curBoss.y, this.curBoss.width, this.curBoss.height)) {
             this.curBoss.hit(currentTime);
             
-            // 공의 중심점
             const ballCenterX = ball.x + ball.width / 2;
             const ballCenterY = ball.y + ball.height / 2;
             
-            // 보스의 중심점
             const bossCenterX = this.curBoss.x + this.curBoss.width / 2;
             const bossCenterY = this.curBoss.y + this.curBoss.height / 2;
             
-            // 충돌 방향 결정
             const dx = ballCenterX - bossCenterX;
             const dy = ballCenterY - bossCenterY;
             
-            // 수평 충돌이 더 가까우면 x방향으로 튕김
             if (Math.abs(dx) > Math.abs(dy)) {
                 ball.dx = -ball.dx;
-                // 위치 보정 시 화면 경계 체크
                 if (dx < 0) {
-                    // 왼쪽에서 충돌
                     const newX = this.curBoss.x - ball.width - 1;
-                    ball.x = Math.max(0, newX); // 화면 왼쪽 경계를 벗어나지 않도록
+                    ball.x = Math.max(0, newX); 
                 } else {
-                    // 오른쪽에서 충돌
                     const newX = this.curBoss.x + this.curBoss.width + 1;
-                    ball.x = Math.min(canvas.width - ball.width, newX); // 화면 오른쪽 경계를 벗어나지 않도록
+                    ball.x = Math.min(canvas.width - ball.width, newX); 
                 }
             } else {
                 ball.dy = -ball.dy;
-                // 위치 보정 시 화면 경계 체크
                 if (dy < 0) {
-                    // 위에서 충돌
                     const newY = this.curBoss.y - ball.height - 1;
-                    ball.y = Math.max(0, newY); // 화면 위쪽 경계를 벗어나지 않도록
+                    ball.y = Math.max(0, newY); 
                 } else {
-                    // 아래에서 충돌
                     const newY = this.curBoss.y + this.curBoss.height + 1;
-                    ball.y = Math.min(canvas.height - ball.height, newY); // 화면 아래쪽 경계를 벗어나지 않도록
+                    ball.y = Math.min(canvas.height - ball.height, newY); 
                 }
             }
             
@@ -599,29 +586,23 @@ class BossManager{
     draw(deltaMultiplier = 1) {
         ctx.save();
 
-        // 보스 체력바 그리기 (보라색, 353px 너비)
         const healthBarWidth = 353;
         const healthBarHeight = 5;
-        const healthBarX = (canvas.width - healthBarWidth) / 2; // 중앙 정렬
-        const healthBarY = 30; // 화면 상단에서 30px 아래
+        const healthBarX = (canvas.width - healthBarWidth) / 2; 
+        const healthBarY = 30; 
         
-        // 체력 비율 계산
         const healthPercentage = Math.max(0, this.curBoss.health / this.curBoss.maxHealth);
         const currentHealthWidth = healthBarWidth * healthPercentage;
         
-        // 체력바 배경 (검은색)
         ctx.fillStyle = '#210444';
         ctx.fillRect(healthBarX - 2, healthBarY - 2, healthBarWidth + 4, healthBarHeight + 4);
         
-        // 체력바 테두리 (회색)
         ctx.fillStyle = '#210444';
         ctx.fillRect(healthBarX, healthBarY, healthBarWidth, healthBarHeight);
         
-        // 체력바 (보라색)
         ctx.fillStyle = '#5B00AA';
         ctx.fillRect(healthBarX, healthBarY, currentHealthWidth, healthBarHeight);
         
-        // 체력 텍스트
         ctx.fillStyle = '#FFFFFF';
         ctx.font = '14px minecraftia';
         ctx.textAlign = 'center';
@@ -631,7 +612,6 @@ class BossManager{
             healthBarY + healthBarHeight / 2 - 13
         );
 
-        // 그리기
         this.curBoss.draw();
         this.curBoss.calculateNext(deltaMultiplier);
 

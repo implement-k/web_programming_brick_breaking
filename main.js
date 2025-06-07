@@ -30,7 +30,6 @@ $(document).ready(function () {
     $('#respawn').click(() => {
         let preserveUser = false;
 
-        // 미니게임 캔버스가 보이는 상태인지 확인
         const miniGameVisible = $('#miniGameCanvas').is(':visible');
 
         if (miniGameVisible) {
@@ -74,13 +73,10 @@ $(document).ready(function () {
 function miniGameStart() {
     console.log('미니 게임 시작');
 
-    // 다른 캔버스 숨기기
     $('#gameCanvas').hide();
 
-    // 미니게임 캔버스 표시
     $('#miniGameCanvas').show();
 
-    // jump.js의 init 함수 호출
     if (typeof initJumpGame === 'function') {
         initJumpGame();
     } else {

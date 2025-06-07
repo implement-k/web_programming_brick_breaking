@@ -816,7 +816,6 @@ class MainGame {
         else if(this.ball.y + this.ball.height > canvas.height) {
             user.hit(1, 1);
             
-            // 공을 초기 중앙 위치로 재설정 (볼의 중심이 화면 중앙에 오도록)
             this.ball.x = canvas.width/2 - this.ball.width/2;
             this.ball.y = canvas.height-150;
             this.ball.dx = Math.random() > 0.5 ? 1 : -1;

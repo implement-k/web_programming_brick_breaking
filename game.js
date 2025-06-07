@@ -369,7 +369,6 @@ function endMiniGame(message) {
     miniGameActive = false;
     if (miniCanvas) miniCanvas.style.display = 'none';
     alert(`미니게임 결과: ${message}`);
-    // 미니게임 실패시, 체력 차감
     if (message === '실패!') {
         if (user && user.heart) {
             user.hit(2);
