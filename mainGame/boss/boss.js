@@ -31,7 +31,7 @@ class BossGame {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 
         this.background.src = this.backgroundDir[difficulty-1];
-        this.ball = new Ball(canvas.width/2 - 10, canvas.height-150, 1, 1); 
+        this.ball = new Ball(canvas.width/2 - 10, canvas.height-150, -1, 1); 
         this.paddle = new Paddle(WIDTH/2-50, HEIGHT-100);
         this.hotbar = new Hotbar(WIDTH/2-195, HEIGHT-60);
         this.bossManager.init(difficulty);
@@ -140,7 +140,7 @@ class BossGame {
         if(this.ball.y < 0) {
             this.ball.dy = -this.ball.dy;
         } else if(this.ball.y + this.ball.height > canvas.height) {
-            this.ball = new Ball(canvas.width/2 - 10, canvas.height-150, 1, -1); 
+            this.ball = new Ball(canvas.width/2 - 10, canvas.height-150, -1, -1); 
             let sword_name = user.equippedItems.get("sword");
             if(sword_name == "wooden_sword") this.ball.image.src = 'mainGame/items/sword/wooden_sword.png';
             else if(sword_name == "iron_sword") this.ball.image.src = 'mainGame/items/sword/iron_sword.png';
