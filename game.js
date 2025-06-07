@@ -9,7 +9,6 @@ const cancelBtn = document.getElementById('cancel-btn');
 const btnSound = document.getElementById('btn-sound');
 const bgm = document.getElementById('bgm');
 const bgmToggle = document.getElementById('bgm-toggle');
-//const difficultySelect = document.getElementById('difficulty');
 const playerNameInput = document.getElementById('player-name');
 
 const storyScene = document.getElementById('story-scene');
@@ -20,8 +19,6 @@ const nextDialogueBtn = document.getElementById('next-dialogue-btn');
 const miniCanvas = document.getElementById('miniCanvas');
 const miniGameCanvas = document.getElementById('miniGameCanvas');
 const gameCanvas = document.getElementById('gameCanvas');
-
-// document.getElementById('test-mini-btn').addEventListener('click', startMiniGame);
 
 let selectedBallSkin = "pick";      // 'pick' 또는 'sword'
 let selectedWeaponId = "pick1";     // 실제 선택된 이미지 ID
@@ -54,7 +51,6 @@ function showScene(id) {
     });
     if (id === 'main-game') {
         document.getElementById('main-game').style.display = 'block';
-        document.getElementById('instant-win-btn').style.display = 'block'; // 즉시 승리 버튼도 보이기
     }
 }
 
@@ -216,7 +212,6 @@ function startMainGame(round) {
     gameDifficulty = round;
     hideScene('story-scene');
     
-    // 기존 게임 코드 실행
     // 캔버스를 먼저 보여줌으로써 canvas.width가 올바르게 설정되도록 함
     $('#gameCanvas').show();
 
@@ -251,9 +246,7 @@ function startMainGame(round) {
     let btn2 = $('<button/>');
     btn2.text('죽기');
     btn2.click(() => {
-        // 안전한 방식으로 체력을 0으로 설정
         if (user && user.heart) user.heart.health = 0;
-        user.hit(1);
     });
     $('#masterBtns').append(btn2);
 
@@ -263,24 +256,11 @@ function startMainGame(round) {
         if (bossGame && bossGame.bossManager && bossGame.bossManager.curBoss) {
             bossGame.bossManager.curBoss.health = 1;
             bossGame.bossManager.curBoss.isDying = true;
-            bossGame.bossManager.curBoss.dropItem();
             bossGame.bossManager.curBoss.deathSound.play();
         }
     });
     $('#masterBtns').append(btn3);
 }
-
-document.getElementById('instant-win-btn').addEventListener('click', () => {
-    playClickSound();
-    document.getElementById('instant-win-btn').style.display = 'none';
-    if (gameDifficulty < 3) {
-        startStory(gameDifficulty + 1);
-    } else {
-        startStory(4); // 3라운드 끝나면 종료 스토리(4라운드) 시작
-    }
-});
-
-startStory(1);
 
 function startMiniGameTimer() {
     const maxTime = 60000;
@@ -364,7 +344,7 @@ function endMiniGame(message) {
     alert(`미니게임 결과: ${message}`);
     if (message === '실패!') {
         if (user && user.heart) {
-            user.hit(2);
+            user.hit(gameDifficulty, 2);
         }
     }
 }

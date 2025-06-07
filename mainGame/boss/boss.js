@@ -38,7 +38,6 @@ class BossGame {
         this.projectileManager.init(difficulty);
         
         this.originUser = user.clone();
-        // user.init(); 
         
         this.isStarted = true;
         this.bossStartTime = Date.now();
@@ -50,6 +49,7 @@ class BossGame {
         else if(sword_name == "diamond_sword") this.ball.image.src = 'mainGame/items/sword/diamond_sword.png';
 
         requestAnimationFrame((time) => this.draw(time));
+        console.log("Starting boss game: ", gameDifficulty);
     }
 
     draw(currentTime) {
@@ -58,7 +58,7 @@ class BossGame {
         if (user.isDead()) {
             SOUND_EFFECT.death.play();
 	        $('.dead').css('display', 'flex');
-            return
+            return;
         }
 
         if (this.bossManager.isDying()) {
@@ -106,7 +106,7 @@ class BossGame {
         this.ball.draw();
         this.paddle.draw();
         this.bossManager.draw(deltaMultiplier);
-        // this.user.draw();
+
         user.draw();
 
         this.paddle.updateRocation(canvas, leftPressed, rightPressed, deltaMultiplier);
