@@ -38,7 +38,6 @@ class BossGame {
         this.projectileManager.init(difficulty);
         
         this.originUser = user.clone();
-        // user.init(); 
         
         this.isStarted = true;
         this.bossStartTime = Date.now();
@@ -50,6 +49,26 @@ class BossGame {
         else if(sword_name == "diamond_sword") this.ball.image.src = 'mainGame/items/sword/diamond_sword.png';
 
         requestAnimationFrame((time) => this.draw(time));
+
+        let itemArmor = new Map([
+            ['iron_reggings', 1],
+            ['golden_reggings', 2],
+            ['diamond_reggings', 3],
+            ['iron_chestplate', 2],
+            ['golden_chestplate', 3],
+            ['diamond_chestplate', 4],
+            ['iron_helmet', 0],
+            ['golden_helmet', 1],
+            ['diamond_helmet', 2]
+        ]);
+        
+        let sum = 0;
+        for(const [key, value] of user.equippedItems) {
+            if(key == 'reggings' || key == 'chestplate' || key == 'helmet') {
+                sum += itemArmor.get(value);
+            }
+        }
+        user.setArmor(sum);
     }
 
     draw(currentTime) {
@@ -58,7 +77,7 @@ class BossGame {
         if (user.isDead()) {
             SOUND_EFFECT.death.play();
 	        $('.dead').css('display', 'flex');
-            return
+            return;
         }
 
         if (this.bossManager.isDying()) {
@@ -106,7 +125,7 @@ class BossGame {
         this.ball.draw();
         this.paddle.draw();
         this.bossManager.draw(deltaMultiplier);
-        // this.user.draw();
+
         user.draw();
 
         this.paddle.updateRocation(canvas, leftPressed, rightPressed, deltaMultiplier);

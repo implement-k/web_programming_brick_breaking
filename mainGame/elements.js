@@ -580,9 +580,8 @@ class User {
         return this.heart.health <= 0;
     }
 
-    addArmor(armor) {
-        let setValue = this.armor.getDefense() + armor;
-        this.armor.setDefense(setValue);  
+    setArmor(armor) {
+        this.armor.setDefense(armor);  
     }
 
     clone() {
