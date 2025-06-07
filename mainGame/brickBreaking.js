@@ -705,7 +705,7 @@ class MainGame {
         if (!this.gameStarted) return;
         console.log(Date.now() - this.gameStartTime);
 
-        if (Date.now() - this.gameStartTime >= 2000 && Date.now() - this.gameStartTime <= 2100 && !this.miniGameTriggered) {
+        if (Date.now() - this.gameStartTime >= 20000 && Date.now() - this.gameStartTime <= 2100 && !this.miniGameTriggered) {
             this.miniGameTriggered = true; 
             this.pauseGame();
             console.log("미니게임 시작");
