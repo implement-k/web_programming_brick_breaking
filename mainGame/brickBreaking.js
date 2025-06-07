@@ -95,7 +95,6 @@ class MainGame {
 
     // 게임 시작
     start() {
-        console.log("[DEBUG] 게임 시작");
         this.gameStarted = true;
         this.gameStartTime = Date.now(); // 게임 시작 시간 기록
         // 공은 이미 init()에서 생성되었으므로 다시 생성하지 않음
@@ -702,23 +701,19 @@ class MainGame {
     // 메인 게임 루프
     draw(currentTime) {
         if (!this.gameStarted) return;
-        console.log(Date.now() - this.gameStartTime);
 
-        if (Date.now() - this.gameStartTime >= 20000 && Date.now() - this.gameStartTime <= 2100 && !this.miniGameTriggered) {
+        if (Date.now() - this.gameStartTime >= 20000 && Date.now() - this.gameStartTime <= 20100 && !this.miniGameTriggered) {
             this.miniGameTriggered = true; 
             this.pauseGame();
             console.log("미니게임 시작");
             if (gameDifficulty === 1) {
-                // 1단계 미니게임 (game.js의 falling mini game 사용)
                 if (typeof startMiniGame === 'function') {
                     startMiniGame();
                     
-                    // 15초 후 자동으로 메인게임 복귀
                     setTimeout(() => {
                         this.endMiniGame();
                     }, 15000);
                 } else {
-                    console.error('game.js의 startMiniGame 함수를 찾을 수 없습니다.');
                     this.resumeGame();
                 }
             } else {
