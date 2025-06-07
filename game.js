@@ -341,7 +341,6 @@ document.addEventListener('keydown', (e) => {
 function endMiniGame(message) {
     miniGameActive = false;
     if (miniCanvas) miniCanvas.style.display = 'none';
-    alert(`미니게임 결과: ${message}`);
     if (message === '실패!') {
         if (user && user.heart) {
             user.hit(gameDifficulty, 2);
