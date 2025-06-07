@@ -182,25 +182,19 @@ class Paddle {
         if(ball.isCollision(this.x, this.y, this.width, this.height)) {
             this.collisionSound.play();
             
-            // 충돌 위치에 따른 반사 각도 조정
             const hitPoint = (ball.x + ball.width/2 - this.x) / this.width;
-            // 기본 반사 각도 (-45도 ~ 45도)
             const baseAngle = (hitPoint - 0.5) * Math.PI/2;
-            // 패들의 기울기를 반사 각도에 추가
             const angle = baseAngle + this.tilt;
             
-            // 기울기에 따른 속도 증가 (최대 25% 증가로 감소)
             const tiltSpeedBonus = 1 + Math.abs(this.tilt / this.maxTilt) * 0.25;
             const baseSpeed = Math.sqrt(ball.defaultDx * ball.defaultDx + ball.defaultDy * ball.defaultDy);
             const speed = baseSpeed * tiltSpeedBonus;
             
-            // 새로운 속도와 방향 계산
             const newDx = speed * Math.sin(angle);
             const newDy = -speed * Math.cos(angle);
             
-            // 공이 패들 위로 올라가도록 위치 보정 (더 안전하게)
-            if (ball.dy > 0) { // 공이 아래쪽으로 움직이고 있을 때만 위치 보정
-                ball.y = this.y - ball.height - 1; // 1픽셀 여유 공간
+            if (ball.dy > 0) { 
+                ball.y = this.y - ball.height - 1;
             }
             ball.dx = newDx;
             ball.dy = newDy;
