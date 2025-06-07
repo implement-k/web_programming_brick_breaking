@@ -9,7 +9,7 @@ const cancelBtn = document.getElementById('cancel-btn');
 const btnSound = document.getElementById('btn-sound');
 const bgm = document.getElementById('bgm');
 const bgmToggle = document.getElementById('bgm-toggle');
-const difficultySelect = document.getElementById('difficulty');
+//const difficultySelect = document.getElementById('difficulty');
 const playerNameInput = document.getElementById('player-name');
 
 const storyScene = document.getElementById('story-scene');
@@ -25,49 +25,16 @@ const gameCanvas = document.getElementById('gameCanvas');
 
 let selectedBallSkin = "pick";      // 'pick' 또는 'sword'
 let selectedWeaponId = "pick1";     // 실제 선택된 이미지 ID
-BALL_STYLE = "pick1"; // 기본값
 
-BALL_DIR = {
-    pick1: "mainGame/ball/wood.png",
-    pick2: "mainGame/ball/stone.png",
-    pick3: "mainGame/ball/iron.png",
-    pick4: "mainGame/ball/gold.png",
-    pick5: "mainGame/ball/diamond.png"
-};
-
-document.querySelectorAll('.weapon-option').forEach(img => {
-    img.addEventListener('click', () => {
-        BALL_STYLE = img.dataset.id; // pick1, sword3 등 저장
-        // 선택된 이미지에 강조 효과 추가하고 나머지는 제거
-        document.querySelectorAll('.weapon-option').forEach(el => el.classList.remove('selected'));
-        img.classList.add('selected');
-    });
-});
-
-
-// 공 디자인 선택 시 무기 옵션 필터링
-$('#ball-skin').on('change', function () {
-    selectedBallSkin = this.value;
-    $('.weapon-options').show();
-
-    $('.weapon-option').hide(); // 전체 숨김
-    $(`.weapon-option[data-type="${selectedBallSkin}"]`).show(); // 해당 타입만 보임
-
-    // 자동 선택 초기화
-    $('.weapon-option').removeClass('selected');
-    const firstOption = $(`.weapon-option[data-type="${selectedBallSkin}"]`).first();
-    firstOption.addClass('selected');
-    selectedWeaponId = firstOption.data('id');
-});
-
-// 무기 선택 클릭 처리
-$('.weapon-option').on('click', function () {
-    const type = $(this).data('type');
-    if (type !== selectedBallSkin) return; // 현재 선택된 타입만 반응
-
-    $('.weapon-option').removeClass('selected');
-    $(this).addClass('selected');
-    selectedWeaponId = $(this).data('id');
+$('.weapon-option').on('click', function() {
+    BALL_STYLE = $(this).find('img').data().id;
+    let tempImg = $(this).find('img');
+    let weapondivs = $('.weapon-option');
+    for(let i = 0; i < weapondivs.length; i++) {
+        $(weapondivs[i]).find('img').removeClass('ball-selected');
+    }
+    $(tempImg).addClass('ball-selected');
+    selectedWeaponId = BALL_STYLE;
 });
 
 function playClickSound() {
@@ -105,25 +72,37 @@ settingBtn.addEventListener('click', () => {
     showScene('setting-scene');
 });
 
-const bgmSelect = document.getElementById('bgm-select');
+const bgmSelect = document.getElementById('music-btn');
+bgmSelect.addEventListener('click', function () {
+    playClickSound();
+    let current_music = bgmSelect.innerText.split(': ')[1];
+    if(current_music == 'piano 3') current_music = "moong city";
+    else if(current_music == "moong city") current_music = "음악 끄기";
+    else if(current_music = "음악 끄기") current_music = 'piano 3';
+    bgmSelect.innerText = "배경음악: " + current_music;
 
-bgmSelect.addEventListener('change', function () {
-    if (bgmSelect.value === 'none') {
+    if (current_music == "음악 끄기") {
         bgm.pause();
         bgm.currentTime = 0;
     } else {
-        const prevSrc = bgm.src;
-        const newSrc = bgmSelect.value;
-        // src가 다를 때만 변경
-        if (!prevSrc.endsWith(newSrc)) {
-            bgm.src = newSrc;
-            bgm.load();
-            bgm.play();
-        } else {
-            // 이미 재생 중인 경우 다시 play만
-            bgm.play();
-        }
+        if(current_music == 'piano 3') bgm.src = 'main/title_bgm.mp3';
+        else if(current_music == 'moong city') bgm.src = 'main/title_bgm2.mp3';
+        
+        bgm.load();
+        bgm.play();
     }
+});
+
+const diffSelect = document.getElementById('difficulty-btn');
+diffSelect.addEventListener('click', function () {
+    playClickSound();
+    let current_diff = diffSelect.innerText.split(': ')[1];
+    if(current_diff == 'Easy') current_diff = 'Normal';
+    else if(current_diff == 'Normal') current_diff = 'Hard';
+    else if(current_diff == 'Hard') current_diff = 'Easy';
+
+    console.log(current_diff);
+    diffSelect.innerText = "난이도: " + current_diff;
 });
 
 // 초기화 (페이지 로드시 select와 bgm 싱크)
@@ -158,23 +137,23 @@ createBtn.addEventListener('click', () => {
         alert('이름을 입력하세요!');
         return;
     }
-    let diff = difficultySelect.value;
-    if (diff == "easy") startStory(1);
-    else if (diff == "normal") startStory(2);
-    else if (diff == "hard") startStory(3);
+    let diff = diffSelect.innerText.split(': ')[1];
+    if (diff == "Easy") startStory(1);
+    else if (diff == "Normal") startStory(2);
+    else if (diff == "Hard") startStory(3);
 });
 
 const story = [
-    { image: 'story/coding.webp', lines: ["오늘도 한가로이 코딩을 하는중이다.", "어라라 이게 뭐지...?", "한 번 눌러봐야겠군."] },
-    { image: 'story/other.jpeg', lines: ["어어....?", "으아악 빨려들어간다~~", "어... 여기가 어디지?"] },
-    { image: 'story/mineworld.webp', lines: ["어라라 여기는 마인크래프트 세상?", "어떻게 빠져나가지?", "엇 저기 주민이다 함 물어보자!"] },
-    { image: 'story/villager.png', lines: ["나: 어이 주민 나 왜 여깄는거야", "주민: 뭐야 이 네모난 건", "나: ?? 주민이 말대꾸? 아 모르겠고 여기서 어떻게 빠져나가?", "주민: 일단 좀비좀 잡아와봐라 ㅋ", "나: 뭔가 심부름 같은데 일단 ㅇㅋ."] },
-    { image: 'story/villager.png', lines: ["나: 자 잡아왔어어", "주민: 왜 개꿀 ㅋ 할 일 줄었당", "나: ?? 와 당했넹.. 이젠 진짜 알려줘야된다?", "주민: 아아아 미안미안 이젠 진짜야", "주민: 이번에는 지옥가서 가스트 잡아오면 될거야", "나: 이번에도 속이면 디져? 일단 알겠어."] },
-    { image: 'story/nether.webp', lines: ["여기가 지옥인가?", "가스트나 찾아봐야지", "어 저기에 뭔가 비슷해보이는데 댐벼라~"] },
-    { image: 'story/villager.png', lines: ["나: 자 잡아왔어", "주민: 오? 좀 친다? 이젠 진짜 알려드림 ㅎㅎ", "나: 하 드디어..", "주민: 저기 저 엔더월드에 엔더드래곤 잡으면 돼", "나: 구랭? 드래곤아 내가 간다~"] },
-    { image: 'story/endworld.webp', lines: ["하 엔더월드.. 공기부터 다른데?", "어 저기 뭔가 큰게 있는데?", "드래곤 딱 대 ^^"] },
-    { image: 'story/other.jpeg', lines: ["뭐야 별거 없는데?", "어라라 내 몸이...?"] },
-    { image: 'story/konkuk.jpeg', lines: ["어우 다시 돌아왔네", "아 학교가야되네..", "교수님: 다음주 퀴즈있어요 ㅎㅎ", "나: 아...여긴 교수님이 보스인가?? ㅠㅠㅠ", "다시 돌아갈래~~~"] }
+    { image: 'story/coding.webp', lines: ["[나] 오늘도 한가로이 코딩을 하는중이다.", "[나] 어라라 이게 뭐지...?", "[나] 한 번 눌러봐야겠군."] },
+    { image: 'story/other.jpeg', lines: ["[나] 어어....?", "[나] 으아악 빨려들어간다~~", "[나] 어... 여기가 어디지?"] },
+    { image: 'story/mineworld.webp', lines: ["[나] 어라라 여기는 마인크래프트 세상?", "[나] 어떻게 빠져나가지?", "[나] 엇 저기 주민이다 한번 물어보자!"] },
+    { image: 'story/villager.png', lines: ["[나] 어이 주민 나 왜 여깄는거야", "[주민] 뭐야 이 네모난 건", "[나] 여기서 어떻게 빠져나가?", "[주민] 일단 좀비좀 잡아와봐", "[나] 뭔가 심부름 같은데 일단 알겠어."] },
+    { image: 'story/villager.png', lines: ["[나] 자 잡아왔어.", "[주민] 하하. 할 일 줄었다!!", "[나] ?? 와 당했네.. 이젠 진짜 알려줘야된다?", "[주민] 아아아 미안미안 이젠 진짜야", "[주민] 이번에는 지옥가서 가스트 잡아오면 될거야", "[나] 이번에도 속이면 안된다? 일단 알겠어."] },
+    { image: 'story/nether.webp', lines: ["[나] 여기가 지옥인가?", "[나] 가스트나 찾아봐야지", "[나] 어 저기에 뭔가 비슷해보이는데.. 덤벼라!"] },
+    { image: 'story/villager.png', lines: ["[나] 자 잡아왔어", "[주민] 오? 이것도 성공할줄이야. 이젠 진짜 알려줄게 ㅎㅎ!", "[나] 하 드디어..", "[주민] 저기 저 엔더월드에 엔더드래곤을 잡으면 돼", "[나] 그래? 드래곤아 기다려라, 내가 간다!"] },
+    { image: 'story/endworld.webp', lines: ["[나] 하 엔더월드.. 공기부터 다른데?", "[나] 어 저기 뭔가 큰게 있는데?", "[나] 드래곤 게 섯거라!"] },
+    { image: 'story/other.jpeg', lines: ["[나] 뭐야 별거 없는데?", "[나] 어라라 내 몸이...?"] },
+    { image: 'story/konkuk.jpeg', lines: ["[나] 어우 다시 돌아왔네", "[나] 아 학교가야되네..", "[교수님] 다음주 퀴즈있어요 ㅎㅎ", "[나] 아...여긴 교수님이 보스인가?? ㅠㅠㅠ", "[나] 다시 돌아갈래~~~"] }
 ];
 
 const storyRanges = { 1: { start: 0, end: 3 }, 2: { start: 4, end: 5 }, 3: { start: 6, end: 7 }, 4: { start: 8, end: 9 } };
@@ -192,19 +171,9 @@ function startStory(round = 1) {
     updateStory();
 }
 
+// 스토리 Skip 버튼 클릭 시 게임 바로 시작하는 이벤트 추가
 document.getElementById('skip-story-btn').addEventListener('click', () => {
-    const range = storyRanges[gameDifficulty];
-
-    // 현재 게임 난이도에 맞는 마지막 스토리로 올바르게 이동
-    currentSceneIndex = range.end;
-    currentLineIndex = story[currentSceneIndex].lines.length - 1; // 마지막 대사로 설정
-    
-    updateStory(); // 즉시 마지막 장면 표시
-
-    // 스토리가 끝났다고 판단되면 자동으로 게임 시작
-    setTimeout(() => {
-        nextDialogueBtn.click(); // 마지막 스토리 후 게임으로 바로 진행
-    }, 500);
+    startMainGame(gameDifficulty);
 });
 
 // 사용자 상태를 보존하면서 스토리 시작하는 함수
@@ -382,7 +351,7 @@ function updateMiniGame(currentTime) {
     if (miniGameY < miniCanvas.height) {
         requestAnimationFrame(updateMiniGame);
     } else {
-        endMiniGame('Miss!');
+        endMiniGame('실패!');
     }
 }
 
@@ -391,7 +360,7 @@ document.addEventListener('keydown', (e) => {
         if (miniGameY >= miniCanvas.height - 60 && miniGameY <= miniCanvas.height - 10) {
             endMiniGame('성공!');
         } else {
-            endMiniGame('Miss!');
+            endMiniGame('실패!');
         }
     }
 });
@@ -400,11 +369,10 @@ function endMiniGame(message) {
     miniGameActive = false;
     if (miniCanvas) miniCanvas.style.display = 'none';
     alert(`미니게임 결과: ${message}`);
-    // Miss일 경우 체력 깎기
-    if (message === 'Miss!') {
+    // 미니게임 실패시, 체력 차감
+    if (message === '실패!') {
         if (user && user.heart) {
-            user.heart.health--;
-            user.hit(1); // 추가로 데미지 처리 함수 호출 (필요 시)
+            user.hit(2);
         }
     }
 }

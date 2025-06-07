@@ -1,5 +1,5 @@
 // 공
-let BALL_STYLE = 0;   // 공 스타일 (0: wood, 1: stone, 2: iron, 3: gold, 4: diamond)
+//let BALL_STYLE = 0;   // 공 스타일 (0: wood, 1: stone, 2: iron, 3: gold, 4: diamond)
 let BALL_DIR = [
     'mainGame/ball/wood.png',
     'mainGame/ball/stone.png',
@@ -92,8 +92,8 @@ class Ball {
         this.setType(BALL_STYLE);
     }
     setType(type) {
-            this.type = type;
-            this.image.src = BALL_DIR[type] || BALL_DIR["pick1"]; // 기본값
+        this.type = type;
+        this.image.src = BALL_DIR[type] || BALL_DIR[0]; // 기본값
     }
     
     // 공 충돌
@@ -298,15 +298,15 @@ class BrickManager {
                 if(Math.random() > 0.3) {  // 70% 확률로 벽돌 생성
                     let brickType = Math.random();
                     if(brickType < this.brickRatio[0]) {
-                        this.bricks[c][r] = new Brick(0, 0, 1, 1, 1, this.images[0]);
+                        this.bricks[c][r] = new Brick(0, 0, 1, 1, 10, this.images[0]);
                     } else if(brickType < this.brickRatio[1]) {
-                        this.bricks[c][r] = new Brick(0, 0, 2, 1, 1, this.images[1]);
+                        this.bricks[c][r] = new Brick(0, 0, 2, 1, 10, this.images[1]);
                     } else if(brickType < this.brickRatio[2]) {
-                        this.bricks[c][r] = new Brick(0, 0, 3, 2, 3, this.images[2]);
+                        this.bricks[c][r] = new Brick(0, 0, 3, 2, 30, this.images[2]);
                     } else if(brickType < this.brickRatio[3]) {
-                        this.bricks[c][r] = new Brick(0, 0, 4, 2, 3, this.images[3]);
+                        this.bricks[c][r] = new Brick(0, 0, 4, 2, 30, this.images[3]);
                     } else {
-                        this.bricks[c][r] = new Brick(0, 0, 5, 3, 5,this.images[4]);
+                        this.bricks[c][r] = new Brick(0, 0, 5, 3, 50,this.images[4]);
                     }
                 } else {
                     this.bricks[c][r] = new Brick(0, 0, 0, 0, 0);
@@ -551,7 +551,7 @@ class User {
         this.heart.health = 5;
     }
 
-    hit(difficulty, damage = 1) {
+    hit(difficulty, damage = 1, isMiniGame = false) {
         // 철 모자 착용 시 1/50 확률로 공격 무효화
         const helmet = this.equippedItems.get("helmet");
         if (helmet === "iron_helmet") {
@@ -561,7 +561,7 @@ class User {
             }
         }
         
-        if (difficulty === 2 || difficulty === 3) {
+        if (isMiniGame && (difficulty === 2 || difficulty === 3)) {
             this.hitTime = Date.now();
         }
         if(this.armor.getDefense() >= damage) this.armor.setDefense(this.armor.getDefense() - damage);
@@ -569,7 +569,6 @@ class User {
             damage -= this.armor.getDefense()
             this.armor.setDefense(0);
         } else {
-            // 안전한 damage 처리
             const safeDamage = typeof damage === 'number' && !isNaN(damage) ? damage : 1;
             this.heart.health -= safeDamage;
         }

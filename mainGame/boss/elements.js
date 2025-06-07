@@ -579,19 +579,16 @@ class BossManager{
             
             // 공이 지속해서 보스에게 피해주는 경우 없게 하기 위해 무적 시간 추가
             this.curBoss.isInvulnerable = true;
-            
-            if (this.curBoss.health <= 1) {
+            let sword_name = user.equippedItems.get("sword");
+            if(sword_name == "wooden_sword") this.curBoss.health -= 7;
+            else if(sword_name == "iron_sword") this.curBoss.health -= 10;
+            else if(sword_name == "golden_sword") this.curBoss.health -= 15;
+            else if(sword_name == "diamond_sword") this.curBoss.health -= 20;
+            if (this.curBoss.health <= 0) {
                 this.curBoss.isDying = true;
                 this.curBoss.deathSound.play();
-            } else {
-                let sword_name = user.equippedItems.get("sword");
-                if(sword_name == "wooden_sword") this.curBoss.health -= 7;
-                else if(sword_name == "iron_sword") this.curBoss.health -= 10;
-                else if(sword_name == "golden_sword") this.curBoss.health -= 15;
-                else if(sword_name == "diamond_sword") this.curBoss.health -= 20;
-            }       
-        } 
-
+            }
+        }
         this.curBoss.releaseHit(currentTime);
     }
 

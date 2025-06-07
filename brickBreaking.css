@@ -172,7 +172,6 @@ section {
     background-size: cover;
     background-position: center;
     flex-direction: column;
-    gap: 25px;
 }
 
 #setting-scene,
@@ -258,7 +257,7 @@ section {
 #player-name {
     font-family: 'Galmuri11', sans-serif;
     font-size: 18px;
-    width: 400px;
+    width: 600px;
     height: 48px;
     padding: 6px 12px;
     border: 3px solid #ffffff;
@@ -367,35 +366,33 @@ section {
 }
 
 .weapon-option {
+    text-align: center;
     border: 2px solid transparent;
     cursor: pointer;
     image-rendering: pixelated;
+    width: 20%;
 }
 
-.weapon-option.selected {
+.ball-selected {
+    border: 2px solid transparent;
     border-color: gold;
 }
 
 #skip-story-btn {
-    display: flex;
-    gap: 10px;
-    justify-content: center;
-    margin-top: 20px;
-    flex-wrap: wrap;
-}
+    background: none;
+    position: absolute;
 
-#skip-story-btn button {
-    font-family: 'galmuri11';
+    font-family: 'Minecraftia';
+    right: 0;
     height: 40px;
-    width: 120px;
-    cursor: pointer;
-    background-color: #0095DD;
+    line-height: 40px;
     color: white;
+    width: 80px;
     border: none;
-    border-radius: 5px;
-    font-size: 14px;
+    cursor: pointer;
+    font-size: 30px;
 }
 
-#skip-story-btn button:hover {
-    background-color: #0077AA;
+.korean {
+    font-family: "Galmuri11";
 }

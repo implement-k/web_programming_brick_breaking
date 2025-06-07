@@ -512,7 +512,7 @@ class MainGame {
             for(const [key, value] of user.equippedItems) {
                 if(newImg.attr('src').split('/').pop().replace('.png', '') == value) newDiv.addClass('equipped-highlight');
             }
-        
+
             // 아이템 수량 출력하는 span
             const countSpan = $('<span />').text(count).css({
                 'position': 'absolute',
@@ -549,12 +549,12 @@ class MainGame {
                     ['iron_chestplate', 2],
                     ['golden_chestplate', 3],
                     ['diamond_chestplate', 4],
-                    // ['iron_helmet', 1],
+                    ['iron_helmet', 0],
                     ['golden_helmet', 1],
                     ['diamond_helmet', 2]
                 ]);
 
-
+            
                 const itmSrc = newImg.attr('src').split('/').pop().replace('.png', '');
                 const itemInfo = itmSrc.split('_');
                 if(itemInfo[1] == 'boots' || itemInfo[1] == 'chestplate' || itemInfo[1] == 'helmet' || itemInfo[1] == 'reggings' || itemInfo[1] == 'sword') {
@@ -584,14 +584,6 @@ class MainGame {
     gameclear() {
         // 게임 클리어 시 타이머 정지
         this.gameStarted = false;
-        
-        // user.havingItems.set(1, 20);  // 철
-        // user.havingItems.set(0, 20);  // 원목
-        // user.havingItems.set(4, 20);  // plank
-        // user.havingItems.set(2, 20);  // gold
-        // user.havingItems.set(3, 20);  // diamond
-        // user.havingItems.set(5, 20);  // stick
-
         SOUND_EFFECT.clear.play();
         $('.clear').css('display', 'flex');
         
@@ -618,10 +610,6 @@ class MainGame {
                 }
             }
         }
-        
-        // 인벤토리 UI 업데이트
-        //$('.clear_item').remove();
-        //this.drawInventory();
     }
 
     startBoss() {
@@ -631,7 +619,7 @@ class MainGame {
             bossGame = new BossGame(gameDifficulty);
             bossGame.init(gameDifficulty);
         }
-    }    phase() {
+    } phase() {
         
     }
 
