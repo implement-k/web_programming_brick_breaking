@@ -138,7 +138,6 @@ createBtn.addEventListener('click', () => {
         return;
     }
     let diff = diffSelect.innerText.split(': ')[1];
-    console.log(diff);
     if (diff == "Easy") startStory(1);
     else if (diff == "Normal") startStory(2);
     else if (diff == "Hard") startStory(3);
@@ -172,7 +171,7 @@ function startStory(round = 1) {
     updateStory();
 }
 
-// 스토리 Skip 버튼 클릭 시 게임 시작하는 이벤트 추가
+// 스토리 Skip 버튼 클릭 시 게임 바로 시작하는 이벤트 추가
 document.getElementById('skip-story-btn').addEventListener('click', () => {
     startMainGame(gameDifficulty);
 });
@@ -352,7 +351,7 @@ function updateMiniGame(currentTime) {
     if (miniGameY < miniCanvas.height) {
         requestAnimationFrame(updateMiniGame);
     } else {
-        endMiniGame('Miss!');
+        endMiniGame('실패!');
     }
 }
 
@@ -361,7 +360,7 @@ document.addEventListener('keydown', (e) => {
         if (miniGameY >= miniCanvas.height - 60 && miniGameY <= miniCanvas.height - 10) {
             endMiniGame('성공!');
         } else {
-            endMiniGame('Miss!');
+            endMiniGame('실패!');
         }
     }
 });
@@ -370,11 +369,10 @@ function endMiniGame(message) {
     miniGameActive = false;
     if (miniCanvas) miniCanvas.style.display = 'none';
     alert(`미니게임 결과: ${message}`);
-    // Miss일 경우 체력 깎기
-    if (message === 'Miss!') {
+    // 미니게임 실패시, 체력 차감
+    if (message === '실패!') {
         if (user && user.heart) {
-            user.heart.health--;
-            user.hit(1); // 추가로 데미지 처리 함수 호출 (필요 시)
+            user.hit(2);
         }
     }
 }
