@@ -551,7 +551,7 @@ class User {
         this.heart.health = 5;
     }
 
-    hit(difficulty, damage = 1) {
+    hit(difficulty, damage = 1, isMiniGame = false) {
         // 철 모자 착용 시 1/50 확률로 공격 무효화
         const helmet = this.equippedItems.get("helmet");
         if (helmet === "iron_helmet") {
@@ -561,7 +561,7 @@ class User {
             }
         }
         
-        if (difficulty === 2 || difficulty === 3) {
+        if (isMiniGame && (difficulty === 2 || difficulty === 3)) {
             this.hitTime = Date.now();
         }
         if(this.armor.getDefense() >= damage) this.armor.setDefense(this.armor.getDefense() - damage);
@@ -569,7 +569,6 @@ class User {
             damage -= this.armor.getDefense()
             this.armor.setDefense(0);
         } else {
-            // 안전한 damage 처리
             const safeDamage = typeof damage === 'number' && !isNaN(damage) ? damage : 1;
             this.heart.health -= safeDamage;
         }
