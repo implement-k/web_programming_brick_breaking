@@ -539,7 +539,6 @@ class MainGame {
                 this.handleRightClick(e, newDiv, newImg);
             });
 
-            // 더블클릭 이벤트 추가 - 아이템 장착
             newDiv.on('dblclick', (e) => {
                 let itemArmor = new Map([
                     ['iron_reggings', 1],
