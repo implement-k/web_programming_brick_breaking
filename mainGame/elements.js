@@ -32,7 +32,7 @@ const itemPaths = [
     'mainGame/items/reggings/diamond_reggings.png',
 
     'mainGame/items/chestplate/iron_chestplate.png',
-    'mainGame/items/chestplate/gold_chestplate.png',
+    'mainGame/items/chestplate/golden_chestplate.png',
     'mainGame/items/chestplate/diamond_chestplate.png',
 
     'mainGame/items/helmet/iron_helmet.png',
