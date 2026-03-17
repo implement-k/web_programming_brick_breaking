@@ -1,4 +1,7 @@
 # 웹프 블록깨기 과제
+25년 1학기
+
+플레이 url(플레이 가능): https://implement-k.github.io/web_programming_brick_breaking/brickBreaking.html
 
 ## 구성원
 * 권구현
